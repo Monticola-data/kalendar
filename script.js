@@ -27,30 +27,39 @@ async function fetchAppSheetData() {
         }
 
         const data = await response.json();
-        console.log("📡 Data z backendu (Firebase):", data);
+        console.log("🔥 Data přijatá z Firebase:", data);
 
-        // ✅ Ověření, že data jsou správně strukturovaná
+        // ✅ Ověříme, že data jsou ve správném formátu
         if (!data.events || !Array.isArray(data.events)) {
             throw new Error("❌ Chyba: Data z backendu nejsou ve správném formátu.");
         }
 
-        // ✅ Formátujeme data pro kalendář
-     allEvents = data.events.map(event => ({
-    id: event.id || "Neznámé ID", // Zajištění, že ID není undefined
-    title: event.title || "Neznámá obec",
-    start: event.start || null, // Start je již ve formátu YYYY-MM-DD
-    color: partyMap[event.party]?.color || "#145C7E", // Správné mapování barev
-    extendedProps: {
-        status: event.status || "Neznámý status",
-        odeslane: event.odeslane === "Y",
-        hotove: event.hotove === "Y",
-        predane: event.predane === "Y",
-        detail: event.detail || ""
-    }
-}));
+        // ✅ Mapování dat do správné podoby pro FullCalendar
+        allEvents = data.events.map(event => {
+            console.log("🔍 Zpracovávám událost:", event);
 
+            let formattedDate = formatDate(event.Datum); // ✅ Oprava data
+            let partaColor = partyMap[event.Parta]?.color || "#145C7E"; // ✅ Oprava barvy
 
-        // ✅ Ověření, že `partyMap` existuje
+            let transformedEvent = {
+                id: event["Row ID"] || "Neznámé ID",
+                title: event.Obec || "Neznámá obec",
+                start: formattedDate || null,
+                color: partaColor,
+                extendedProps: {
+                    status: event.Status || "Neznámý status",
+                    odeslane: event.Odeslané === "Y",
+                    hotove: event.Hotové === "Y",
+                    predane: event.Předané === "Y",
+                    detail: event.Detail || ""
+                }
+            };
+
+            console.log("📌 Transformovaná událost pro kalendář:", transformedEvent);
+            return transformedEvent;
+        });
+
+        // ✅ Uložíme mapu party
         partyMap = data.partyMap || {};
 
         console.log("📅 Formátovaná data pro kalendář:", allEvents);
@@ -66,9 +75,9 @@ async function fetchAppSheetData() {
 
     // ✅ Funkce pro formátování data (YYYY-MM-DD)
 function formatDate(dateStr) {
-    if (!dateStr || dateStr.length < 8) return null;
+    if (!dateStr || typeof dateStr !== "string") return null;
 
-    let parts = dateStr.split("/"); 
+    let parts = dateStr.split("/");
     if (parts.length !== 3) return null;
 
     let day = parseInt(parts[0]);
@@ -79,13 +88,14 @@ function formatDate(dateStr) {
         year = `20${year}`;
     }
 
-    // Pokud den je větší než 12, znamená to, že formát je DD/MM/YYYY a musíme ho opravit
+    // Pokud je den větší než 12, pravděpodobně je ve formátu DD/MM/YYYY
     if (day > 12) {
         [day, month] = [month, day];
     }
 
     return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
 }
+
 
 
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
@@ -292,4 +302,28 @@ async function listenForUpdates() {
     fetchAppSheetData();
     listenForUpdates();
 });
+async function listenForUpdates() {
+    console.log("🔄 Zahajuji kontrolu změn...");
+
+    async function checkForChanges() {
+        try {
+            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus");
+            const data = await response.json();
+
+            if (data.type === "update") {
+                console.log("✅ Změna detekována, aktualizuji kalendář...");
+                fetchAppSheetData();
+            } else {
+                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
+            }
+
+            setTimeout(checkForChanges, 5000);
+        } catch (error) {
+            console.error("❌ Chyba při kontrole změn:", error);
+            setTimeout(checkForChanges, 5000);
+        }
+    }
+
+    checkForChanges();
+}
 
