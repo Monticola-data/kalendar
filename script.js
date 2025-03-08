@@ -85,20 +85,20 @@ function renderCalendar() {
     console.log("📅 Rendering kalendář s událostmi:", allEvents);
 
     let eventsForCalendar = allEvents.map(event => {
-        let formattedDate = formatDate(event.Datum); // Oprava data
-        let partaColor = partyMap[event.Parta]?.color || "#145C7E"; // Barva
+        let formattedDate = formatDate(event.start); // ✅ Oprava volání formatDate()
+        let partaColor = partyMap[event.party]?.color || "#145C7E"; // ✅ Oprava reference na party
 
         let transformedEvent = {
-            id: event["Row ID"],
-            title: event.Obec || "Neznámá obec",
-            start: formattedDate, // Zajistíme, že `start` má platný formát
+            id: event.id,
+            title: event.title || "Neznámá obec",
+            start: formattedDate, // ✅ Oprava formátování datumu
             color: partaColor,
             extendedProps: {
-                status: event.Status || "Neznámý status",
-                odeslane: event.Odeslané === "Y",
-                hotove: event.Hotové === "Y",
-                predane: event.Předané === "Y",
-                detail: event.Detail || ""
+                status: event.status || "Neznámý status",
+                odeslane: event.odeslane === "Y",
+                hotove: event.hotove === "Y",
+                predane: event.predane === "Y",
+                detail: event.detail || ""
             }
         };
 
@@ -122,18 +122,16 @@ function renderCalendar() {
             const updatedEvent = {
                 id: info.event.id,
                 start: info.event.startStr,
-                party: info.event.extendedProps.party || null // ✅ Uchováme partu
+                party: info.event.extendedProps.party || null
             };
 
             console.log("🔄 Událost přesunuta:", updatedEvent);
 
-            // ✅ Odeslat aktualizaci do AppSheet
             await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
         },
 
-
-            // 🟢 Kliknutí na událost → změna party
-            eventClick: function (info) {
+        // 🟢 Kliknutí na událost → změna party
+        eventClick: function (info) {
             selectedEvent = info.event;
             partySelect.innerHTML = "";
 
@@ -159,28 +157,30 @@ function renderCalendar() {
             }
 
             modal.style.display = "block";
-            },
+        },
 
-            eventContent: function(arg) {
-                let icon = "";
-                let title = arg.event.title;
+        eventContent: function (arg) {
+            let icon = "";
+            let title = arg.event.title;
 
-                if (arg.event.extendedProps.predane) {
-                    icon = "✍️"; // Předané
-                    title = title.toUpperCase();
-                } else if (arg.event.extendedProps.hotove) {
-                    icon = "✅"; // Hotové
-                    title = title.toUpperCase();
-                } else if (arg.event.extendedProps.odeslane) {
-                    icon = "📩"; // Odeslané
-                    title = title.toUpperCase();
-                }
-                return { html: `<b>${icon}</b> ${title}` };
+            if (arg.event.extendedProps.predane) {
+                icon = "✍️";
+                title = title.toUpperCase();
+            } else if (arg.event.extendedProps.hotove) {
+                icon = "✅";
+                title = title.toUpperCase();
+            } else if (arg.event.extendedProps.odeslane) {
+                icon = "📩";
+                title = title.toUpperCase();
             }
-        });
+            return { html: `<b>${icon}</b> ${title}` };
+        }
+    });
+
     console.log("📌 Události poslané do kalendáře:", eventsForCalendar);
-        calendar.render();
-    }
+    calendar.render();
+}
+
 
     // 🟢 3️⃣ Aktualizace události v AppSheet přes API
 async function updateAppSheetEvent(eventId, newDate, newParty = null) {
