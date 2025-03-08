@@ -40,29 +40,6 @@ async function fetchAppSheetData() {
     }
 }
 
-    function formatDate(dateStr) {
-    if (!dateStr || dateStr.length < 8) return null;
-
-    let parts = dateStr.split("/");
-    if (parts.length !== 3) return null;
-
-    let day = parseInt(parts[0]);
-    let month = parseInt(parts[1]);
-    let year = parts[2];
-
-    if (year.length === 2) {
-        year = `20${year}`;
-    }
-
-    // Pokud den je větší než 12, znamená to, že formát je DD/MM/YYYY a musíme ho opravit
-    if (day > 12) {
-        [day, month] = [month, day];
-    }
-
-    return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-}
-
-    
 
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
 function renderCalendar() {
