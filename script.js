@@ -9,23 +9,26 @@ document.addEventListener('DOMContentLoaded', function () {
     var selectedEvent = null;
     var calendar; // Definujeme proměnnou pro kalendář
 
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3Th5b_yWB5D9HyCXu5o5_iXmDP0YqOdGGCZ3La8o8gBm4GxsdWQ1QrR0xkj-9Tz0Mgg/exec";
+    const API_BASE_URL = process.env.NODE_ENV === "development"
+    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
+    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
 
     // 🟢 1️⃣ Načtení dat z backendu
-    async function fetchAppSheetData() {
-        try {
-            const response = await fetch(`${APPS_SCRIPT_URL}?path=fetchData`);
-            const data = await response.json();
-            console.log("📡 Data z backendu:", data);
-            allEvents = data.events;
-            partyMap = data.partyMap;
-            renderCalendar();
-            populateFilter();
-            renderLegend();
-        } catch (error) {
-            console.error("❌ Chyba při načítání dat z backendu:", error);
-        }
+async function fetchAppSheetData() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/fetchAppSheetData`);
+        const data = await response.json();
+        console.log("📡 Data z backendu (Firebase):", data);
+        allEvents = data.events;
+        partyMap = data.partyMap;
+        renderCalendar();
+        populateFilter();
+        renderLegend();
+    } catch (error) {
+        console.error("❌ Chyba při načítání dat z Firebase:", error);
     }
+}
+
 
     // 🟢 2️⃣ Funkce pro zobrazení kalendáře
     function renderCalendar() {
@@ -103,32 +106,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 🟢 3️⃣ Aktualizace události v AppSheet přes API
-    async function updateAppSheetEvent(eventId, newDate, newParty = null) {
+async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     try {
-        console.log(`📡 Odesílám do AppSheet: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
+        console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
-        const response = await fetch(`${APPS_SCRIPT_URL}?path=updateEvent`, {
+        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                eventId: eventId,
-                newDate: newDate,
-                newParty: newParty
-            }),
-            mode: "cors", // 🟢 Přidá podporu CORS!
-            credentials: "omit" // 🔹 Důležité pro Google Apps Script
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ eventId, newDate, newParty })
         });
 
         const responseData = await response.json();
-        console.log("✅ Odpověď z AppSheet API:", responseData);
+        console.log("✅ Odpověď z Firebase API:", responseData);
 
         fetchAppSheetData(); // 🟢 Po úspěšné aktualizaci načteme nové údaje
     } catch (error) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
+
     // 🟢 4️⃣ Uložení nové party
     savePartyButton.addEventListener("click", async function () {
         if (selectedEvent) {
@@ -195,30 +191,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 🟢 6️⃣ Automatické sledování změn
-    async function listenForUpdates() {
-        console.log("🔄 Zahajuji kontrolu změn...");
+async function listenForUpdates() {
+    console.log("🔄 Zahajuji kontrolu změn...");
 
-        async function checkForChanges() {
-            try {
-                const response = await fetch(`${APPS_SCRIPT_URL}?path=checkRefreshStatus`);
-                const data = await response.json();
+    async function checkForChanges() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+            const data = await response.json();
 
-                if (data.type === "update") {
-                    console.log("✅ Změna detekována, aktualizuji kalendář...");
-                    fetchAppSheetData();
-                } else {
-                    console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
-                }
-
-                setTimeout(checkForChanges, 5000);
-            } catch (error) {
-                console.error("❌ Chyba při kontrole změn:", error);
-                setTimeout(checkForChanges, 5000);
+            if (data.type === "update") {
+                console.log("✅ Změna detekována, aktualizuji kalendář...");
+                fetchAppSheetData();
+            } else {
+                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
             }
-        }
 
-        checkForChanges();
+            setTimeout(checkForChanges, 5000);
+        } catch (error) {
+            console.error("❌ Chyba při kontrole změn:", error);
+            setTimeout(checkForChanges, 5000);
+        }
     }
+
+    checkForChanges();
+}
+
 
     // 🟢 7️⃣ Spustíme vše po načtení stránky
     fetchAppSheetData();
