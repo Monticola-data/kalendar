@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="cs">
+  
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4d719e"> <!-- 🔹 Umožní lepší zobrazení na mobilních zařízeních -->
+
+  <title>Plánování zakázek</title>
+
+  <!-- 🔹 FullCalendar knihovny pro kalendář -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/cs.js"></script>
+
+  <!-- 🔹 Připojení Manifestu pro PWA -->
+  <link rel="manifest" href="manifest.json">  
+
+  <!-- 🔹 Registrace Service Workeru -->
+  <script>
+    window.addEventListener('load', function() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+              console.log('✅ Service Worker úspěšně zaregistrován!', registration);
+          })
+          .catch(error => {
+              console.error('❌ Chyba při registraci Service Workeru!', error);
+          });
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <h2 style="text-align:center; color:#295779;">Kalendář</h2>
+
+  <label for="partyFilter">Filtrovat podle party:</label>
+  <select id="partyFilter">
+    <option value="all">Všechny party</option>
+  </select>
+   
+  <div id="calendar-wrapper">
+    <div id="calendar"></div>
+  </div>
+
+  <div id="legend"></div>
+    
+  <div id="eventModal" class="modal">
+    <label for="partySelect">Vyberte partu:</label>
+    <select id="partySelect"></select>
+    <button id="saveParty" class="button-save">💾 Uložit</button>
+    <button id="detailButton" class="button-detail" style="display: none;">🔍 Detail</button>
+  </div>
+  
+  <label for="viewSelect">Změna zobrazení:</label>
+  <select id="viewSelect">
+    <option value="dayGridMonth">Měsíční</option>
+    <option value="timeGridWeek">Týdenní</option>
+    <option value="listWeek">Seznam</option>
+  </select>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
