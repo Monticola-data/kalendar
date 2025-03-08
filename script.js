@@ -29,29 +29,32 @@ async function fetchAppSheetData() {
         const data = await response.json();
         console.log("🔥 Data přijatá z Firebase:", data);
 
-        // ✅ Ověříme, že data jsou ve správném formátu
+        // ✅ Ověříme, že `data.events` existuje a je pole
         if (!data.events || !Array.isArray(data.events)) {
             throw new Error("❌ Chyba: Data z backendu nejsou ve správném formátu.");
         }
 
-        // ✅ Mapování dat do správné podoby pro FullCalendar
-        allEvents = data.events.map(event => {
-            console.log("🔍 Zpracovávám událost:", event);
+        // ✅ Přidáme kontrolu, jestli správně získáváme názvy klíčů
+        console.log("🔍 První objekt z dat pro kontrolu:", data.events[0]);
 
-            let formattedDate = formatDate(event.Datum); // ✅ Oprava data
-            let partaColor = partyMap[event.Parta]?.color || "#145C7E"; // ✅ Oprava barvy
+        // ✅ Správné mapování dat
+        allEvents = data.events.map(event => {
+            let id = event["Row ID"] || event["id"] || "Neznámé ID"; // Oprava chybějícího ID
+            let title = event["Obec"] || event["title"] || "Neznámá obec";
+            let start = formatDate(event["Datum"] || event["start"]); // Formátujeme datum
+            let partaColor = partyMap[event["Parta"]] ? partyMap[event["Parta"]].color : "#145C7E"; // Barva party
 
             let transformedEvent = {
-                id: event["Row ID"] || "Neznámé ID",
-                title: event.Obec || "Neznámá obec",
-                start: formattedDate || null,
+                id: id,
+                title: title,
+                start: start,
                 color: partaColor,
                 extendedProps: {
-                    status: event.Status || "Neznámý status",
-                    odeslane: event.Odeslané === "Y",
-                    hotove: event.Hotové === "Y",
-                    predane: event.Předané === "Y",
-                    detail: event.Detail || ""
+                    status: event["Status"] || "Neznámý status",
+                    odeslane: event["Odeslané"] === "Y",
+                    hotove: event["Hotové"] === "Y",
+                    predane: event["Předané"] === "Y",
+                    detail: event["Detail"] || ""
                 }
             };
 
@@ -71,6 +74,7 @@ async function fetchAppSheetData() {
         console.error("❌ Chyba při načítání dat z backendu:", error);
     }
 }
+
 
 
     // ✅ Funkce pro formátování data (YYYY-MM-DD)
