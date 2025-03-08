@@ -1,0 +1,215 @@
+<style>
+/* Základní stylování stránky */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 20px;
+}
+#calendar-wrapper {
+  max-width: 1188px;
+  margin: auto;
+}
+/* Nastavení kalendáře - velikost, okraje a vizuální efekty */
+#calendar {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 1188px;
+  margin: auto;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 12px;
+}
+/* Události v kalendáři */
+.fc-event {
+  border-radius: 12px !important;
+  padding: 4px !important;
+  text-align: center;
+  box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
+  border: none !important;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Hover efekt událostí */
+.fc-event:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 12px rgba(0, 0, 0.4, 0.9);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 10px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  z-index: 1000;
+  min-width: 300px;
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+ }
+
+/* Efekt otevření modalu */
+.modal.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Vzhled filtru party */
+#partyFilter {
+    background-color: #f8f8f8;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Hover efekt pro filtr */
+#partyFilter:hover {
+    background-color: #e0e0e0;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Styl pro přepínání pohledu kalendáře */
+#viewSelect {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+#viewSelect:hover {
+    background-color: #0056b3;
+}
+
+
+        #filter-container {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        select, button {
+            background-color: #cccccc;
+            padding: 10px;
+            font-size: 14px;
+            margin: 5px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        #resetFilter {
+            background-color: #8f6b6b;
+            color: white;
+            //font-weight: bold;
+            transition: background 0.3s ease;
+        }
+        #resetFilter:hover {
+            background-color: #664848;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+        }
+/* Styl legendy */
+#legend {
+    text-align: center;
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px; /* Mezera mezi položkami legendy */
+}
+
+/* Položky legendy */
+.legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 15px;
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* Efekt při najetí myší */
+.legend-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Stylování jednotlivých dní v kalendáři */
+.fc-daygrid-day {
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover efekt pro dny */
+.fc-daygrid-day:hover {
+  background: #e0e0e0;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease-in-out;
+}
+
+/* Zvýraznění víkendových dnů */
+.fc-day-sat, .fc-day-sun {
+  background-color: #f0f0f0 !important;
+}
+
+/* Barva nadpisu a čísel v kalendáři */
+.fc .fc-toolbar-title, .fc-daygrid-day-number, .fc-col-header-cell-cushion {
+  color: #295779 !important;
+}
+
+.button-save {
+    background-color: #7d9980;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.button-save:hover {
+    background-color: #637a66;
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.button-save:active {
+    /* Efekt stisknutí */
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    transform: translateY(2px);
+}
+
+.button-detail {
+    background-color: #e8e8e8;
+    color: black;
+    padding: 5px 10px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.button-detail:hover {
+    background-color: #cccccc;
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.button-detail:active {
+    /* Efekt stisknutí */
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    transform: translateY(2px);
+}
+
+</style>
