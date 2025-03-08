@@ -39,13 +39,17 @@ document.addEventListener('DOMContentLoaded', function () {
             events: allEvents,
 
             // 🟢 Přesunutí události v kalendáři
-            eventDrop: async function (info) {
-                const updatedEvent = allEvents.find(event => event.id === info.event.id);
-                if (updatedEvent) {
-                    updatedEvent.start = info.event.startStr;
-                    await updateAppSheetEvent(updatedEvent.id, updatedEvent.start);
-                }
-            },
+    eventDrop: async function (info) {
+        const updatedEvent = {
+        id: info.event.id,
+        start: info.event.startStr
+        };
+
+        console.log("🔄 Událost přesunuta:", updatedEvent);
+
+        await updateAppSheetEvent(updatedEvent.id, updatedEvent.start);
+    },
+
 
             // 🟢 Kliknutí na událost → změna party
             eventClick: function (info) {
@@ -98,25 +102,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 🟢 3️⃣ Aktualizace události v AppSheet přes API
     async function updateAppSheetEvent(eventId, newDate, newParty = null) {
-        try {
-            console.log(`🔄 ODESÍLÁM DO APPSHEET: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
+    try {
+        console.log(`📡 Odesílám do AppSheet: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
-            const response = await fetch(`${APPS_SCRIPT_URL}?path=updateEvent`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    eventId: eventId,
-                    newDate: newDate,
-                    newParty: newParty
-                })
-            });
+        const response = await fetch(`${APPS_SCRIPT_URL}?path=updateEvent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                eventId: eventId,
+                newDate: newDate,
+                newParty: newParty
+            })
+        });
 
-            console.log("✅ API RESPONSE:", await response.text());
-            fetchAppSheetData();
-        } catch (error) {
-            console.error("❌ Chyba při aktualizaci události:", error);
-        }
+        const responseData = await response.text();
+        console.log("✅ Odpověď z AppSheet API:", responseData);
+
+        fetchAppSheetData(); // 🟢 Po úspěšné aktualizaci načteme nové údaje
+    } catch (error) {
+        console.error("❌ Chyba při aktualizaci události:", error);
     }
+}
 
     // 🟢 4️⃣ Uložení nové party
     savePartyButton.addEventListener("click", async function () {
