@@ -133,7 +133,8 @@ function renderCalendar() {
                 }
                 return { html: `<b>${icon}</b> ${title}` };
             }
-        });       
+        });
+    console.log("📌 Události poslané do kalendáře:", eventsForCalendar);
         calendar.render();
     }
 
