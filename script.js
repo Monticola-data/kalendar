@@ -129,8 +129,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
-
-
     // 🟢 4️⃣ Uložení nové party
     savePartyButton.addEventListener("click", async function () {
         if (selectedEvent) {
