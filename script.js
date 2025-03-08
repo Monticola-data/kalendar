@@ -45,24 +45,29 @@ async function fetchAppSheetData() {
 function renderCalendar() {
     console.log("📅 Rendering kalendář s událostmi:", allEvents);
 
-    // ✅ Zajištění správné struktury pro FullCalendar
     let eventsForCalendar = allEvents.map(event => {
-        return {
+        let formattedDate = formatDate(event.Datum); // Oprava data
+        let partaColor = partyMap[event.Parta]?.color || "#145C7E"; // Barva
+
+        let transformedEvent = {
             id: event["Row ID"],
             title: event.Obec || "Neznámá obec",
-            start: event.Datum,
-            color: partyMap[event.Parta]?.color || "#145C7E",
+            start: formattedDate, // Zajistíme, že `start` má platný formát
+            color: partaColor,
             extendedProps: {
                 status: event.Status || "Neznámý status",
                 odeslane: event.Odeslané === "Y",
                 hotove: event.Hotové === "Y",
                 predane: event.Předané === "Y",
-                detail: event.Detail ? event.Detail : ""
+                detail: event.Detail || ""
             }
         };
+
+        console.log("📌 Transformovaná událost pro kalendář:", transformedEvent);
+        return transformedEvent;
     });
 
-    console.log("📅 Data poslaná do FullCalendar:", eventsForCalendar);
+    console.log("📌 Data poslaná do FullCalendar:", eventsForCalendar);
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
