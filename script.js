@@ -29,8 +29,23 @@ async function fetchAppSheetData() {
         const data = await response.json();
         console.log("📡 Data z backendu (Firebase):", data);
 
-        allEvents = data.events || [];
+        // ✅ Ověření, že data jsou správně strukturovaná
+        if (!data.events || !Array.isArray(data.events)) {
+            throw new Error("❌ Chyba: Data z backendu nejsou ve správném formátu.");
+        }
+
+        // ✅ Formátujeme data pro kalendář
+        allEvents = data.events.map(event => ({
+            id: event.id,
+            title: event.title || "Neznámá obec",
+            start: formatDate(event.start), // ✅ Použití formátování dat
+            party: event.party || null
+        }));
+
+        // ✅ Ověření, že `partyMap` existuje
         partyMap = data.partyMap || {};
+
+        console.log("📅 Formátovaná data pro kalendář:", allEvents);
 
         renderCalendar();
         populateFilter();
@@ -39,6 +54,7 @@ async function fetchAppSheetData() {
         console.error("❌ Chyba při načítání dat z backendu:", error);
     }
 }
+
 
     // ✅ Funkce pro formátování data (YYYY-MM-DD)
 function formatDate(dateStr) {
