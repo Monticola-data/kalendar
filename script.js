@@ -42,7 +42,28 @@ async function fetchAppSheetData() {
 
 
     // 🟢 2️⃣ Funkce pro zobrazení kalendáře
-    function renderCalendar() {
+function renderCalendar() {
+    console.log("📅 Rendering kalendář s událostmi:", allEvents);
+
+    // ✅ Zajištění správné struktury pro FullCalendar
+    let eventsForCalendar = allEvents.map(event => {
+        return {
+            id: event["Row ID"],
+            title: event.Obec || "Neznámá obec",
+            start: event.Datum,
+            color: partyMap[event.Parta]?.color || "#145C7E",
+            extendedProps: {
+                status: event.Status || "Neznámý status",
+                odeslane: event.Odeslané === "Y",
+                hotove: event.Hotové === "Y",
+                predane: event.Předané === "Y",
+                detail: event.Detail ? event.Detail : ""
+            }
+        };
+    });
+
+    console.log("📅 Data poslaná do FullCalendar:", eventsForCalendar);
+
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         editable: true,
@@ -50,7 +71,7 @@ async function fetchAppSheetData() {
         height: 'auto',
         contentHeight: 'auto',
         aspectRatio: 1.8,
-        events: allEvents,
+        events: eventsForCalendar,
 
         // 🟢 Přesunutí události v kalendáři (drag & drop)
         eventDrop: async function (info) {
