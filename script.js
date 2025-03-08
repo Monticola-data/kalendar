@@ -35,12 +35,20 @@ async function fetchAppSheetData() {
         }
 
         // ✅ Formátujeme data pro kalendář
-        allEvents = data.events.map(event => ({
-            id: event.id,
-            title: event.title || "Neznámá obec",
-            start: formatDate(event.start), // ✅ Použití formátování dat
-            party: event.party || null
-        }));
+     allEvents = data.events.map(event => ({
+    id: event.id || "Neznámé ID", // Zajištění, že ID není undefined
+    title: event.title || "Neznámá obec",
+    start: event.start || null, // Start je již ve formátu YYYY-MM-DD
+    color: partyMap[event.party]?.color || "#145C7E", // Správné mapování barev
+    extendedProps: {
+        status: event.status || "Neznámý status",
+        odeslane: event.odeslane === "Y",
+        hotove: event.hotove === "Y",
+        predane: event.predane === "Y",
+        detail: event.detail || ""
+    }
+}));
+
 
         // ✅ Ověření, že `partyMap` existuje
         partyMap = data.partyMap || {};
@@ -84,27 +92,13 @@ function formatDate(dateStr) {
 function renderCalendar() {
     console.log("📅 Rendering kalendář s událostmi:", allEvents);
 
-    let eventsForCalendar = allEvents.map(event => {
-        let formattedDate = formatDate(event.start); // ✅ Oprava volání formatDate()
-        let partaColor = partyMap[event.party]?.color || "#145C7E"; // ✅ Oprava reference na party
-
-        let transformedEvent = {
-            id: event.id,
-            title: event.title || "Neznámá obec",
-            start: formattedDate, // ✅ Oprava formátování datumu
-            color: partaColor,
-            extendedProps: {
-                status: event.status || "Neznámý status",
-                odeslane: event.odeslane === "Y",
-                hotove: event.hotove === "Y",
-                predane: event.predane === "Y",
-                detail: event.detail || ""
-            }
-        };
-
-        console.log("📌 Transformovaná událost pro kalendář:", transformedEvent);
-        return transformedEvent;
-    });
+    let eventsForCalendar = allEvents.map(event => ({
+        id: event.id,
+        title: event.title || "Neznámá obec",
+        start: event.start, // ✅ Data už jsou správně formátovaná
+        color: event.color, // ✅ Barva správně přiřazena
+        extendedProps: event.extendedProps
+    }));
 
     console.log("📌 Data poslaná do FullCalendar:", eventsForCalendar);
 
