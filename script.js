@@ -109,15 +109,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const response = await fetch(`${APPS_SCRIPT_URL}?path=updateEvent`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json"
+            },
             body: JSON.stringify({
                 eventId: eventId,
                 newDate: newDate,
                 newParty: newParty
-            })
+            }),
+            mode: "cors", // 🟢 Přidá podporu CORS!
+            credentials: "omit" // 🔹 Důležité pro Google Apps Script
         });
 
-        const responseData = await response.text();
+        const responseData = await response.json();
         console.log("✅ Odpověď z AppSheet API:", responseData);
 
         fetchAppSheetData(); // 🟢 Po úspěšné aktualizaci načteme nové údaje
@@ -125,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
+
 
     // 🟢 4️⃣ Uložení nové party
     savePartyButton.addEventListener("click", async function () {
