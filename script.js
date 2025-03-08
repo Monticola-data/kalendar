@@ -18,16 +18,25 @@ const API_BASE_URL = isLocal
     // 🟢 1️⃣ Načtení dat z backendu
 async function fetchAppSheetData() {
     try {
-        const response = await fetch(`${API_BASE_URL}/fetchAppSheetData`);
+        console.log("📡 Odesílám požadavek na backend...");
+
+        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
+
+        if (!response.ok) {
+            throw new Error(`Chyba API: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
         console.log("📡 Data z backendu (Firebase):", data);
-        allEvents = data.events;
-        partyMap = data.partyMap;
+
+        allEvents = data.events || [];
+        partyMap = data.partyMap || {};
+
         renderCalendar();
         populateFilter();
         renderLegend();
     } catch (error) {
-        console.error("❌ Chyba při načítání dat z Firebase:", error);
+        console.error("❌ Chyba při načítání dat z backendu:", error);
     }
 }
 
