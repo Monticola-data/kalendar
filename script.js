@@ -39,6 +39,22 @@ async function fetchAppSheetData() {
         console.error("❌ Chyba při načítání dat z backendu:", error);
     }
 }
+    
+function formatDate(dateStr) {
+    if (!dateStr || dateStr.length < 8) return null;
+
+    let parts = dateStr.split("/");
+    if (parts.length !== 3) return null;
+
+    let month = parts[0], day = parts[1], year = parts[2];
+
+    if (year.length === 2) {  
+        year = `20${year}`; 
+    }
+
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
 
 
     // 🟢 2️⃣ Funkce pro zobrazení kalendáře
