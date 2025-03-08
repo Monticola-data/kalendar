@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var selectedEvent = null;
     var calendar; // Definujeme proměnnou pro kalendář
 
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/TVOJE_APP_ID/exec";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3Th5b_yWB5D9HyCXu5o5_iXmDP0YqOdGGCZ3La8o8gBm4GxsdWQ1QrR0xkj-9Tz0Mgg/exec";
 
     // 🟢 1️⃣ Načtení dat z backendu
     async function fetchAppSheetData() {
