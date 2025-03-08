@@ -29,55 +29,57 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 🟢 2️⃣ Funkce pro zobrazení kalendáře
     function renderCalendar() {
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            editable: true,
-            locale: 'cs',
-            height: 'auto',
-            contentHeight: 'auto',
-            aspectRatio: 1.8,
-            events: allEvents,
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        editable: true,
+        locale: 'cs',
+        height: 'auto',
+        contentHeight: 'auto',
+        aspectRatio: 1.8,
+        events: allEvents,
 
-            // 🟢 Přesunutí události v kalendáři
-    eventDrop: async function (info) {
-        const updatedEvent = {
-        id: info.event.id,
-        start: info.event.startStr
-        };
+        // 🟢 Přesunutí události v kalendáři (drag & drop)
+        eventDrop: async function (info) {
+            const updatedEvent = {
+                id: info.event.id,
+                start: info.event.startStr,
+                party: info.event.extendedProps.party || null // ✅ Uchováme partu
+            };
 
-        console.log("🔄 Událost přesunuta:", updatedEvent);
+            console.log("🔄 Událost přesunuta:", updatedEvent);
 
-        await updateAppSheetEvent(updatedEvent.id, updatedEvent.start);
-    },
+            // ✅ Odeslat aktualizaci do AppSheet
+            await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
+        },
 
 
             // 🟢 Kliknutí na událost → změna party
             eventClick: function (info) {
-                selectedEvent = info.event;
-                partySelect.innerHTML = "";
+            selectedEvent = info.event;
+            partySelect.innerHTML = "";
 
-                Object.entries(partyMap).forEach(([id, party]) => {
-                    let option = document.createElement("option");
-                    option.value = id;
-                    option.textContent = party.name;
+            Object.entries(partyMap).forEach(([id, party]) => {
+                let option = document.createElement("option");
+                option.value = id;
+                option.textContent = party.name;
 
-                    if (id === info.event.extendedProps.party) {
-                        option.selected = true;
-                    }
-                    partySelect.appendChild(option);
-                });
-
-                let detailButton = document.getElementById("detailButton");
-                if (info.event.extendedProps.detail) {
-                    detailButton.style.display = "block";
-                    detailButton.onclick = function () {
-                        window.open(info.event.extendedProps.detail, "_blank");
-                    };
-                } else {
-                    detailButton.style.display = "none";
+                if (id === info.event.extendedProps.party) {
+                    option.selected = true;
                 }
+                partySelect.appendChild(option);
+            });
 
-                modal.style.display = "block";
+            let detailButton = document.getElementById("detailButton");
+            if (info.event.extendedProps.detail) {
+                detailButton.style.display = "block";
+                detailButton.onclick = function () {
+                    window.open(info.event.extendedProps.detail, "_blank");
+                };
+            } else {
+                detailButton.style.display = "none";
+            }
+
+            modal.style.display = "block";
             },
 
             eventContent: function(arg) {
