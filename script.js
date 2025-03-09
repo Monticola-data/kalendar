@@ -1,3 +1,7 @@
+document.getElementById("viewSelect").addEventListener("change", function() {
+    calendar.changeView(this.value);
+});
+
 document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
     var modal = document.getElementById('eventModal');
