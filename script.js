@@ -21,20 +21,37 @@ const API_BASE_URL = isLocal
 
     // 🟢 1️⃣ Načtení dat z backendu
 
-    async function fetchAppSheetData() {
-        try {
-            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
-            const data = await response.json();
-            console.log("📡 Data z backendu:", data);
-            allEvents = data.events;
-            partyMap = data.partyMap;
-            renderCalendar();
-            populateFilter();
-            renderLegend();
-        } catch (error) {
-            console.error("❌ Chyba při načítání dat z backendu:", error);
+async function fetchAppSheetData() {
+    console.log("🔍 Odesílám požadavek na Firebase function...");
+
+    try {
+        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        console.log("📡 Odpověď z Firebase function:", response);
+
+        if (!response.ok) {
+            throw new Error(`❌ Chyba: ${response.status} ${response.statusText}`);
         }
+
+        const data = await response.json();
+        console.log("✅ Načtená data:", data);
+        allEvents = data.events;
+        partyMap = data.partyMap;
+
+        renderCalendar();
+        populateFilter();
+        renderLegend();
+
+    } catch (error) {
+        console.error("❌ Chyba při načítání dat z backendu:", error);
     }
+}
+
 
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
 function renderCalendar() {
