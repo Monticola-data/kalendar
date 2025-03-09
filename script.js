@@ -224,17 +224,18 @@ async function listenForUpdates() {
 
     async function checkForChanges() {
         try {
-            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus");
             const data = await response.json();
 
             if (data.type === "update") {
                 console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData();
+                fetchAppSheetData(); // 🔄 Načte nová data
             } else {
                 console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
             }
 
-            setTimeout(checkForChanges, 5000);
+            setTimeout(checkForChanges, 5000); // ✅ Opakujeme každých 5 sekund
+
         } catch (error) {
             console.error("❌ Chyba při kontrole změn:", error);
             setTimeout(checkForChanges, 5000);
@@ -243,46 +244,11 @@ async function listenForUpdates() {
 
     checkForChanges();
 }
-    // 🟢 7️⃣ Spustíme vše po načtení stránky
+
+// ✅ Spustíme kontrolu po načtení stránky
+document.addEventListener("DOMContentLoaded", function () {
     fetchAppSheetData();
     listenForUpdates();
 });
 
-async function listenForWebhookUpdates() {  // 🔄 OPRAVA názvu funkce
-    console.log("🔄 Naslouchám změnám z webhooku...");
-
-    const webhookURL = "https://us-central1-kalendar-831f8.cloudfunctions.net/webhook/events"; // 🔄 OPRAVA URL
-
-    try {
-        const eventSource = new EventSource(webhookURL);
-
-        eventSource.onmessage = function (event) {
-            console.log("📡 Webhook přijal změnu:", event.data);
-            fetchAppSheetData(); // 🔄 Aktualizace kalendáře
-        };
-
-        eventSource.onerror = function (error) {
-            console.error("❌ Chyba Webhook EventSource:", error);
-            eventSource.close();
-
-            // 🔄 Automatický pokus o znovupřipojení po 5 sekundách
-            setTimeout(listenForWebhookUpdates, 5000);
-        };
-
-    } catch (error) {
-        console.error("❌ Chyba při navázání spojení s webhookem:", error);
-    }
-}
-
-// 🟢 Spustíme naslouchání na změny z webhooku
-listenForWebhookUpdates();
-
-
-// ✅ Spustíme poslech na změny po načtení stránky
-document.addEventListener("DOMContentLoaded", function() {
-    fetchAppSheetData();
-    listenForUpdates();        // 🟢 Pravidelná kontrola přes API
-    listenForWebhookUpdates(); // 🔄 Živé sledování přes EventSource (webhook)
-});
-;
 
