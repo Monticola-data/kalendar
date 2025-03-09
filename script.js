@@ -109,22 +109,21 @@ function renderCalendar() {
             },
 
 eventContent: function(arg) {
-    let icon = "";
-    let title = arg.event.title;
+      let icon = "";
+      let title = arg.event.title;
 
-    if (arg.event.extendedProps.predane) {
+      if (arg.event.extendedProps.predane) {
         icon = "✍️"; // Předané
         title = title.toUpperCase();
-    } else if (arg.event.extendedProps.hotove) {
+      } else if (arg.event.extendedProps.hotove) {
         icon = "✅"; // Hotové
         title = title.toUpperCase();
-    } else if (arg.event.extendedProps.odeslane) { // 🟢 Přidáno
+      } else if (arg.event.extendedProps.odeslane) {
         icon = "📩"; // Odeslané
         title = title.toUpperCase();
+      }
+      return { html: `<b>${icon}</b> ${title}` };
     }
-
-    return { html: `<b>${icon}</b> ${title}` };
-}
 
         });       
         calendar.render();
