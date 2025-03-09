@@ -229,7 +229,7 @@ async function listenForUpdates() {
 
             if (data.type === "update") {
                 console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData(); // 🔄 Načte nová data
+                fetchAppSheetData(); // 🔄 Okamžitá aktualizace kalendáře
             } else {
                 console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
             }
