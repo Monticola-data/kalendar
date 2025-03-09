@@ -20,65 +20,21 @@ const API_BASE_URL = isLocal
     : "https://us-central1-kalendar-831f8.cloudfunctions.net";
 
     // 🟢 1️⃣ Načtení dat z backendu
-async function fetchAppSheetData() {
-    try {
-        console.log("📡 Odesílám požadavek na backend...");
 
-        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
-
-        if (!response.ok) {
-            throw new Error(`Chyba API: ${response.status} ${response.statusText}`);
+    async function fetchAppSheetData() {
+        try {
+            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
+            const data = await response.json();
+            console.log("📡 Data z backendu:", data);
+            allEvents = data.events;
+            partyMap = data.partyMap;
+            renderCalendar();
+            populateFilter();
+            renderLegend();
+        } catch (error) {
+            console.error("❌ Chyba při načítání dat z backendu:", error);
         }
-
-        const data = await response.json();
-        console.log("🔥 Data přijatá z Firebase:", data);
-
-        // ✅ Ověříme, že `data.events` existuje a je pole
-        if (!data.events || !Array.isArray(data.events)) {
-            throw new Error("❌ Chyba: Data z backendu nejsou ve správném formátu.");
-        }
-
-        // ✅ Přidáme kontrolu, jestli správně získáváme názvy klíčů
-        console.log("🔍 První objekt z dat pro kontrolu:", data.events[0]);
-
-        // ✅ Správné mapování dat
-        allEvents = data.events.map(event => {
-            let id = event["Row ID"] || event["id"] || "Neznámé ID"; // Oprava chybějícího ID
-            let title = event["Obec"] || event["title"] || "Neznámá obec";
-            let start = formatDate(event["Datum"] || event["start"]); // Formátujeme datum
-            let partaColor = partyMap[event["Parta"]] ? partyMap[event["Parta"]].color : "#145C7E"; // Barva party
-
-            let transformedEvent = {
-                id: id,
-                title: title,
-                start: start,
-                color: partaColor,
-                extendedProps: {
-                    status: event["Status"] || "Neznámý status",
-                    odeslane: event["Odeslané"] === "Y",
-                    hotove: event["Hotové"] === "Y",
-                    predane: event["Předané"] === "Y",
-                    detail: event["Detail"] || ""
-                }
-            };
-
-            console.log("📌 Transformovaná událost pro kalendář:", transformedEvent);
-            return transformedEvent;
-        });
-
-        // ✅ Uložíme mapu party
-        partyMap = data.partyMap || {};
-
-        console.log("📅 Formátovaná data pro kalendář:", allEvents);
-
-        renderCalendar();
-        populateFilter();
-        renderLegend();
-    } catch (error) {
-        console.error("❌ Chyba při načítání dat z backendu:", error);
     }
-}
-
 
 
     // ✅ Funkce pro formátování data (YYYY-MM-DD)
