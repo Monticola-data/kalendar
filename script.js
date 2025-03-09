@@ -250,30 +250,31 @@ async function listenForUpdates() {
     listenForUpdates();
 });
 
-async function listenForUpdates() {
-    console.log("🔄 Naslouchám změnám z webhooku...");
-    
-    // Webhook zavolá tuto URL při změně
-    const webhookURL = "https://us-central1-kalendar-831f8.cloudfunctions.net/webhook";
+async function listenForWebhookUpdates() {
+    console.log("🔄 Připojuji se k webhooku...");
 
-    try {
-        const eventSource = new EventSource(webhookURL);
-        
-        eventSource.onmessage = function (event) {
-            console.log("📡 Webhook přijal změnu:", event.data);
-            fetchAppSheetData(); // 🔄 Aktualizace kalendáře
-        };
+    const eventSource = new EventSource("https://us-central1-kalendar-831f8.cloudfunctions.net/webhook/events");
 
-        eventSource.onerror = function (error) {
-            console.error("❌ Chyba Webhook EventSource:", error);
-            eventSource.close();
-        };
-        
-    } catch (error) {
-        console.error("❌ Chyba při navázání spojení s webhookem:", error);
-    }
+    eventSource.onmessage = function(event) {
+        console.log("📩 Změna detekována v webhooku:", event.data);
+
+        const eventData = JSON.parse(event.data);
+        if (eventData) {
+            console.log("✅ Data z webhooku:", eventData);
+            fetchAppSheetData(); // 🔄 Okamžitá aktualizace kalendáře
+        }
+    };
+
+    eventSource.onerror = function(error) {
+        console.error("❌ Chyba Webhook EventSource:", error);
+        eventSource.close();
+        setTimeout(listenForWebhookUpdates, 5000); // 🔄 Pokus o opětovné připojení za 5 sekund
+    };
 }
 
-// 🟢 Spustíme naslouchání na změny
-listenForUpdates();
+// ✅ Spustíme poslech na změny po načtení stránky
+document.addEventListener("DOMContentLoaded", function() {
+    fetchAppSheetData();
+    listenForWebhookUpdates();
+});
 
