@@ -36,46 +36,8 @@ const API_BASE_URL = isLocal
         }
     }
 
-
-    // ✅ Funkce pro formátování data (YYYY-MM-DD)
-function formatDate(dateStr) {
-    if (!dateStr || typeof dateStr !== "string") return null;
-
-    let parts = dateStr.split("/");
-    if (parts.length !== 3) return null;
-
-    let day = parseInt(parts[0]);
-    let month = parseInt(parts[1]);
-    let year = parts[2];
-
-    if (year.length === 2) {
-        year = `20${year}`;
-    }
-
-    // Pokud je den větší než 12, pravděpodobně je ve formátu DD/MM/YYYY
-    if (day > 12) {
-        [day, month] = [month, day];
-    }
-
-    return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-}
-
-
-
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
 function renderCalendar() {
-    console.log("📅 Rendering kalendář s událostmi:", allEvents);
-
-    let eventsForCalendar = allEvents.map(event => ({
-        id: event.id,
-        title: event.title || "Neznámá obec",
-        start: event.start, // ✅ Data už jsou správně formátovaná
-        color: event.color, // ✅ Barva správně přiřazena
-        extendedProps: event.extendedProps
-    }));
-
-    console.log("📌 Data poslaná do FullCalendar:", eventsForCalendar);
-
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         editable: true,
@@ -83,23 +45,25 @@ function renderCalendar() {
         height: 'auto',
         contentHeight: 'auto',
         aspectRatio: 1.8,
-        events: eventsForCalendar,
+        events: allEvents,
 
         // 🟢 Přesunutí události v kalendáři (drag & drop)
         eventDrop: async function (info) {
             const updatedEvent = {
                 id: info.event.id,
                 start: info.event.startStr,
-                party: info.event.extendedProps.party || null
+                party: info.event.extendedProps.party || null // ✅ Uchováme partu
             };
 
             console.log("🔄 Událost přesunuta:", updatedEvent);
 
+            // ✅ Odeslat aktualizaci do AppSheet
             await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
         },
 
-        // 🟢 Kliknutí na událost → změna party
-        eventClick: function (info) {
+
+            // 🟢 Kliknutí na událost → změna party
+            eventClick: function (info) {
             selectedEvent = info.event;
             partySelect.innerHTML = "";
 
@@ -125,30 +89,27 @@ function renderCalendar() {
             }
 
             modal.style.display = "block";
-        },
+            },
 
-        eventContent: function (arg) {
-            let icon = "";
-            let title = arg.event.title;
+            eventContent: function(arg) {
+                let icon = "";
+                let title = arg.event.title;
 
-            if (arg.event.extendedProps.predane) {
-                icon = "✍️";
-                title = title.toUpperCase();
-            } else if (arg.event.extendedProps.hotove) {
-                icon = "✅";
-                title = title.toUpperCase();
-            } else if (arg.event.extendedProps.odeslane) {
-                icon = "📩";
-                title = title.toUpperCase();
+                if (arg.event.extendedProps.predane) {
+                    icon = "✍️"; // Předané
+                    title = title.toUpperCase();
+                } else if (arg.event.extendedProps.hotove) {
+                    icon = "✅"; // Hotové
+                    title = title.toUpperCase();
+                } else if (arg.event.extendedProps.odeslane) {
+                    icon = "📩"; // Odeslané
+                    title = title.toUpperCase();
+                }
+                return { html: `<b>${icon}</b> ${title}` };
             }
-            return { html: `<b>${icon}</b> ${title}` };
-        }
-    });
-
-    console.log("📌 Události poslané do kalendáře:", eventsForCalendar);
-    calendar.render();
-}
-
+        });       
+        calendar.render();
+    }
 
     // 🟢 3️⃣ Aktualizace události v AppSheet přes API
 async function updateAppSheetEvent(eventId, newDate, newParty = null) {
