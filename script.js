@@ -244,14 +244,6 @@ async function listenForUpdates() {
     checkForChanges();
 }
 
-
-    // 🟢 7️⃣ Spustíme vše po načtení stránky
-    fetchAppSheetData();
-    listenForUpdates();
-});
-async function listenForUpdates() {
-    console.log("🔄 Zahajuji kontrolu změn...");
-
     async function checkForChanges() {
         try {
             const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus");
@@ -259,12 +251,13 @@ async function listenForUpdates() {
 
             if (data.type === "update") {
                 console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData();
+                fetchAppSheetData(); // 🔄 Načte nová data
             } else {
                 console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
             }
 
-            setTimeout(checkForChanges, 5000);
+            setTimeout(checkForChanges, 5000); // ✅ Opakujeme každých 5 sekund
+
         } catch (error) {
             console.error("❌ Chyba při kontrole změn:", error);
             setTimeout(checkForChanges, 5000);
@@ -273,3 +266,9 @@ async function listenForUpdates() {
 
     checkForChanges();
 }
+
+// ✅ Spustíme kontrolu po načtení stránky
+document.addEventListener("DOMContentLoaded", function () {
+    fetchAppSheetData();
+    listenForUpdates();
+});
