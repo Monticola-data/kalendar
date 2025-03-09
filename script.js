@@ -130,23 +130,27 @@ function renderCalendar() {
 
     // 🟢 3️⃣ Aktualizace události v AppSheet přes API
 async function updateAppSheetEvent(eventId, newDate, newParty = null) {
-    try {
-        console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
+    console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
-        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
+    try {
+        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetEvent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ eventId, newDate, newParty })
+            body: JSON.stringify({
+                rowId: eventId,
+                Datum: newDate,
+                Parta: newParty
+            })
         });
 
         const responseData = await response.json();
         console.log("✅ Odpověď z Firebase API:", responseData);
-
-        fetchAppSheetData(); // 🟢 Po úspěšné aktualizaci načteme nové údaje
     } catch (error) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
+
+
 
     // 🟢 4️⃣ Uložení nové party
     savePartyButton.addEventListener("click", async function () {
