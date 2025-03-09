@@ -9,113 +9,26 @@ document.addEventListener('DOMContentLoaded', function () {
     var selectedEvent = null;
     var calendar; // Definujeme proměnnou pro kalendář
 
-const isLocal = window.location.hostname === "localhost";
-
-const API_BASE_URL = isLocal
-    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
-    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3Th5b_yWB5D9HyCXu5o5_iXmDP0YqOdGGCZ3La8o8gBm4GxsdWQ1QrR0xkj-9Tz0Mgg/exec";
 
     // 🟢 1️⃣ Načtení dat z backendu
-async function fetchAppSheetData() {
-    try {
-        console.log("📡 Odesílám požadavek na backend...");
-
-        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
-
-        if (!response.ok) {
-            throw new Error(`Chyba API: ${response.status} ${response.statusText}`);
+    async function fetchAppSheetData() {
+        try {
+            const response = await fetch(`${APPS_SCRIPT_URL}?path=fetchData`);
+            const data = await response.json();
+            console.log("📡 Data z backendu:", data);
+            allEvents = data.events;
+            partyMap = data.partyMap;
+            renderCalendar();
+            populateFilter();
+            renderLegend();
+        } catch (error) {
+            console.error("❌ Chyba při načítání dat z backendu:", error);
         }
-
-        const data = await response.json();
-        console.log("🔥 Data přijatá z Firebase:", data);
-
-        // ✅ Ověříme, že `data.events` existuje a je pole
-        if (!data.events || !Array.isArray(data.events)) {
-            throw new Error("❌ Chyba: Data z backendu nejsou ve správném formátu.");
-        }
-
-        // ✅ Přidáme kontrolu, jestli správně získáváme názvy klíčů
-        console.log("🔍 První objekt z dat pro kontrolu:", data.events[0]);
-
-        // ✅ Správné mapování dat
-        allEvents = data.events.map(event => {
-            let id = event["Row ID"] || event["id"] || "Neznámé ID"; // Oprava chybějícího ID
-            let title = event["Obec"] || event["title"] || "Neznámá obec";
-            let start = formatDate(event["Datum"] || event["start"]); // Formátujeme datum
-            let partaColor = partyMap[event["Parta"]] ? partyMap[event["Parta"]].color : "#145C7E"; // Barva party
-
-            let transformedEvent = {
-                id: id,
-                title: title,
-                start: start,
-                color: partaColor,
-                extendedProps: {
-                    status: event["Status"] || "Neznámý status",
-                    odeslane: event["Odeslané"] === "Y",
-                    hotove: event["Hotové"] === "Y",
-                    predane: event["Předané"] === "Y",
-                    detail: event["Detail"] || ""
-                }
-            };
-
-            console.log("📌 Transformovaná událost pro kalendář:", transformedEvent);
-            return transformedEvent;
-        });
-
-        // ✅ Uložíme mapu party
-        partyMap = data.partyMap || {};
-
-        console.log("📅 Formátovaná data pro kalendář:", allEvents);
-
-        renderCalendar();
-        populateFilter();
-        renderLegend();
-    } catch (error) {
-        console.error("❌ Chyba při načítání dat z backendu:", error);
-    }
-}
-
-
-
-    // ✅ Funkce pro formátování data (YYYY-MM-DD)
-function formatDate(dateStr) {
-    if (!dateStr || typeof dateStr !== "string") return null;
-
-    let parts = dateStr.split("/");
-    if (parts.length !== 3) return null;
-
-    let day = parseInt(parts[0]);
-    let month = parseInt(parts[1]);
-    let year = parts[2];
-
-    if (year.length === 2) {
-        year = `20${year}`;
     }
 
-    // Pokud je den větší než 12, pravděpodobně je ve formátu DD/MM/YYYY
-    if (day > 12) {
-        [day, month] = [month, day];
-    }
-
-    return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-}
-
-
-
-// 🟢 2️⃣ Funkce pro zobrazení kalendáře
-function renderCalendar() {
-    console.log("📅 Rendering kalendář s událostmi:", allEvents);
-
-    let eventsForCalendar = allEvents.map(event => ({
-        id: event.id,
-        title: event.title || "Neznámá obec",
-        start: event.start, // ✅ Data už jsou správně formátovaná
-        color: event.color, // ✅ Barva správně přiřazena
-        extendedProps: event.extendedProps
-    }));
-
-    console.log("📌 Data poslaná do FullCalendar:", eventsForCalendar);
-
+    // 🟢 2️⃣ Funkce pro zobrazení kalendáře
+    function renderCalendar() {
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         editable: true,
@@ -123,23 +36,25 @@ function renderCalendar() {
         height: 'auto',
         contentHeight: 'auto',
         aspectRatio: 1.8,
-        events: eventsForCalendar,
+        events: allEvents,
 
         // 🟢 Přesunutí události v kalendáři (drag & drop)
         eventDrop: async function (info) {
             const updatedEvent = {
                 id: info.event.id,
                 start: info.event.startStr,
-                party: info.event.extendedProps.party || null
+                party: info.event.extendedProps.party || null // ✅ Uchováme partu
             };
 
             console.log("🔄 Událost přesunuta:", updatedEvent);
 
+            // ✅ Odeslat aktualizaci do AppSheet
             await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
         },
 
-        // 🟢 Kliknutí na událost → změna party
-        eventClick: function (info) {
+
+            // 🟢 Kliknutí na událost → změna party
+            eventClick: function (info) {
             selectedEvent = info.event;
             partySelect.innerHTML = "";
 
@@ -165,51 +80,55 @@ function renderCalendar() {
             }
 
             modal.style.display = "block";
-        },
+            },
 
-        eventContent: function (arg) {
-            let icon = "";
-            let title = arg.event.title;
+            eventContent: function(arg) {
+                let icon = "";
+                let title = arg.event.title;
 
-            if (arg.event.extendedProps.predane) {
-                icon = "✍️";
-                title = title.toUpperCase();
-            } else if (arg.event.extendedProps.hotove) {
-                icon = "✅";
-                title = title.toUpperCase();
-            } else if (arg.event.extendedProps.odeslane) {
-                icon = "📩";
-                title = title.toUpperCase();
+                if (arg.event.extendedProps.predane) {
+                    icon = "✍️"; // Předané
+                    title = title.toUpperCase();
+                } else if (arg.event.extendedProps.hotove) {
+                    icon = "✅"; // Hotové
+                    title = title.toUpperCase();
+                } else if (arg.event.extendedProps.odeslane) {
+                    icon = "📩"; // Odeslané
+                    title = title.toUpperCase();
+                }
+                return { html: `<b>${icon}</b> ${title}` };
             }
-            return { html: `<b>${icon}</b> ${title}` };
-        }
-    });
-
-    console.log("📌 Události poslané do kalendáře:", eventsForCalendar);
-    calendar.render();
-}
-
+        });       
+        calendar.render();
+    }
 
     // 🟢 3️⃣ Aktualizace události v AppSheet přes API
-async function updateAppSheetEvent(eventId, newDate, newParty = null) {
+    async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     try {
-        console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
+        console.log(`📡 Odesílám do AppSheet: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
-        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
+        const response = await fetch(`${APPS_SCRIPT_URL}?path=updateEvent`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ eventId, newDate, newParty })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                eventId: eventId,
+                newDate: newDate,
+                newParty: newParty
+            }),
+            mode: "cors", // 🟢 Přidá podporu CORS!
+            credentials: "omit" // 🔹 Důležité pro Google Apps Script
         });
 
         const responseData = await response.json();
-        console.log("✅ Odpověď z Firebase API:", responseData);
+        console.log("✅ Odpověď z AppSheet API:", responseData);
 
         fetchAppSheetData(); // 🟢 Po úspěšné aktualizaci načteme nové údaje
     } catch (error) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
-
     // 🟢 4️⃣ Uložení nové party
     savePartyButton.addEventListener("click", async function () {
         if (selectedEvent) {
@@ -276,58 +195,32 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     }
 
     // 🟢 6️⃣ Automatické sledování změn
-async function listenForUpdates() {
-    console.log("🔄 Zahajuji kontrolu změn...");
+    async function listenForUpdates() {
+        console.log("🔄 Zahajuji kontrolu změn...");
 
-    async function checkForChanges() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-            const data = await response.json();
+        async function checkForChanges() {
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?path=checkRefreshStatus`);
+                const data = await response.json();
 
-            if (data.type === "update") {
-                console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData();
-            } else {
-                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
+                if (data.type === "update") {
+                    console.log("✅ Změna detekována, aktualizuji kalendář...");
+                    fetchAppSheetData();
+                } else {
+                    console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
+                }
+
+                setTimeout(checkForChanges, 5000);
+            } catch (error) {
+                console.error("❌ Chyba při kontrole změn:", error);
+                setTimeout(checkForChanges, 5000);
             }
-
-            setTimeout(checkForChanges, 5000);
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
         }
+
+        checkForChanges();
     }
-
-    checkForChanges();
-}
-
 
     // 🟢 7️⃣ Spustíme vše po načtení stránky
     fetchAppSheetData();
     listenForUpdates();
 });
-async function listenForUpdates() {
-    console.log("🔄 Zahajuji kontrolu změn...");
-
-    async function checkForChanges() {
-        try {
-            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus");
-            const data = await response.json();
-
-            if (data.type === "update") {
-                console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData();
-            } else {
-                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
-            }
-
-            setTimeout(checkForChanges, 5000);
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
-        }
-    }
-
-    checkForChanges();
-}
-
