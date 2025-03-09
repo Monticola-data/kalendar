@@ -249,27 +249,31 @@ async function listenForUpdates() {
     fetchAppSheetData();
     listenForUpdates();
 });
+
 async function listenForUpdates() {
-    console.log("🔄 Zahajuji kontrolu změn...");
+    console.log("🔄 Naslouchám změnám z webhooku...");
+    
+    // Webhook zavolá tuto URL při změně
+    const webhookURL = "https://us-central1-kalendar-831f8.cloudfunctions.net/webhook";
 
-    async function checkForChanges() {
-        try {
-            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus");
-            const data = await response.json();
+    try {
+        const eventSource = new EventSource(webhookURL);
+        
+        eventSource.onmessage = function (event) {
+            console.log("📡 Webhook přijal změnu:", event.data);
+            fetchAppSheetData(); // 🔄 Aktualizace kalendáře
+        };
 
-            if (data.type === "update") {
-                console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData();
-            } else {
-                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
-            }
-
-            setTimeout(checkForChanges, 5000);
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
-        }
+        eventSource.onerror = function (error) {
+            console.error("❌ Chyba Webhook EventSource:", error);
+            eventSource.close();
+        };
+        
+    } catch (error) {
+        console.error("❌ Chyba při navázání spojení s webhookem:", error);
     }
-
-    checkForChanges();
 }
+
+// 🟢 Spustíme naslouchání na změny
+listenForUpdates();
+
