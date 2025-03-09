@@ -243,38 +243,46 @@ async function listenForUpdates() {
 
     checkForChanges();
 }
-
-
     // 🟢 7️⃣ Spustíme vše po načtení stránky
     fetchAppSheetData();
     listenForUpdates();
 });
 
-async function listenForWebhookUpdates() {
-    console.log("🔄 Připojuji se k webhooku...");
+async function listenForWebhookUpdates() {  // 🔄 OPRAVA názvu funkce
+    console.log("🔄 Naslouchám změnám z webhooku...");
 
-    const eventSource = new EventSource("https://us-central1-kalendar-831f8.cloudfunctions.net/webhook/events");
+    const webhookURL = "https://us-central1-kalendar-831f8.cloudfunctions.net/webhook/events"; // 🔄 OPRAVA URL
 
-    eventSource.onmessage = function(event) {
-        console.log("📩 Změna detekována v webhooku:", event.data);
+    try {
+        const eventSource = new EventSource(webhookURL);
 
-        const eventData = JSON.parse(event.data);
-        if (eventData) {
-            console.log("✅ Data z webhooku:", eventData);
-            fetchAppSheetData(); // 🔄 Okamžitá aktualizace kalendáře
-        }
-    };
+        eventSource.onmessage = function (event) {
+            console.log("📡 Webhook přijal změnu:", event.data);
+            fetchAppSheetData(); // 🔄 Aktualizace kalendáře
+        };
 
-    eventSource.onerror = function(error) {
-        console.error("❌ Chyba Webhook EventSource:", error);
-        eventSource.close();
-        setTimeout(listenForWebhookUpdates, 5000); // 🔄 Pokus o opětovné připojení za 5 sekund
-    };
+        eventSource.onerror = function (error) {
+            console.error("❌ Chyba Webhook EventSource:", error);
+            eventSource.close();
+
+            // 🔄 Automatický pokus o znovupřipojení po 5 sekundách
+            setTimeout(listenForWebhookUpdates, 5000);
+        };
+
+    } catch (error) {
+        console.error("❌ Chyba při navázání spojení s webhookem:", error);
+    }
 }
+
+// 🟢 Spustíme naslouchání na změny z webhooku
+listenForWebhookUpdates();
+
 
 // ✅ Spustíme poslech na změny po načtení stránky
 document.addEventListener("DOMContentLoaded", function() {
     fetchAppSheetData();
-    listenForWebhookUpdates();
+    listenForUpdates();        // 🟢 Pravidelná kontrola přes API
+    listenForWebhookUpdates(); // 🔄 Živé sledování přes EventSource (webhook)
 });
+;
 
