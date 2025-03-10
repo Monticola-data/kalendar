@@ -244,31 +244,9 @@ async function listenForUpdates() {
     checkForChanges();
 }
 
-    async function checkForChanges() {
-        try {
-            const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus");
-            const data = await response.json();
-
-            if (data.type === "update") {
-                console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData(); // 🔄 Načte nová data
-            } else {
-                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
-            }
-
-            setTimeout(checkForChanges, 5000); // ✅ Opakujeme každých 5 sekund
-
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
-        }
-    }
-
-    checkForChanges();
-}
-
 // ✅ Spustíme kontrolu po načtení stránky
 document.addEventListener("DOMContentLoaded", function () {
     fetchAppSheetData();
     listenForUpdates();
-});
+}); // ← Tady chyběla závorka
+
