@@ -243,10 +243,7 @@ async function listenForUpdates() {
 
     checkForChanges();
 }
-
-// ✅ Spustíme kontrolu po načtení stránky
-document.addEventListener("DOMContentLoaded", function () {
     fetchAppSheetData();
     listenForUpdates();
-}); // ← Tady chyběla závorka
+});
 
