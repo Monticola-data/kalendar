@@ -219,65 +219,40 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     }
 
     window.addEventListener("click", function (event) {
-    let modal = document.getElementById("eventModal");
+        let modal = document.getElementById("eventModal");
 
-    // ✅ Zkontrolujeme, zda je modal zobrazen
-    if (modal.style.display === "block") {
-        
-        // ✅ Zavřeme modal, pokud klikneš mimo něj a ne na událost
-        if (!modal.contains(event.target) && !event.target.closest(".fc-event")) {
-            modal.style.display = "none";
+        if (modal.style.display === "block") {
+            if (!modal.contains(event.target) && !event.target.closest(".fc-event")) {
+                modal.style.display = "none";
+            }
         }
-    }
-});
+    });
 
-    // 🟢 6️⃣ Automatické sledování změn
-async function listenForUpdates() {
-    console.log("🔄 Zahajuji kontrolu změn...");
+    async function listenForUpdates() {
+        console.log("🔄 Zahajuji kontrolu změn...");
 
-    setTimeout(checkForChanges, 5000);
-}
+        async function checkForChanges() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+                const data = await response.json();
 
-async function checkForChanges() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-        const data = await response.json();
+                if (data.type === "update") {
+                    console.log("🔄 Detekována změna, načítám data...");
+                    await fetchAppSheetData();
+                } else {
+                    console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
+                }
 
-        if (data.type === "update") {
-            console.log("🔄 Detekována změna, načítám data...");
-            await fetchAppSheetData();
-        } else {
-            console.log("⏳ Žádná změna, kontroluji za 5 sekund...");
+                setTimeout(checkForChanges, 5000);
+            } catch (error) {
+                console.error("❌ Chyba při kontrole změn:", error);
+                setTimeout(checkForChanges, 5000);
+            }
         }
 
-        setTimeout(checkForChanges, 5000);
-    } catch (error) {
-        console.error("❌ Chyba při kontrole změn:", error);
-        setTimeout(checkForChanges, 5000);
+        checkForChanges();
     }
-}
 
-// Opravené volání funkce:
-async function listenForUpdates() {
-    console.log("🔄 Zahajuji kontrolu změn...");
-    checkForChanges();
-}
-
-async function checkForChanges() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-
-        if (data.type === "update") {
-            console.log("🔄 Detekována změna, načítám nová data...");
-            await fetchAppSheetData();
-        } else {
-            console.log("⏳ Žádná změna.");
-        }
-    } catch (error) {
-        console.error("❌ Chyba při kontrole změn:", error);
-    } finally {
-        setTimeout(checkForChanges, 5000);
-    }
-}
+    fetchAppSheetData();
+    listenForUpdates();
+}); // ← Tato závorka pravděpodobně chybí
