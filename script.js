@@ -232,23 +232,23 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
         console.log("🔄 Zahajuji kontrolu změn...");
 
     async function checkForChanges() {
-        try {
-            const response = await fetch(`https://us-central1-kalendar-831f8.cloudfunctions.net/checkRefreshStatus`);
-            const data = await response.json();
+    try {
+        const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+        const data = await response.json();
 
-            if (data.type === "update") {
-                console.log("✅ Změna detekována – aktualizuji kalendář.");
-                await fetchAppSheetData();
-            } else {
-                console.log("⏳ Žádná změna.");
-            }
-
-            setTimeout(checkForChanges, 5000);
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
+        if (data.type === "update") {
+            console.log("✅ Aktualizuji kalendář!");
+            await fetchAppSheetData();
+        } else {
+            console.log("⏳ Žádná změna...");
         }
+
+        setTimeout(checkForChanges, 5000);
+    } catch (error) {
+        console.error("❌ Chyba při kontrole změn:", error);
+        setTimeout(checkForChanges, 5000);
     }
+}
         checkForChanges();
     }
 
