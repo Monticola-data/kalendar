@@ -218,6 +218,19 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
         });
     }
 
+    window.addEventListener("click", function (event) {
+    let modal = document.getElementById("eventModal");
+
+    // ✅ Zkontrolujeme, zda je modal zobrazen
+    if (modal.style.display === "block") {
+        
+        // ✅ Zavřeme modal, pokud klikneš mimo něj a ne na událost
+        if (!modal.contains(event.target) && !event.target.closest(".fc-event")) {
+            modal.style.display = "none";
+        }
+    }
+});
+
     // 🟢 6️⃣ Automatické sledování změn
 async function listenForUpdates() {
     console.log("🔄 Zahajuji kontrolu změn...");
