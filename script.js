@@ -12,23 +12,26 @@ const API_BASE_URL = isLocal
     ? "http://127.0.0.1:5001/backend-kalendar/us-central1"
     : "https://us-central1-backend-kalendar.cloudfunctions.net";
 
-// 🟢 1️⃣ Načtení dat z backendu
-async function fetchAppSheetData() {
+// 🟢 3️⃣ Aktualizace události v AppSheet přes API
+async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     try {
-        const response = await fetch(`${API_BASE_URL}/fetchAppSheetData`, { method: "GET" });
-        if (!response.ok) throw new Error(response.statusText);
+        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                rowId: eventId,
+                Datum: newDate,
+                Parta: newParty
+            })
+        });
 
-        const data = await response.json();
-        allEvents = data.events;
-        partyMap = data.partyMap;
-
-        renderCalendar();
-        populateFilter();
-        renderLegend();
+        const responseData = await response.json();
+        console.log("✅ Odpověď z Firebase API:", responseData);
     } catch (error) {
-        console.error("❌ Chyba při načítání dat z backendu:", error);
+        console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
+
 
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
 function renderCalendar() {
