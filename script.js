@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', function () {
 const isLocal = window.location.hostname === "localhost";
 
 const API_BASE_URL = isLocal
-    ? "http://127.0.0.1:5001/backend-kalendar/us-central1"
-    : "https://us-central1-backend-kalendar.cloudfunctions.net";
+    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
+    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
 
     // 🟢 1️⃣ Načtení dat z backendu
 
@@ -25,7 +25,7 @@ async function fetchAppSheetData() {
     console.log("🔍 Odesílám požadavek na Firebase function...");
 
     try {
-        const response = await fetch("https://us-central1-backend-kalendar.cloudfunctions.net/fetchAppSheetData", {
+        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"
@@ -134,7 +134,7 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
     try {
-        const response = await fetch("https://us-central1-backend-kalendar.cloudfunctions.net/updateAppSheetEvent", {
+        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetEvent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
