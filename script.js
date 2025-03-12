@@ -235,27 +235,49 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
 async function listenForUpdates() {
     console.log("🔄 Zahajuji kontrolu změn...");
 
-    async function checkForChanges() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-            const data = await response.json();
+    setTimeout(checkForChanges, 5000);
+}
 
-            if (data.type === "update") {
-                console.log("✅ Změna detekována, aktualizuji kalendář...");
-                fetchAppSheetData();
-            } else {
-                console.log("⏳ Žádná změna, kontroluji znovu za 5 sekund...");
-            }
+async function checkForChanges() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+        const data = await response.json();
 
-            setTimeout(checkForChanges, 5000);
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
+        if (data.type === "update") {
+            console.log("🔄 Detekována změna, načítám data...");
+            await fetchAppSheetData();
+        } else {
+            console.log("⏳ Žádná změna, kontroluji za 5 sekund...");
         }
-    }
 
+        setTimeout(checkForChanges, 5000);
+    } catch (error) {
+        console.error("❌ Chyba při kontrole změn:", error);
+        setTimeout(checkForChanges, 5000);
+    }
+}
+
+// Opravené volání funkce:
+async function listenForUpdates() {
+    console.log("🔄 Zahajuji kontrolu změn...");
     checkForChanges();
 }
-    fetchAppSheetData();
-    listenForUpdates();
-});
+
+async function checkForChanges() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+
+        if (data.type === "update") {
+            console.log("🔄 Detekována změna, načítám nová data...");
+            await fetchAppSheetData();
+        } else {
+            console.log("⏳ Žádná změna.");
+        }
+    } catch (error) {
+        console.error("❌ Chyba při kontrole změn:", error);
+    } finally {
+        setTimeout(checkForChanges, 5000);
+    }
+}
