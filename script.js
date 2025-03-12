@@ -102,7 +102,8 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
             modal.style.display = "none";
             fetchAppSheetData();
         }
-    });
+    } // ⬅️ správně uzavřený if-blok
+});   // ⬅️ správně uzavřená funkce addEventListener
 
 // 🟢 5️⃣ Filtrace podle party
 function populateFilter() {
