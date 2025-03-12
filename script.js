@@ -150,7 +150,7 @@ function renderLegend() {
 
 // 🟢 6️⃣ Automatické sledování změn z backendu
 async function listenForUpdates() {
-    const response = await fetch(`${API_BASE_URL}/checkForUpdates`);
+    const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
     const data = await response.json();
 
     if (data.type === "update") fetchAppSheetData();
