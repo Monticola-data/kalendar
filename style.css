@@ -240,41 +240,44 @@ body {
 }
 
 /* Mobilní responzivita kalendáře */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   html, body {
     font-size: 14px !important;
     margin: 5px !important;
   }
-  #calendar {
+
+  #calendar-wrapper, #calendar {
     padding: 5px;
   }
-  #calendar-wrapper {
-    max-width: 100%; /* Na mobilu nastaví plnou šířku */
-    padding: 5px; /* menší padding pro úsporu prostoru */
-    margin: 50px 0 0 0; /* nahoře ponecháš původní odsazení kvůli headeru, vlevo/vpravo 0 */
-  }
+
   .fc-event, .fc-event-title {
     font-size: 0.7rem !important;
     padding: 2px !important;
   }
+
   .fc .fc-daygrid-day-number {
     font-size: 0.75rem !important;
   }
+
   .fc-toolbar-title {
     font-size: 1rem !important;
   }
+
   select, button, #partyFilter, #viewSelect {
     font-size: 0.8rem !important;
     padding: 5px !important;
   }
+
   .legend-item {
     font-size: 0.7rem !important;
     padding: 4px 8px !important;
   }
+
   .modal {
     width: 90% !important;
     padding: 10px !important;
   }
+
   .modal select, .modal button {
     font-size: 0.8rem !important;
   }
