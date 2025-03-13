@@ -240,14 +240,20 @@ body {
 }
 
 /* Mobilní responzivita kalendáře */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   html, body {
     font-size: 14px !important;
     margin: 5px !important;
   }
 
-  #calendar-wrapper, #calendar {
+  #calendar {
     padding: 5px;
+  }
+
+  #calendar-wrapper {
+    max-width: 100%; /* Na mobilu nastaví plnou šířku */
+    padding: 5px; /* menší padding pro úsporu prostoru */
+    margin: 50px 0 0 0; /* nahoře ponecháš původní odsazení kvůli headeru, vlevo/vpravo 0 */
   }
 
   .fc-event, .fc-event-title {
