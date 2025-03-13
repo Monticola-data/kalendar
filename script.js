@@ -2,16 +2,15 @@ document.getElementById("viewSelect").addEventListener("change", function() {
     calendar.changeView(this.value);
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    var calendarEl = document.getElementById('calendar');
-    var modal = document.getElementById('eventModal');
-    var partySelect = document.getElementById('partySelect');
-    var savePartyButton = document.getElementById('saveParty');
-    var partyFilter = document.getElementById('partyFilter');
-    var allEvents = [];
-    var partyMap = {}; 
-    var selectedEvent = null;
-    var calendar; // Definujeme proměnnou pro kalendář
+var calendarEl = document.getElementById('calendar');
+var modal = document.getElementById('eventModal');
+var partySelect = document.getElementById('partySelect');
+var savePartyButton = document.getElementById('saveParty');
+var partyFilter = document.getElementById('partyFilter');
+var allEvents = [];
+var partyMap = {}; 
+var selectedEvent = null;
+var calendar;
 
 const isLocal = window.location.hostname === "localhost";
 
@@ -242,6 +241,13 @@ async function listenForUpdates() {
     checkForChanges();
 }
 
-    fetchAppSheetData();
-    listenForUpdates();
+document.addEventListener('DOMContentLoaded', function () {
+    calendarEl = document.getElementById('calendar');
+    modal = document.getElementById('eventModal');
+    partySelect = document.getElementById('partySelect');
+    savePartyButton = document.getElementById('saveParty');
+    partyFilter = document.getElementById('partyFilter');
+
+    fetchAppSheetData(); // první načtení kalendáře a dat
+    listenForUpdates();  // zahájení periodických aktualizací
 });
