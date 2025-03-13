@@ -3,11 +3,57 @@
 body {
   font-family: 'Roboto', sans-serif;
   margin: 20px;
+  padding: 0;
+  display: flex;
+}
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #4d719e;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  z-index: 1000;
+}
+
+#menuToggle {
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 15px;
+}
+
+.sidebar {
+  background-color: #f4f4f4;
+  padding: 15px;
+  width: 250px;
+  position: fixed;
+  top: 50px; /* výška headeru */
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
 }
 #calendar-wrapper {
-  max-width: 1188px;
-  margin: auto;
+  max-width: 1188px;   /* tvoje původní omezení šířky */
+  margin: 60px auto 0 auto; /* 60px nahoře pro header */
+  padding: 15px;
 }
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 1001;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  #calendar-wrapper {
+    margin-left: 0;
+  }
 /* Nastavení kalendáře - velikost, okraje a vizuální efekty */
 #calendar {
   flex-grow: 1;
