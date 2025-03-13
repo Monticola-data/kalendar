@@ -21,8 +21,8 @@ body {
 }
 /* Události v kalendáři */
 .fc-event {
-  border-radius: 5px !important;
-  padding: 4px !important;
+  border-radius: 12px !important;
+  padding: 2px !important;
   text-align: center;
   box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
   border: none !important;
