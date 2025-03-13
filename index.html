@@ -15,17 +15,16 @@
   <!-- 🔹 Připojení externího CSS -->
   <link rel="stylesheet" href="style.css">
 
-<!-- 🔹 Favicon pro běžné prohlížeče -->
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <!-- 🔹 Favicon pro běžné prohlížeče -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
-<!-- 🔹 Apple Touch Icon pro iOS -->
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <!-- 🔹 Apple Touch Icon pro iOS -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-<!-- 🔹 Web App Manifest -->
-<link rel="manifest" href="manifest.json">
-
+  <!-- 🔹 Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
 
   <!-- 🔹 Service Worker -->
   <script>
@@ -45,23 +44,19 @@
 
 <body>  
 <div id="header">
-    <span id="menuToggle">☰</span>
-    <h2 style="text-align:center; color:#295779;">Kalendář</h2>
-  </div>
+  <h2 style="text-align:center; color:#295779;">Kalendář</h2>
+</div>
 
-  <div id="sidebar" class="sidebar">
-    <label for="partyFilter">Filtrovat podle party:</label>
-    <select id="partyFilter">
-      <option value="all">Všechny party</option>
-    </select>
+<select id="partyFilter">
+  <option value="all">Všechny party</option>
+</select>
 
-    <label for="viewSelect">Změna zobrazení:</label>
-    <select id="viewSelect">
-      <option value="dayGridMonth">Měsíční</option>
-      <option value="timeGridWeek">Týdenní</option>
-      <option value="listWeek">Seznam</option>
-    </select>
-  </div>
+<select id="viewSelect">
+  <option value="dayGridMonth">Měsíční</option>
+  <option value="timeGridWeek">Týdenní</option>
+  <option value="listWeek">Seznam</option>
+</select>
+</div>
 
   <div id="calendar-wrapper">
     <div id="calendar"></div>
