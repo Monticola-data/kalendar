@@ -245,4 +245,5 @@ async function listenForUpdates() {
 document.addEventListener('DOMContentLoaded', function () {
     fetchAppSheetData();
     listenForUpdates();
+    });
 });
