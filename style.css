@@ -131,7 +131,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 8px 15px;
-    border-radius: 12px;
+    border-radius: 5px;
     color: white;
     font-size: 14px;
     box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
@@ -148,7 +148,7 @@ body {
 .fc-daygrid-day {
   background: #ffffff;
   border-radius: 5px;
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
   transition: all 0.2s ease-in-out;
 }
 
