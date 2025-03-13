@@ -125,7 +125,7 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
     try {
-        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetEvent", {
+        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -137,10 +137,19 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
 
         const responseData = await response.json();
         console.log("✅ Odpověď z Firebase API:", responseData);
+
+        // 🟢 Zavolání webhooku pro refreshStatus
+        await fetch(`${API_BASE_URL}/webhook`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rowId: eventId })
+        });
+
     } catch (error) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
+
 
 
 
