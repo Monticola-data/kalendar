@@ -4,6 +4,23 @@ body {
   font-family: 'Roboto', sans-serif;
   margin: 20px;
 }
+#header {
+  background-color: #4d719e;
+  padding: 10px;
+  display: flex;
+  justify-content: center; /* zarovná doprostřed */
+}
+
+.header-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.header-controls select {
+  padding: 5px;
+  font-size: 14px;
+}
+
 #calendar-wrapper {
   max-width: 1188px;
   margin: auto;
