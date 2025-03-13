@@ -242,8 +242,6 @@ async function listenForUpdates() {
     checkForChanges();
 }
 
-document.addEventListener('DOMContentLoaded', function () {
     fetchAppSheetData();
     listenForUpdates();
-    });
 });
