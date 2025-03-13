@@ -247,7 +247,7 @@ body {
   }
 
   #calendar-wrapper, #calendar {
-    padding: 5px;
+    padding: 0px;
   }
 
   .fc-event, .fc-event-title {
@@ -264,7 +264,7 @@ body {
   }
 
   select, button, #partyFilter, #viewSelect {
-    font-size: 0.8rem !important;
+    font-size: 1rem !important;
     padding: 5px !important;
   }
 
@@ -274,12 +274,12 @@ body {
   }
 
   .modal {
-    width: 90% !important;
+    width: 80% !important;
     padding: 10px !important;
   }
 
   .modal select, .modal button {
-    font-size: 0.8rem !important;
+    font-size: 1rem !important;
   }
 }
 
