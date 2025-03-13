@@ -22,33 +22,28 @@ const API_BASE_URL = isLocal
     // 🟢 1️⃣ Načtení dat z backendu
 
 async function fetchAppSheetData() {
-    console.log("🔍 Odesílám požadavek na Firebase function...");
-
     try {
-        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json"
-            }
-        });
-
-        console.log("📡 Odpověď z Firebase function:", response);
-
-        if (!response.ok) {
-            throw new Error(`❌ Chyba: ${response.status} ${response.statusText}`);
-        }
+        const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
+        if (!response.ok) throw new Error(`Chyba ${response.status}`);
 
         const data = await response.json();
-        console.log("✅ Načtená data:", data);
         allEvents = data.events;
         partyMap = data.partyMap;
 
-        renderCalendar();
-        populateFilter();
-        renderLegend();
+        if (calendar) {
+            const currentView = calendar.view.type;
+            const currentDate = calendar.getDate();
 
+            calendar.removeAllEvents();
+            calendar.addEventSource(allEvents);
+            calendar.changeView(currentView, currentDate);
+        } else {
+            renderCalendar();
+            populateFilter();
+            renderLegend();
+        }
     } catch (error) {
-        console.error("❌ Chyba při načítání dat z backendu:", error);
+        console.error("Chyba načtení dat:", error);
     }
 }
 
@@ -228,30 +223,26 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
         }
     });
 
-    async function listenForUpdates() {
-        console.log("🔄 Zahajuji kontrolu změn...");
-
+async function listenForUpdates() {
     async function checkForChanges() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-        const data = await response.json();
+        try {
+            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+            const data = await response.json();
 
-        if (data.type === "update") {
-            console.log("✅ Aktualizuji kalendář!");
-            await fetchAppSheetData();
-        } else {
-            console.log("⏳ Žádná změna...");
+            if (data.type === "update") {
+                await fetchAppSheetData();
+            }
+
+            setTimeout(checkForChanges, 5000);
+        } catch (error) {
+            console.error("Chyba při kontrole změn:", error);
+            setTimeout(checkForChanges, 5000);
         }
-
-        setTimeout(checkForChanges, 5000);
-    } catch (error) {
-        console.error("❌ Chyba při kontrole změn:", error);
-        setTimeout(checkForChanges, 5000);
     }
+    checkForChanges();
 }
-        checkForChanges();
-    }
 
+document.addEventListener('DOMContentLoaded', function () {
     fetchAppSheetData();
     listenForUpdates();
-}); // ← Tato závorka pravděpodobně chybí
+});
