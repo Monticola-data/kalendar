@@ -250,6 +250,7 @@ body {
     padding: 5px;
   }
 
+  @media (max-width: 768px) {
   #calendar-wrapper {
     max-width: 100%; /* Na mobilu nastaví plnou šířku */
     padding: 5px; /* menší padding pro úsporu prostoru */
