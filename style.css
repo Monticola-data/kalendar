@@ -169,7 +169,7 @@ body {
 .fc-daygrid-day {
   background: #ffffff;
   border-radius: 0px;
-  box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8) !important;
   transition: all 0.2s ease-in-out;
 }
 
