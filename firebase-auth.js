@@ -10,29 +10,27 @@ if (!firebase.apps.length) {
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// Nejdříve vyřeš stav po redirectu
+// Zpracuj návrat z redirectu ihned po načtení stránky
 firebase.auth().getRedirectResult().then((result) => {
     if (result.user) {
         console.log("✅ Přihlášen přes redirect:", result.user.email);
-        sessionStorage.removeItem("redirecting");
+        window.currentUser = result.user; // globálně dostupné
     }
 }).catch((error) => {
     console.error("❌ Chyba redirect:", error);
-    sessionStorage.removeItem("redirecting");  // smaž stav, pokud nastala chyba
 }).finally(() => {
-    // Teprve zde spustíme sledování autentizace
+    // Hlavní kontrola stavu autentizace
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
             console.log("🔒 Přihlášený uživatel:", user.email);
-            // fetchAppSheetData(user.email); // Zatím zakomentované
-            sessionStorage.removeItem("redirecting");
+            window.currentUser = user; // globálně dostupné
+            // fetchAppSheetData(user.email); // zatím zakomentováno
         } else {
             if (!sessionStorage.getItem("redirecting")) {
                 sessionStorage.setItem("redirecting", "true");
                 firebase.auth().signInWithRedirect(provider);
             }
         }
+        sessionStorage.removeItem("redirecting"); // vždy smaž příznak po ověření stavu
     });
 });
-
-
