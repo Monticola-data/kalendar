@@ -23,12 +23,12 @@ async function fetchAppSheetData(userEmail) {
         if (!response.ok) throw new Error(`Chyba ${response.status}`);
 
         const data = await response.json();
-
         partyMap = data.partyMap;
 
-        // ✅ Filtrování eventů dle SECURITY_filter a přihlášeného uživatele
         allEvents = data.events.filter(event => {
-            const allowedEmails = event.extendedProps.SECURITY_filter || [];
+            const allowedEmails = (event.extendedProps.SECURITY_filter || "")
+                .split(",")
+                .map(email => email.trim()); // ✅ zbavení se mezer kolem emailů
             return allowedEmails.includes(userEmail);
         });
 
