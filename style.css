@@ -22,9 +22,6 @@ body {
   margin: auto;
 }
 
-.fc-scrollgrid, .fc-view-harness {
-  overflow: visible !important;
-}
 #calendar {
   flex-grow: 1;
   width: 100%;
@@ -156,11 +153,16 @@ select, button {
 }
 
 /* Stylování jednotlivých dní v kalendáři */
+.fc-daygrid-body table {
+  border-collapse: separate !important; /* Umožní border-spacing */
+  border-spacing: 6px !important;       /* Mezera mezi buňkami – uprav dle potřeby */
+}
 .fc-daygrid-day {
   background: #ffffff;
   border-radius: 0px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8) !important;
   transition: all 0.2s ease-in-out;
+  border: none !important;
 }
 
 .fc-daygrid-day:hover {
