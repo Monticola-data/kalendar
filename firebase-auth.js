@@ -37,5 +37,6 @@ function initApp(user) {
         document.addEventListener("DOMContentLoaded", () => fetchAppSheetData(user.email));
     } else {
         fetchAppSheetData(user.email);
+        listenForUpdates();
     }
 }
