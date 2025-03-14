@@ -10,33 +10,31 @@ if (!firebase.apps.length) {
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// Kontrola návratu po přesměrování
 firebase.auth().getRedirectResult().then((result) => {
     if (result.user) {
         console.log("✅ Přihlášen přes redirect:", result.user.email);
         fetchAppSheetData(result.user.email);
+        sessionStorage.removeItem("redirecting");
+    } else {
+        checkAuthState();
     }
 }).catch((error) => {
-    console.error("❌ Chyba redirect:", error);
+    console.error("❌ Chyba po redirectu:", error);
+    sessionStorage.removeItem("redirecting");
+    checkAuthState();
 });
 
-// Hlavní kontrola stavu uživatele
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        console.log("🔒 Přihlášený uživatel:", user.email);
-        fetchAppSheetData(user.email);
-    } else {
-        // Přesměruj na přihlášení jen pokud nejsme právě po redirectu
-        if (!sessionStorage.getItem('redirecting')) {
-            sessionStorage.setItem('redirecting', 'true');
-            firebase.auth().signInWithRedirect(provider);
+function checkAuthState() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log("🔒 Přihlášený uživatel:", user.email);
+            fetchAppSheetData(user.email);
+            sessionStorage.removeItem("redirecting");
+        } else {
+            if (!sessionStorage.getItem("redirecting")) {
+                sessionStorage.setItem("redirecting", "true");
+                firebase.auth().signInWithRedirect(provider);
+            }
         }
-    }
-});
-
-// Vyčištění příznaku redirectu po návratu
-window.addEventListener('load', () => {
-    if (sessionStorage.getItem('redirecting')) {
-        sessionStorage.removeItem('redirecting');
-    }
-});
+    });
+}
