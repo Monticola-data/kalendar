@@ -4,31 +4,31 @@ const firebaseConfig = {
     projectId: "kalendar-831f8"
 };
 
-// Inicializace Firebase aplikace jen jednou
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// Přihlášení přes Google OAuth
-function loginWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-            const user = result.user;
-            console.log("✅ Přihlášen uživatel:", user.email);
-            fetchAppSheetData(user.email);  // Zavoláš svůj kalendář s emailem uživatele
-        })
-        .catch((error) => {
-            console.error("❌ Chyba přihlášení:", error);
-        });
-}
+const provider = new firebase.auth.GoogleAuthProvider();
 
-// Kontrola přihlášeného uživatele (běží automaticky)
+// Kontrola přihlášeného uživatele
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-        console.log("🔒 Již přihlášený uživatel:", user.email);
+        console.log("🔒 Přihlášen uživatel:", user.email);
         fetchAppSheetData(user.email);
     } else {
-        loginWithGoogle();  // pokud není uživatel přihlášen, otevře se okno Google přihlášení
+        // Pokud uživatel není přihlášen, přesměruje na přihlášení
+        firebase.auth().signInWithRedirect(provider);
     }
 });
+
+// Po návratu z přesměrování (nutné)
+firebase.auth().getRedirectResult()
+    .then((result) => {
+        if (result.user) {
+            console.log("✅ Uživatel přihlášen po redirectu:", result.user.email);
+            fetchAppSheetData(result.user.email);
+        }
+    })
+    .catch((error) => {
+        console.error("❌ Chyba přihlášení:", error);
+    });
