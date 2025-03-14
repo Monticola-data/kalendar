@@ -10,24 +10,40 @@ if (!firebase.apps.length) {
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
-firebase.auth().getRedirectResult().then((result) => {
-    if (result.user) {
-        console.log("✅ Přihlášen uživatel (redirect):", result.user.email);
-        window.currentUser = result.user;
-        sessionStorage.setItem("loggedIn", "true");
-    }
-}).catch((error) => {
-    console.error("❌ Chyba přihlášení (redirect):", error);
-}).finally(() => {
+let authHandled = false;  // Globální příznak proti smyčce
+
+firebase.auth().getRedirectResult()
+    .then((result) => {
+        if (result.user) {
+            console.log("✅ Přihlášený uživatel po redirectu:", result.user.email);
+            authResolved(result.user);
+        } else {
+            authCheck();
+        }
+    })
+    .catch((error) => {
+        console.error("❌ Chyba redirectu:", error);
+        authCheck();
+    });
+
+function authResolved(user) {
+    window.currentUser = user;
+    sessionStorage.removeItem("redirecting");
+    authFinished = true;
+    console.log("🔒 Přihlášení úspěšné:", user.email);
+    // fetchAppSheetData(user.email);  // až budeš připravená
+}
+
+function authCheck() {
     firebase.auth().onAuthStateChanged((user) => {
         if (user) {
-            console.log("🔒 Už přihlášený uživatel:", user.email);
-            window.currentUser = user;
-            sessionStorage.setItem("loggedIn", "true");
-        } else {
-            if (!sessionStorage.getItem("loggedIn")) {
-                firebase.auth().signInWithRedirect(provider);
-            }
+            console.log("🔒 Uživatel přihlášen (onAuthStateChanged):", user.email);
+            authResolved(user);
+        } else if (!sessionStorage.getItem("auth_in_progress")) {
+            sessionStorage.setItem("auth_in_progress", "true");
+            setTimeout(() => {
+                firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+            }, 500); // Krátká prodleva pro jistotu
         }
     });
-});
+}
