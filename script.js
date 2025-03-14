@@ -50,7 +50,7 @@ const API_BASE_URL = isLocal
     ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
     : "https://us-central1-kalendar-831f8.cloudfunctions.net";
 
-    // 🟢 3️⃣ Aktualizace události v AppSheet přes API
+
 async function updateAppSheetEvent(eventId, newDate, newParty = null) {
     console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
 
@@ -81,81 +81,76 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
 }
 
 
-// 🟢 2️⃣ Funkce pro zobrazení kalendáře
+
 function renderCalendar() {
-    calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        editable: true,
-        locale: 'cs',
-        height: 'auto',
-        contentHeight: 'auto',
-        aspectRatio: 1.8,
-        events: allEvents,
+    
+calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    editable: true,
+    locale: 'cs',
+    height: 'auto',
+    contentHeight: 'auto',
+    aspectRatio: 1.8,
+    events: allEvents,
 
-        // 🟢 Přesunutí události v kalendáři (drag & drop)
-        eventDrop: async function (info) {
-            const updatedEvent = {
-                id: info.event.id,
-                start: info.event.startStr,
-                party: info.event.extendedProps.party || null // ✅ Uchováme partu
+eventDrop: async function (info) {
+    const updatedEvent = {
+        id: info.event.id,
+        start: info.event.startStr,
+        party: info.event.extendedProps.party || null // ✅ Uchováme partu
+    };
+    console.log("🔄 Událost přesunuta:", updatedEvent);
+    await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
+},
+
+eventClick: function (info) {
+    selectedEvent = info.event;
+    partySelect.innerHTML = "";
+
+    Object.entries(partyMap).forEach(([id, party]) => {
+        let option = document.createElement("option");
+        option.value = id;
+        option.textContent = party.name;
+
+        if (id === info.event.extendedProps.party) {
+            option.selected = true;
+        }
+            partySelect.appendChild(option);
+        });
+
+    let detailButton = document.getElementById("detailButton");
+        if (info.event.extendedProps.detail) {
+            detailButton.style.display = "block";
+            detailButton.onclick = function () {
+                window.open(info.event.extendedProps.detail, "_blank");
             };
+        } else {
+            detailButton.style.display = "none";
+        }
 
-            console.log("🔄 Událost přesunuta:", updatedEvent);
-
-            // ✅ Odeslat aktualizaci do AppSheet
-            await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
-        },
-
-
-            // 🟢 Kliknutí na událost → změna party
-            eventClick: function (info) {
-            selectedEvent = info.event;
-            partySelect.innerHTML = "";
-
-            Object.entries(partyMap).forEach(([id, party]) => {
-                let option = document.createElement("option");
-                option.value = id;
-                option.textContent = party.name;
-
-                if (id === info.event.extendedProps.party) {
-                    option.selected = true;
-                }
-                partySelect.appendChild(option);
-            });
-
-            let detailButton = document.getElementById("detailButton");
-            if (info.event.extendedProps.detail) {
-                detailButton.style.display = "block";
-                detailButton.onclick = function () {
-                    window.open(info.event.extendedProps.detail, "_blank");
-                };
-            } else {
-                detailButton.style.display = "none";
-            }
-
-            modal.style.display = "block";
-            },
+    modal.style.display = "block";
+},
 
 eventContent: function(arg) {
-      let icon = "";
-      let title = arg.event.title;
+    let icon = "";
+    let title = arg.event.title;
 
-      if (arg.event.extendedProps.predane) {
+    if (arg.event.extendedProps.predane) {
         icon = "✍️"; // Předané
         title = title.toUpperCase();
-      } else if (arg.event.extendedProps.hotove) {
+    } else if (arg.event.extendedProps.hotove) {
         icon = "✅"; // Hotové
         title = title.toUpperCase();
-      } else if (arg.event.extendedProps.odeslane) {
+    } else if (arg.event.extendedProps.odeslane) {
         icon = "📩"; // Odeslané
         title = title.toUpperCase();
-      }
+    }
       return { html: `<b>${icon}</b> ${title}` };
     }
 
-        });       
-        calendar.render();
-    }
+});       
+calendar.render();
+}
 
 
 
