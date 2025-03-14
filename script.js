@@ -13,6 +13,11 @@ const isLocal = window.location.hostname === "localhost";
 
 async function fetchAppSheetData(userEmail) {
     try {
+        if (!userEmail) {
+            console.error("❌ Chyba: uživatel není přihlášený nebo chybí email.");
+            return;
+        }
+
         const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
         if (!response.ok) throw new Error(`Chyba ${response.status}`);
 
@@ -27,10 +32,10 @@ async function fetchAppSheetData(userEmail) {
                 ? security.map(e => e.trim().toLowerCase())
                 : [];
 
-            return allowedEmails.includes(normalizeEmail(userEmail));
+            return allowedEmails.includes(normalizedUserEmail);
         });
 
-        console.log("🔍 Výsledek filtrování:", allEvents);
+        console.log("✅ Eventy po filtrování:", allEvents);
 
         if (calendar) {
             calendar.removeAllEvents();
