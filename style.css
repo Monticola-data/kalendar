@@ -155,7 +155,7 @@ select, button {
 /* Stylování jednotlivých dní v kalendáři */
 .fc-daygrid-body table {
   border-collapse: separate !important; /* Umožní border-spacing */
-  border-spacing: 0px !important;       /* Mezera mezi buňkami – uprav dle potřeby */
+  border-spacing: 0.5px !important;       /* Mezera mezi buňkami – uprav dle potřeby */
 }
 .fc-daygrid-day {
   background: #ffffff;
