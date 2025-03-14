@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ✅ Jediná správná definice initApp
 function initApp(user) {
     window.currentUser = user;
+    sessionStorage.setItem('userEmail', user.email);
     console.log("🚀 Přihlášený:", user.email);
 
     // ✅ spolehlivá oprava:
