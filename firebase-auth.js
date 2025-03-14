@@ -1,5 +1,5 @@
 const firebaseConfig = {
-    apiKey: "TVŮJ_API_KEY",  // skutečný API key z Firebase console
+    apiKey: "AIzaSyBg9E8w5C5azvMKAJ3VY_YQmwu5DgaAU80",
     authDomain: "kalendar-831f8.firebaseapp.com",
     projectId: "kalendar-831f8"
 };
