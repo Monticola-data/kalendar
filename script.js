@@ -213,19 +213,22 @@ async function listenForUpdates() {
             const data = await response.json();
 
             if (data.type === "update") {
-                if (window.currentUser && window.currentUser.email) {
-                    await fetchAppSheetData(window.currentUser.email);
+                const userEmail = window.currentUser?.email || sessionStorage.getItem('userEmail');
+
+                if (userEmail) {
+                    await fetchAppSheetData(userEmail);
                 } else {
-                    console.warn("⚠️ Nelze načíst data: uživatel není přihlášený.");
+                    console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
                 }
             }
 
             setTimeout(checkForChanges, 5000);
         } catch (error) {
-            console.error("Chyba při kontrole změn:", error);
+            console.error("❌ Chyba při kontrole změn:", error);
             setTimeout(checkForChanges, 5000);
         }
     }
+
     checkForChanges();
 }
 
