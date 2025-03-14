@@ -213,7 +213,11 @@ async function listenForUpdates() {
             const data = await response.json();
 
             if (data.type === "update") {
-                await fetchAppSheetData();
+                if (window.currentUser && window.currentUser.email) {
+                    await fetchAppSheetData(window.currentUser.email);
+                } else {
+                    console.warn("⚠️ Nelze načíst data: uživatel není přihlášený.");
+                }
             }
 
             setTimeout(checkForChanges, 5000);
