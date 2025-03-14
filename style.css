@@ -247,7 +247,7 @@ body {
   }
 
   #calendar-wrapper, #calendar {
-    padding: 0px;
+    padding: 3px;
   }
 
   .fc-event, .fc-event-title {
