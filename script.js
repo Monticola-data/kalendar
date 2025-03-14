@@ -26,9 +26,7 @@ async function fetchAppSheetData(userEmail) {
         partyMap = data.partyMap;
 
         allEvents = data.events.filter(event => {
-            const allowedEmails = (event.extendedProps.SECURITY_filter || "")
-                .split(",")
-                .map(email => email.trim()); // ✅ zbavení se mezer kolem emailů
+            const allowedEmails = event.extendedProps.SECURITY_filter || [];
             return allowedEmails.includes(userEmail);
         });
 
