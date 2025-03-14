@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginButton.addEventListener('click', () => {
         firebase.auth().signInWithPopup(provider)
             .then(result => {
-                console.log("✅ Přihlášený uživatel:", result.user.email);
+                console.log("✅ Přihlášený uživatel (popup):", result.user.email);
                 initApp(result.user);
             })
             .catch(error => {
@@ -16,18 +16,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
-            console.log("🔒 Uživatel přihlášen:", user.email);
-            loginButton.style.display = "none";  // ✅ schová tlačítko
+            console.log("🔒 Přihlášen uživatel:", user.email);
+            loginButton.style.display = "none"; // ✅ TOTO DEFINITIVNĚ SKRYJE TLAČÍTKO!
             initApp(user);
         } else {
-            console.log("🔓 Uživatel není přihlášen");
-            loginButton.style.display = "inline-block";  // ✅ zobrazí tlačítko
+            loginButton.style.display = "inline-block"; // ✅ ukáže tlačítko
+            console.log("🔓 Uživatel není přihlášený");
         }
     });
 });
 
 function initApp(user) {
     window.currentUser = user;
-    console.log("🚀 App připravena pro uživatele:", user.email);
-    // fetchAppSheetData(user.email); – připraveno pro další krok
+    console.log("🚀 Aplikace připravena pro:", user.email);
+    // zde načteš kalendář dle emailu:
+    // fetchAppSheetData(user.email);
 }
