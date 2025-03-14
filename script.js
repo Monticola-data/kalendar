@@ -11,12 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 const isLocal = window.location.hostname === "localhost";
 
-const API_BASE_URL = isLocal
-    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
-    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
-
-    // 🟢 1️⃣ Načtení dat z backendu
-
 async function fetchAppSheetData(userEmail) {
     try {
         const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
@@ -25,15 +19,18 @@ async function fetchAppSheetData(userEmail) {
         const data = await response.json();
         partyMap = data.partyMap;
 
+        const normalizedUserEmail = userEmail.trim().toLowerCase();
+
         allEvents = data.events.filter(event => {
-            const allowedEmails = Array.isArray(event.extendedProps.SECURITY_filter)
-                ? event.extendedProps.SECURITY_filter
+            const security = event.extendedProps.SECURITY_filter;
+            const allowedEmails = Array.isArray(security)
+                ? security.map(e => e.trim().toLowerCase())
                 : [];
 
-            return allowedEmails.includes(userEmail);
+            return allowedEmails.includes(normalizeEmail(userEmail));
         });
 
-        console.log("🔍 Eventy po filtrování:", allEvents);
+        console.log("🔍 Výsledek filtrování:", allEvents);
 
         if (calendar) {
             calendar.removeAllEvents();
@@ -49,6 +46,9 @@ async function fetchAppSheetData(userEmail) {
     }
 }
 
+function normalizeEmail(email) {
+    return email.trim().toLowerCase();
+}
 
 
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
