@@ -1,33 +1,34 @@
-// firebase konfigurace tvého projektu
 const firebaseConfig = {
-    apiKey: "AIzaSyBg9E8w5C5azvMKAJ3VY_YQmwu5DgaAU80",
+    apiKey: "TVŮJ_API_KEY",  // skutečný API key z Firebase console
     authDomain: "kalendar-831f8.firebaseapp.com",
     projectId: "kalendar-831f8"
 };
 
-// Inicializace Firebase
-firebase.initializeApp(firebaseConfig);
+// Inicializace Firebase aplikace jen jednou
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 
-// Funkce pro přihlášení
+// Přihlášení přes Google OAuth
 function loginWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithPopup(provider)
         .then((result) => {
             const user = result.user;
             console.log("✅ Přihlášen uživatel:", user.email);
-            fetchAppSheetData(user.email);  // Tady načteš eventy pro uživatele
+            fetchAppSheetData(user.email);  // Zavoláš svůj kalendář s emailem uživatele
         })
         .catch((error) => {
             console.error("❌ Chyba přihlášení:", error);
         });
 }
 
-// Kontrola, jestli je uživatel už přihlášen
+// Kontrola přihlášeného uživatele (běží automaticky)
 firebase.auth().onAuthStateChanged((user) => {
     if (user) {
-        console.log("🔒 Přihlášený uživatel:", user.email);
-        fetchAppSheetData(user.email); // Zavolej načtení dat
+        console.log("🔒 Již přihlášený uživatel:", user.email);
+        fetchAppSheetData(user.email);
     } else {
-        loginWithGoogle(); // Přihlášení
+        loginWithGoogle();  // pokud není uživatel přihlášen, otevře se okno Google přihlášení
     }
 });
