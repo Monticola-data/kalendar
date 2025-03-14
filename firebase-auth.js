@@ -16,18 +16,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
-            console.log("🔒 Přihlášen uživatel:", user.email);
-            loginButton.style.display = "none"; // ✅ TOTO DEFINITIVNĚ SKRYJE TLAČÍTKO!
+            console.log("🔒 Už přihlášený:", user.email);
+            loginButton.style.display = "none"; // skryj tlačítko
             initApp(user);
         } else {
-            loginButton.style.display = "inline-block"; // ✅ ukáže tlačítko
-            console.log("🔓 Uživatel není přihlášený");
+            console.log("🔓 Uživatel není přihlášen");
+            loginButton.style.display = "inline-block"; // zobraz tlačítko
         }
     });
 });
 
+// ✅ Pouze jedna správná definice initApp
 function initApp(user) {
     window.currentUser = user;
     console.log("🚀 Přihlášený:", user.email);
-    fetchAppSheetData(user.email); // ✅ Zde správně předáváš email uživatele
+
+    if (typeof fetchAppSheetData === "function") {
+        fetchAppSheetData(user.email);
+    } else {
+        document.addEventListener("DOMContentLoaded", () => {
+            if (typeof fetchAppSheetData === "function") {
+                fetchAppSheetData(user.email);
+            } else {
+                console.error("❌ Funkce fetchAppSheetData není definována!");
+            }
+        });
+    }
 }
