@@ -1,25 +1,33 @@
-// firebase-auth.js - jistě funkční varianta (bez smyčky!)
+// firebase-auth.js – funkční varianta s tlačítkem
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
+document.getElementById('loginButton').addEventListener('click', () => {
+    firebase.auth().signInWithPopup(provider)
+    .then(result => {
+        console.log("✅ Úspěšně přihlášený uživatel:", result.user.email);
+        initApp(result.user);
+    })
+    .catch(error => {
+        console.error("❌ Chyba při přihlášení:", error);
+        alert("Nepodařilo se přihlásit: " + error.message);
+    });
+});
+
+// ověř přihlášení automaticky po načtení
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
-        console.log("🔒 Uživatel přihlášený:", user.email);
-        window.currentUser = user;
+        console.log("🔒 Uživatel je přihlášený:", user.email);
         initApp(user);
     } else {
-        console.log("🔓 Nikdo není přihlášený, spouštím popup...");
-        firebase.auth().signInWithPopup(provider).then(result => {
-            console.log("✅ Přihlášen uživatel (popup):", result.user.email);
-            initApp(result.user);
-        }).catch(error => {
-            console.error("❌ Chyba popup přihlášení:", error);
-        });
+        console.log("🔓 Uživatel není přihlášený – čekám na kliknutí na tlačítko");
+        // Zde můžeš ukázat tlačítko přihlášení
     }
 });
 
 function initApp(user) {
     window.currentUser = user;
-    console.log("🚀 App inicializována pro uživatele:", user.email);
-    // fetchAppSheetData(user.email); později
+    console.log("🚀 Aplikace připravena pro:", user.email);
+    // Později tady načteš data:
+    // fetchAppSheetData(user.email);
 }
