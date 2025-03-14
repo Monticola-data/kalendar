@@ -25,6 +25,7 @@ async function fetchAppSheetData(userEmail) {
         const data = await response.json();
         partyMap = data.partyMap;
 
+        // ✅ Opravená definitivní verze filtru
         allEvents = data.events.filter(event => {
             const allowedEmails = event.extendedProps.SECURITY_filter || [];
             return allowedEmails.includes(userEmail);
