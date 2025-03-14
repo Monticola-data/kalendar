@@ -1,5 +1,5 @@
 <style>
-/* Základní stylování stránky */
+
 body {
   font-family: 'Roboto', sans-serif;
   margin: 20px;
@@ -17,12 +17,11 @@ body {
   padding: 5px;
   font-size: 14px;
 }
-
 #calendar-wrapper {
   max-width: 1188px;
   margin: auto;
 }
-/* Nastavení kalendáře - velikost, okraje a vizuální efekty */
+
 #calendar {
   flex-grow: 1;
   width: 100%;
@@ -30,6 +29,7 @@ body {
   margin: auto;
   box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
   padding: 15px;
+  overflow: visible !important;
   background: #f9f9f9;
   border-radius: 0px;
 }
@@ -111,32 +111,21 @@ body {
     background-color: #0056b3;
 }
 
+#filter-container {
+  text-align: center;
+  margin-bottom: 10px;
+}
+select, button {
+  background-color: #cccccc;
+  padding: 10px;
+  font-size: 14px;
+  margin: 5px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
 
-        #filter-container {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        select, button {
-            background-color: #cccccc;
-            padding: 10px;
-            font-size: 14px;
-            margin: 5px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
-            border-radius: 5px;
-            border: none;
-            cursor: pointer;
-        }
-        #resetFilter {
-            background-color: #8f6b6b;
-            color: white;
-            //font-weight: bold;
-            transition: background 0.3s ease;
-        }
-        #resetFilter:hover {
-            background-color: #664848;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
-        }
-/* Styl legendy */
 #legend {
     text-align: center;
     margin-top: 10px;
@@ -146,7 +135,6 @@ body {
     gap: 10px; /* Mezera mezi položkami legendy */
 }
 
-/* Položky legendy */
 .legend-item {
     display: flex;
     align-items: center;
@@ -173,7 +161,6 @@ body {
   transition: all 0.2s ease-in-out;
 }
 
-/* Hover efekt pro dny */
 .fc-daygrid-day:hover {
   background: #e0e0e0;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
