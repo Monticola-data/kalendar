@@ -26,20 +26,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ✅ Pouze jedna správná definice initApp
+// ✅ Jediná správná definice initApp
 function initApp(user) {
     window.currentUser = user;
     console.log("🚀 Přihlášený:", user.email);
 
-    if (typeof fetchAppSheetData === "function") {
-        fetchAppSheetData(user.email);
+    // ✅ spolehlivá oprava:
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => fetchAppSheetData(user.email));
     } else {
-        document.addEventListener("DOMContentLoaded", () => {
-            if (typeof fetchAppSheetData === "function") {
-                fetchAppSheetData(user.email);
-            } else {
-                console.error("❌ Funkce fetchAppSheetData není definována!");
-            }
-        });
+        fetchAppSheetData(user.email);
     }
 }
