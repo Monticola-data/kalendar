@@ -10,27 +10,26 @@ if (!firebase.apps.length) {
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
-// Zpracuj návrat z redirectu ihned po načtení stránky
+firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+        console.log("🔒 Přihlášený uživatel:", user.email);
+        window.currentUser = user;
+    } else if (!sessionStorage.getItem("redirecting")) {
+        sessionStorage.setItem("redirecting", "true");
+        firebase.auth().signInWithRedirect(provider);
+    }
+});
+
+// Přesměrování zpět vyřešíme jednou a správně
 firebase.auth().getRedirectResult().then((result) => {
     if (result.user) {
         console.log("✅ Přihlášen přes redirect:", result.user.email);
-        window.currentUser = result.user; // globálně dostupné
+        window.currentUser = result.user;
+        sessionStorage.removeItem("redirecting");
+    } else {
+        sessionStorage.removeItem("redirecting");
     }
 }).catch((error) => {
     console.error("❌ Chyba redirect:", error);
-}).finally(() => {
-    // Hlavní kontrola stavu autentizace
-    firebase.auth().onAuthStateChanged((user) => {
-        if (user) {
-            console.log("🔒 Přihlášený uživatel:", user.email);
-            window.currentUser = user; // globálně dostupné
-            // fetchAppSheetData(user.email); // zatím zakomentováno
-        } else {
-            if (!sessionStorage.getItem("redirecting")) {
-                sessionStorage.setItem("redirecting", "true");
-                firebase.auth().signInWithRedirect(provider);
-            }
-        }
-        sessionStorage.removeItem("redirecting"); // vždy smaž příznak po ověření stavu
-    });
+    sessionStorage.removeItem("redirecting");
 });
