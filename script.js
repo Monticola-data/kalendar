@@ -1,20 +1,3 @@
-document.addEventListener('DOMContentLoaded', function () {
-    var calendarEl = document.getElementById('calendar');
-    var modal = document.getElementById('eventModal');
-    var partySelect = document.getElementById('partySelect');
-    var savePartyButton = document.getElementById('saveParty');
-    var partyFilter = document.getElementById('partyFilter');
-    var allEvents = [];
-    var partyMap = {}; 
-    var selectedEvent = null;
-    var calendar;
-
-const isLocal = window.location.hostname === "localhost";
-
-const API_BASE_URL = isLocal
-    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
-    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
-
 async function fetchAppSheetData(userEmail) {
     try {
         if (!userEmail) {
@@ -57,6 +40,44 @@ async function fetchAppSheetData(userEmail) {
 
 function normalizeEmail(email) {
     return email.trim().toLowerCase();
+}
+
+let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
+
+const isLocal = window.location.hostname === "localhost";
+
+const API_BASE_URL = isLocal
+    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
+    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
+
+    // 🟢 3️⃣ Aktualizace události v AppSheet přes API
+async function updateAppSheetEvent(eventId, newDate, newParty = null) {
+    console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                rowId: eventId,
+                Datum: newDate,
+                Parta: newParty
+            })
+        });
+
+        const responseData = await response.json();
+        console.log("✅ Odpověď z Firebase API:", responseData);
+
+        // 🟢 Zavolání webhooku pro refreshStatus
+        await fetch(`${API_BASE_URL}/webhook`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rowId: eventId })
+        });
+
+    } catch (error) {
+        console.error("❌ Chyba při aktualizaci události:", error);
+    }
 }
 
 
@@ -136,67 +157,8 @@ eventContent: function(arg) {
         calendar.render();
     }
 
-    // 🟢 3️⃣ Aktualizace události v AppSheet přes API
-async function updateAppSheetEvent(eventId, newDate, newParty = null) {
-    console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                rowId: eventId,
-                Datum: newDate,
-                Parta: newParty
-            })
-        });
-
-        const responseData = await response.json();
-        console.log("✅ Odpověď z Firebase API:", responseData);
-
-        // 🟢 Zavolání webhooku pro refreshStatus
-        await fetch(`${API_BASE_URL}/webhook`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rowId: eventId })
-        });
-
-    } catch (error) {
-        console.error("❌ Chyba při aktualizaci události:", error);
-    }
-}
 
 
-
-
-    // 🟢 4️⃣ Uložení nové party
-    savePartyButton.addEventListener("click", async function () {
-        if (selectedEvent) {
-            let selectedPartyId = partySelect.value;
-            let selectedPartyName = partyMap[selectedPartyId]?.name || "Neznámá parta";
-            let selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
-
-            console.log("🟢 Nové ID party:", selectedPartyId);
-            console.log("🟢 Název party:", selectedPartyName);
-            console.log("🟢 Barva party:", selectedPartyColor);
-
-            const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
-            if (updatedEvent) {
-                updatedEvent.party = selectedPartyId;
-                updatedEvent.color = selectedPartyColor;
-                selectedEvent.setExtendedProp("party", selectedPartyId);
-                selectedEvent.setProp("title", selectedEvent.title.split(" (")[0]);
-                selectedEvent.setProp("backgroundColor", selectedPartyColor);
-
-                await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
-                modal.style.display = "none";
-            } else {
-                console.log("❌ Událost nebyla nalezena!");
-            }
-        } else {
-            console.log("❌ `selectedEvent` je null!");
-        }
-    });
 
     // 🟢 5️⃣ Funkce pro naplnění filtru podle party
     function populateFilter() {
@@ -263,9 +225,35 @@ async function listenForUpdates() {
     checkForChanges();
 }
 
-document.getElementById("viewSelect").addEventListener("change", function () {
+// ✅ Ostatní DOM věci musí být uvnitř DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function () {
+    calendarEl = document.getElementById('calendar');
+    modal = document.getElementById('eventModal');
+    partySelect = document.getElementById('partySelect');
+    savePartyButton = document.getElementById('saveParty');
+    partyFilter = document.getElementById('partyFilter');
+
+    savePartyButton.addEventListener("click", async function () {
+        if (selectedEvent) {
+            const selectedPartyId = partySelect.value;
+            const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
+            const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+            if (updatedEvent) {
+                updatedEvent.party = selectedPartyId;
+                updatedEvent.color = selectedPartyColor;
+                selectedEvent.setExtendedProp("party", selectedPartyId);
+                selectedEvent.setProp("backgroundColor", selectedPartyColor);
+
+                await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
+                modal.style.display = "none";
+            }
+        }
+    });
+
+    document.getElementById("viewSelect").addEventListener("change", function () {
         calendar.changeView(this.value);
     });
 
     listenForUpdates();
 });
+
