@@ -17,14 +17,20 @@ const API_BASE_URL = isLocal
 
     // 🟢 1️⃣ Načtení dat z backendu
 
-async function fetchAppSheetData() {
+async function fetchAppSheetData(userEmail) {
     try {
         const response = await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/fetchAppSheetData");
         if (!response.ok) throw new Error(`Chyba ${response.status}`);
 
         const data = await response.json();
-        allEvents = data.events;
+
         partyMap = data.partyMap;
+
+        // ✅ Filtrování eventů dle SECURITY_filter a přihlášeného uživatele
+        allEvents = data.events.filter(event => {
+            const allowedEmails = event.extendedProps.SECURITY_filter || [];
+            return allowedEmails.includes(userEmail);
+        });
 
         if (calendar) {
             const currentView = calendar.view.type;
@@ -39,9 +45,10 @@ async function fetchAppSheetData() {
             renderLegend();
         }
     } catch (error) {
-        console.error("Chyba načtení dat:", error);
+        console.error("❌ Chyba načtení dat:", error);
     }
 }
+
 
 
 // 🟢 2️⃣ Funkce pro zobrazení kalendáře
