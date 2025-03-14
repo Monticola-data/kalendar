@@ -267,6 +267,5 @@ document.getElementById("viewSelect").addEventListener("change", function () {
         calendar.changeView(this.value);
     });
 
-    fetchAppSheetData();
     listenForUpdates();
 });
