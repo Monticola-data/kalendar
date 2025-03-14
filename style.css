@@ -1,7 +1,14 @@
 <style>
 
+:root {
+  --primary-color: #5a7d7c;
+  --background-color: #ffffff;
+  --shadow-color: rgba(0,0,0,0.08);
+}
+
 body {
   font-family: 'Roboto', sans-serif;
+  background: var(--secondary-color);
   margin: 20px;
 }
 #header {
@@ -23,17 +30,18 @@ body {
 }
 
 #calendar {
+  background: var(--secondary-color);
   flex-grow: 1;
   width: 100%;
   max-width: 1188px;
   margin: auto;
   box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
   padding: 15px;
-  background: #f9f9f9;
   border-radius: 0px;
 }
 /* Události v kalendáři */
 .fc-event {
+  background: var(--primary-color);
   overflow: hidden;
   border-radius: 5px !important;
   padding: 2px !important;
