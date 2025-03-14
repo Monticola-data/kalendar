@@ -26,10 +26,6 @@ async function fetchAppSheetData(userEmail) {
         partyMap = data.partyMap;
 
         allEvents = data.events.filter(event => {
-            // ✅ Dočasně vložený debugovací kód
-            console.log("🔍 SECURITY_filter (typ):", typeof event.extendedProps.SECURITY_filter);
-            console.log("🔍 SECURITY_filter (obsah):", event.extendedProps.SECURITY_filter);
-
             const allowedEmails = Array.isArray(event.extendedProps.SECURITY_filter)
                 ? event.extendedProps.SECURITY_filter
                 : [];
@@ -37,15 +33,12 @@ async function fetchAppSheetData(userEmail) {
             return allowedEmails.includes(userEmail);
         });
 
-        console.log("🔍 Výsledek filtrování:", allEvents);
+        console.log("🔍 Eventy po filtrování:", allEvents);
 
         if (calendar) {
-            const currentView = calendar.view.type;
-            const currentDate = calendar.getDate();
-
             calendar.removeAllEvents();
             calendar.addEventSource(allEvents);
-            calendar.changeView(currentView, currentDate);
+            calendar.render();
         } else {
             renderCalendar();
             populateFilter();
