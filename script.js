@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 const isLocal = window.location.hostname === "localhost";
 
+const API_BASE_URL = isLocal
+    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
+    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
+
 async function fetchAppSheetData(userEmail) {
     try {
         if (!userEmail) {
