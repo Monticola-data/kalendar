@@ -7,11 +7,27 @@
   <meta name="theme-color" content="#4d719e">
   <title>Plánování zakázek</title>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK compat -->
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
 
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBg9E8w5C5azvMKAJ3VY_YQmwu5DgaAU80",
+      authDomain: "kalendar-831f8.firebaseapp.com",
+      databaseURL: "https://kalendar-831f8-default-rtdb.firebaseio.com",
+      projectId: "kalendar-831f8",
+      storageBucket: "kalendar-831f8.firebasestorage.app",
+      messagingSenderId: "745578521928",
+      appId: "1:745578521928:web:c5c733cb9061b1668aff7d",
+      measurementId: "G-X1SC7SDL4G"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
   <script src="./firebase-auth.js"></script>
+
 
   <!-- 🔹 FullCalendar knihovny -->
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
