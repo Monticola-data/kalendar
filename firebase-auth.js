@@ -1,5 +1,3 @@
-// firebase-auth.js - definitivní čistá verze (compat SDK)
-
 const provider = new firebase.auth.GoogleAuthProvider();
 
 firebase.auth().getRedirectResult().then(result => {
@@ -13,22 +11,24 @@ firebase.auth().getRedirectResult().then(result => {
     sessionStorage.removeItem("redirecting");
 });
 
-// hlavní sledování stavu přihlášení
+// hlavní sledování autentizace
 firebase.auth().onAuthStateChanged(user => {
     if (user) {
-        console.log("🔒 Přihlášený uživatel:", user.email);
+        console.log("🔒 Už přihlášen:", user.email);
         sessionStorage.removeItem("redirecting");
         initApp(user);
-    } else if (!sessionStorage.getItem("redirecting")) {
-        sessionStorage.setItem("redirecting", "true");
-        firebase.auth().signInWithRedirect(provider);
+    } else {
+        if (!sessionStorage.getItem("redirecting")) {
+            sessionStorage.setItem("redirecting", "true");
+            firebase.auth().signInWithRedirect(provider);
+        }
     }
 });
 
-// Inicializace tvé aplikace, až budeš potřebovat
+// Jediná správná definice funkce initApp
 function initApp(user) {
     window.currentUser = user;
-    console.log("✅ Aplikace připravena pro:", user.email);
-    // Tady budeš později načítat data:
+    console.log("🚀 Aplikace připravena pro uživatele:", user.email);
+    // zde později načítáš data:
     // fetchAppSheetData(user.email);
 }
