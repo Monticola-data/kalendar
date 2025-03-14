@@ -10,23 +10,29 @@ if (!firebase.apps.length) {
 
 const provider = new firebase.auth.GoogleAuthProvider();
 
-firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-        console.log("🔒 Přihlášený uživatel:", user.email);
-        // fetchAppSheetData(user.email); // 👈 toto zatím zakomentuj!
-    } else {
-        if (!sessionStorage.getItem("redirecting")) {
-            sessionStorage.setItem("redirecting", "true");
-            firebase.auth().signInWithRedirect(provider);
-        }
-    }
-});
-
+// Nejdříve vyřeš stav po redirectu
 firebase.auth().getRedirectResult().then((result) => {
     if (result.user) {
         console.log("✅ Přihlášen přes redirect:", result.user.email);
-        // fetchAppSheetData(result.user.email); // 👈 i zde zakomentuj!
         sessionStorage.removeItem("redirecting");
     }
+}).catch((error) => {
+    console.error("❌ Chyba redirect:", error);
+    sessionStorage.removeItem("redirecting");  // smaž stav, pokud nastala chyba
+}).finally(() => {
+    // Teprve zde spustíme sledování autentizace
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log("🔒 Přihlášený uživatel:", user.email);
+            // fetchAppSheetData(user.email); // Zatím zakomentované
+            sessionStorage.removeItem("redirecting");
+        } else {
+            if (!sessionStorage.getItem("redirecting")) {
+                sessionStorage.setItem("redirecting", "true");
+                firebase.auth().signInWithRedirect(provider);
+            }
+        }
+    });
 });
+
 
