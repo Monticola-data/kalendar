@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function initApp(user) {
     window.currentUser = user;
-    console.log("🚀 Aplikace připravena pro:", user.email);
-    // zde načteš kalendář dle emailu:
-    // fetchAppSheetData(user.email);
+    console.log("🚀 Přihlášený:", user.email);
+    fetchAppSheetData(user.email); // ✅ Zde správně předáváš email uživatele
 }
