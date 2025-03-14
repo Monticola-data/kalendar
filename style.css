@@ -168,7 +168,7 @@ body {
 /* Stylování jednotlivých dní v kalendáři */
 .fc-daygrid-day {
   background: #ffffff;
-  border-radius: 5px;
+  border-radius: 0px;
   box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
   transition: all 0.2s ease-in-out;
 }
@@ -247,7 +247,7 @@ body {
   }
 
   #calendar-wrapper, #calendar {
-    padding: 3px;
+    padding: 5px;
   }
 
   .fc-event, .fc-event-title {
