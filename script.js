@@ -213,6 +213,8 @@ calendar.render();
     });
 
 async function listenForUpdates() {
+    let refreshInterval;
+
     async function checkForChanges() {
         try {
             const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
@@ -227,16 +229,30 @@ async function listenForUpdates() {
                     console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
                 }
             }
-
-            setTimeout(checkForChanges, 5000);
         } catch (error) {
             console.error("❌ Chyba při kontrole změn:", error);
-            setTimeout(checkForChanges, 5000);
         }
     }
 
-    checkForChanges();
+    // ✅ Zde používej setInterval místo setTimeout pro robustnější běh
+    function startInterval() {
+        clearInterval(refreshInterval); // vyčištění předchozího intervalu
+        refreshInterval = setInterval(checkForChanges, 5000); 
+    }
+
+    // ✅ Spuštění při prvním načtení
+    startInterval();
+
+    // ✅ Obnovení kontroly po probuzení stránky z uspání (mobil/PC)
+    document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) {
+            console.log("✅ Stránka znovu aktivována, obnovuji kontrolu změn.");
+            startInterval();
+            checkForChanges(); // okamžitě zkontroluj při obnovení stránky
+        }
+    });
 }
+
 
 // ✅ Ostatní DOM věci musí být uvnitř DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function () {
