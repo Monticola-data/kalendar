@@ -81,18 +81,10 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
         const responseData = await response.json();
         console.log("✅ Odpověď z Firebase API:", responseData);
 
-        // 🟢 Zavolání webhooku pro refreshStatus
-        await fetch(`${API_BASE_URL}/webhook`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rowId: eventId })
-        });
-
     } catch (error) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
-
 
 
 function renderCalendar() {
@@ -247,7 +239,7 @@ async function listenForUpdates() {
         }
     }
 
-    // ✅ Zde používej setInterval místo setTimeout pro robustnější běh
+    // ✅ správný interval místo setTimeout (opraveno!)
     function startInterval() {
         clearInterval(refreshInterval); // vyčištění předchozího intervalu
         refreshInterval = setInterval(checkForChanges, 5000); 
@@ -264,7 +256,46 @@ async function listenForUpdates() {
             checkForChanges(); // okamžitě zkontroluj při obnovení stránky
         }
     });
+
+    async function checkForChanges() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+            const data = await response.json();
+
+            if (data.type === "update") {
+                const userEmail = window.currentUser?.email || sessionStorage.getItem('userEmail');
+
+                if (userEmail) {
+                    await fetchAppSheetData(userEmail);
+                } else {
+                    console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
+                }
+            }
+        } catch (error) {
+            console.error("❌ Chyba při kontrole změn:", error);
+        }
+    });
+
+    async function checkForChanges() {
+        try {
+            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
+            const data = await response.json();
+
+            if (data.type === "update") {
+                const userEmail = window.currentUser?.email || sessionStorage.getItem('userEmail');
+
+                if (userEmail) {
+                    await fetchAppSheetData(userEmail);
+                } else {
+                    console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
+                }
+            }
+        } catch (error) {
+            console.error("❌ Chyba při kontrole změn:", error);
+        }
+    }
 }
+
 
 let updateQueue = []; // ✅ fronta požadavků
 let processingQueue = false;
@@ -275,7 +306,7 @@ async function processQueue() {
     }
 
     processingQueue = true;
-    const { eventId, newDate, newParty } = updateQueue.shift(); // vezme první požadavek
+    const { eventId, newDate, newParty } = updateQueue.shift();
 
     try {
         await updateAppSheetEvent(eventId, newDate, newParty);
@@ -283,7 +314,17 @@ async function processQueue() {
         console.error("❌ Chyba při aktualizaci:", error);
     } finally {
         processingQueue = false;
-        processQueue(); // ✅ pokračuje ihned dalším požadavkem
+
+        if (updateQueue.length === 0) { // ✅ Fronta je prázdná
+            // až teď volej webhook pro aktualizaci!
+            await fetch(`${API_BASE_URL}/webhook`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ rowId: eventId })
+            });
+        }
+
+        processQueue(); // Pokračuje zpracování fronty
     }
 }
 
