@@ -83,48 +83,37 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
 
 
 function renderCalendar(view = null) {
-    const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
+const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
-    calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: savedView,
-        editable: true,
-        locale: 'cs',
-        height: 'auto',
-        contentHeight: 'auto',
-        aspectRatio: 1.8,
-        plugins: [FullCalendar.ICalendarPlugin],
-        eventSources: [
-        eventSources: [
-eventSources: [
-    allEvents,
-    {
-      url: 'https://corsproxy.io/?https://calendar.google.com/calendar/ical/cs.czech%23holiday%40group.v.calendar.google.com/public/basic.ics',
-      format: 'ics',
-      color: '#ff8a80',
-      textColor: '#000000'
+calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: savedView,
+    editable: true,
+    locale: 'cs',
+    height: 'auto',
+    contentHeight: 'auto',
+    aspectRatio: 1.8,
+    events: allEvents,
+
+views: {
+    workWeek: {
+        type: 'timeGridWeek',
+        weekends: false,
+        buttonText: 'Týden (pracovní)'
+    },
+    monthWorkDays: {
+        type: 'dayGridMonth',
+        hiddenDays: [0, 6],
+        buttonText: 'Měsíc (pracovní)'
+    },
+    listMonth: {
+        type: 'listMonth',
+        buttonText: 'Seznam (měsíc)'
+    },
+    timeGridDay: {
+        type: 'timeGridDay',
+        buttonText: 'Denní agenda'
     }
-],
-
-        views: {
-            workWeek: {
-                type: 'timeGridWeek',
-                weekends: false,
-                buttonText: 'Týden (pracovní)'
-            },
-            monthWorkDays: {
-                type: 'dayGridMonth',
-                hiddenDays: [0, 6],
-                buttonText: 'Měsíc (pracovní)'
-            },
-            listMonth: {
-                type: 'listMonth',
-                buttonText: 'Seznam (měsíc)'
-            },
-            timeGridDay: {
-                type: 'timeGridDay',
-                buttonText: 'Denní agenda'
-            }
-        },
+},
 
         eventDrop: async function (info) {
             const updatedEvent = {
@@ -132,6 +121,7 @@ eventSources: [
                 start: info.event.startStr,
                 party: info.event.extendedProps.party || null
             };
+            console.log("🔄 Událost přesunuta:", updatedEvent);
             await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
         },
 
@@ -179,6 +169,7 @@ eventSources: [
             }
             return { html: `<b>${icon}</b> ${title}` };
         }
+
     });
 
     calendar.render();
