@@ -42,8 +42,6 @@ function normalizeEmail(email) {
     return email.trim().toLowerCase();
 }
 
-// ✅ Globální proměnná pro blokování dvojitého uložení
-let isSaving = false;
 // ✅ Globální deklarace proměnných
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
@@ -256,6 +254,27 @@ async function listenForUpdates() {
     });
 }
 
+let updateQueue = []; // ✅ fronta požadavků
+let processingQueue = false;
+
+async function processQueue() {
+    if (processingQueue || updateQueue.length === 0) {
+        return;
+    }
+
+    processingQueue = true;
+    const { eventId, newDate, newParty } = updateQueue.shift(); // vezme první požadavek
+
+    try {
+        await updateAppSheetEvent(eventId, newDate, newParty);
+    } catch (error) {
+        console.error("❌ Chyba při aktualizaci:", error);
+    } finally {
+        processingQueue = false;
+        processQueue(); // ✅ pokračuje ihned dalším požadavkem
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', function () {
     calendarEl = document.getElementById('calendar');
@@ -264,43 +283,36 @@ document.addEventListener('DOMContentLoaded', function () {
     savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
 
-    savePartyButton.addEventListener("click", async function () {
-        if (isSaving) {
-            console.warn("⚠️ Probíhá ukládání, vyčkejte prosím...");
-            return;
+savePartyButton.addEventListener("click", function () {
+    if (selectedEvent) {
+        const selectedPartyId = partySelect.value;
+        const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
+        const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+
+        if (updatedEvent) {
+            updatedEvent.party = selectedPartyId;
+            updatedEvent.color = selectedPartyColor;
+            selectedEvent.setExtendedProp("party", selectedPartyId);
+            selectedEvent.setProp("backgroundColor", selectedPartyColor);
+
+            // ✅ Přidat požadavek do fronty (neblokuje uživatele!)
+            updateQueue.push({
+                eventId: updatedEvent.id,
+                newDate: selectedEvent.startStr,
+                newParty: selectedPartyId
+            });
+
+            processQueue(); // ✅ začít zpracovávat frontu (asynchronně)
+
+            modal.style.display = "none";
         }
+    }
+});
 
-        if (selectedEvent) {
-            isSaving = true; // ✅ Nastaví, že probíhá ukládání
-            savePartyButton.disabled = true; // Zablokuje tlačítko během ukládání
+document.getElementById("viewSelect").addEventListener("change", function () {
+    calendar.changeView(this.value);
+});
 
-            const selectedPartyId = partySelect.value;
-            const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
-            const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
-
-            if (updatedEvent) {
-                updatedEvent.party = selectedPartyId;
-                updatedEvent.color = selectedPartyColor;
-                selectedEvent.setExtendedProp("party", selectedPartyId);
-                selectedEvent.setProp("backgroundColor", selectedPartyColor);
-
-                try {
-                    await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
-                } catch (error) {
-                    console.error("❌ Chyba při aktualizaci:", error);
-                } finally {
-                    isSaving = false; // ✅ ukládání skončeno
-                    savePartyButton.disabled = false; // Znovu povolí tlačítko
-                }
-                modal.style.display = "none";
-            }
-        }
-    });
-
-    document.getElementById("viewSelect").addEventListener("change", function () {
-        calendar.changeView(this.value);
-    });
-
-    listenForUpdates();
+listenForUpdates();
 });
 
