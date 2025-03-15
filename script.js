@@ -137,9 +137,9 @@ views: {
         },
 
 eventClick: function (info) {
-    // ✅ Neklikej na eventy, které pochází ze svátků (display='background')
-    if (info.event.display === 'background' || info.event.source.googleCalendarId) {
-        console.log('⛔ Kliknutí na svátek nebo background událost ignorováno.');
+    // ✅ Přesně ověř, zda event pochází z Google Kalendáře (svátky)
+    if (info.event.source && info.event.source.googleCalendarId) {
+        console.log("⛔ Kliknutí na sváteční událost ignorováno.");
         return;
     }
 
@@ -169,6 +169,7 @@ eventClick: function (info) {
 
     modal.style.display = "block";
 },
+
 
 
         eventContent: function (arg) {
