@@ -82,86 +82,89 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
 
 
 
-function renderCalendar() {
-    
-calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
-    editable: true,
-    locale: 'cs',
-    height: 'auto',
-    contentHeight: 'auto',
-    aspectRatio: 1.8,
-    events: allEvents,
+function renderCalendar(view = null) {
+    const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
-views: {
-workWeek: { // ✅ Nový vlastní pohled „pracovní týden“
-    type: 'timeGridWeek',
-    weekends: false // ✅ Bez víkendů
-},
-monthWorkDays: { // ✅ Měsíc jen s pracovními dny
-    type: 'dayGridMonth',
-    hiddenDays: [0, 6] // skryje sobotu (6) a neděli (0)
-}
-},
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: savedView,
+        editable: true,
+        locale: 'cs',
+        height: 'auto',
+        contentHeight: 'auto',
+        aspectRatio: 1.8,
+        events: allEvents,
 
-eventDrop: async function (info) {
-    const updatedEvent = {
-        id: info.event.id,
-        start: info.event.startStr,
-        party: info.event.extendedProps.party || null // ✅ Uchováme partu
-    };
-    console.log("🔄 Událost přesunuta:", updatedEvent);
-    await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
-},
+        views: {
+            workWeek: {
+                type: 'timeGridWeek',
+                weekends: false
+            },
+            monthWorkDays: {
+                type: 'dayGridMonth',
+                hiddenDays: [0, 6]
+            }
+        },
 
-eventClick: function (info) {
-    selectedEvent = info.event;
-    partySelect.innerHTML = "";
-
-    Object.entries(partyMap).forEach(([id, party]) => {
-        let option = document.createElement("option");
-        option.value = id;
-        option.textContent = party.name;
-
-        if (id === info.event.extendedProps.party) {
-            option.selected = true;
-        }
-            partySelect.appendChild(option);
-        });
-
-    let detailButton = document.getElementById("detailButton");
-        if (info.event.extendedProps.detail) {
-            detailButton.style.display = "block";
-            detailButton.onclick = function () {
-                window.open(info.event.extendedProps.detail, "_blank");
+        eventDrop: async function (info) {
+            const updatedEvent = {
+                id: info.event.id,
+                start: info.event.startStr,
+                party: info.event.extendedProps.party || null
             };
-        } else {
-            detailButton.style.display = "none";
+            console.log("🔄 Událost přesunuta:", updatedEvent);
+            await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
+        },
+
+        eventClick: function (info) {
+            selectedEvent = info.event;
+            partySelect.innerHTML = "";
+
+            Object.entries(partyMap).forEach(([id, party]) => {
+                let option = document.createElement("option");
+                option.value = id;
+                option.textContent = party.name;
+
+                if (id === info.event.extendedProps.party) {
+                    option.selected = true;
+                }
+                partySelect.appendChild(option);
+            });
+
+            let detailButton = document.getElementById("detailButton");
+            if (info.event.extendedProps.detail) {
+                detailButton.style.display = "block";
+                detailButton.onclick = function () {
+                    window.open(info.event.extendedProps.detail, "_blank");
+                };
+            } else {
+                detailButton.style.display = "none";
+            }
+
+            modal.style.display = "block";
+        },
+
+        eventContent: function (arg) {
+            let icon = "";
+            let title = arg.event.title;
+
+            if (arg.event.extendedProps.predane) {
+                icon = "✍️";
+                title = title.toUpperCase();
+            } else if (arg.event.extendedProps.hotove) {
+                icon = "✅";
+                title = title.toUpperCase();
+            } else if (arg.event.extendedProps.odeslane) {
+                icon = "📩";
+                title = title.toUpperCase();
+            }
+            return { html: `<b>${icon}</b> ${title}` };
         }
 
-    modal.style.display = "block";
-},
+    });
 
-eventContent: function(arg) {
-    let icon = "";
-    let title = arg.event.title;
-
-    if (arg.event.extendedProps.predane) {
-        icon = "✍️"; // Předané
-        title = title.toUpperCase();
-    } else if (arg.event.extendedProps.hotove) {
-        icon = "✅"; // Hotové
-        title = title.toUpperCase();
-    } else if (arg.event.extendedProps.odeslane) {
-        icon = "📩"; // Odeslané
-        title = title.toUpperCase();
-    }
-      return { html: `<b>${icon}</b> ${title}` };
-    }
-
-});       
-calendar.render();
+    calendar.render();
 }
+
 
 
 
@@ -262,11 +265,18 @@ document.addEventListener('DOMContentLoaded', function () {
     savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
 
+    // ✅ Tohle je klíčová oprava (načtení posledního pohledu)!
+    const savedView = localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
+    document.getElementById("viewSelect").value = savedView;
+
+    renderCalendar(savedView); // ✅ předání pohledu do funkce
+
     savePartyButton.addEventListener("click", async function () {
         if (selectedEvent) {
             const selectedPartyId = partySelect.value;
             const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
             const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+
             if (updatedEvent) {
                 updatedEvent.party = selectedPartyId;
                 updatedEvent.color = selectedPartyColor;
@@ -280,7 +290,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById("viewSelect").addEventListener("change", function () {
-        calendar.changeView(this.value);
+        const selectedView = this.value;
+        calendar.changeView(selectedView);
+        localStorage.setItem('selectedCalendarView', selectedView);
     });
 
     listenForUpdates();
