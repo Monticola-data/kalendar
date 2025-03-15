@@ -1,42 +1,51 @@
+const provider = new firebase.auth.GoogleAuthProvider();
+
 document.addEventListener("DOMContentLoaded", () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
     const loginButton = document.getElementById('loginButton');
 
     loginButton.addEventListener('click', () => {
         firebase.auth().signInWithPopup(provider)
+            .then(result => {
+                console.log("✅ Přihlášený uživatel (popup):", result.user.email);
+                initApp(result.user);
+            })
             .catch(error => {
                 console.error("❌ Chyba přihlášení:", error);
             });
     });
 
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-            loginButton.style.display = "none";
-            window.currentUser = user;
-            sessionStorage.setItem('userEmail', user.email);
-            user.getIdToken(true);
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        console.log("🔒 Už přihlášený:", user.email);
+        loginButton.style.display = "none"; // skryj tlačítko
+        window.currentUser = user; // nastavení globální proměnné
+        sessionStorage.setItem('userEmail', user.email); // bezpečné uložení emailu
 
-            waitForFunctionsAndInit(user);
-        } else {
-            loginButton.style.display = "inline-block";
-            window.currentUser = null;
-            sessionStorage.removeItem('userEmail');
-        }
-    });
+        user.getIdToken(true); // ✅ vynutí pravidelnou obnovu tokenu Firebase Auth
 
-    function waitForFunctionsAndInit(user) {
-        const interval = setInterval(() => {
-            if (typeof fetchAppSheetData === "function" && typeof listenForUpdates === "function") {
-                clearInterval(interval);
-                initApp(user);
-            } else {
-                console.log("⏳ Čekám na načtení funkcí...");
-            }
-        }
-    }, 200);
+        initApp(user);
+        listenForUpdates(); // ✅ ujisti se, že běží pravidelná kontrola změn
+    } else {
+        console.warn("🔓 Uživatel byl odhlášen");
+        loginButton.style.display = "inline-block"; // zobraz tlačítko
+        sessionStorage.removeItem('userEmail');
+        window.currentUser = null;
+    }
 });
 
+});
+
+// ✅ Jediná správná definice initApp
 function initApp(user) {
-    fetchAppSheetData(user.email);
-    listenForUpdates();
+    window.currentUser = user;
+    sessionStorage.setItem('userEmail', user.email);
+    console.log("🚀 Přihlášený:", user.email);
+
+    // ✅ spolehlivá oprava:
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => fetchAppSheetData(user.email));
+    } else {
+        fetchAppSheetData(user.email);
+        listenForUpdates();
+    }
 }
