@@ -94,14 +94,16 @@ function renderCalendar(view = null) {
         aspectRatio: 1.8,
         plugins: [FullCalendar.ICalendarPlugin],
         eventSources: [
-        allEvents,  // tvá data z AppSheet
-        {
-            url: 'https://calendar.google.com/calendar/ical/cs.czech%23holiday%40group.v.calendar.google.com/public/basic.ics',
-            format: 'ics',
-            color: '#ff8a80',    // barva svátků
-            textColor: '#000000' // černý text
-        }
-        ],
+        eventSources: [
+eventSources: [
+    allEvents,
+    {
+      url: 'https://corsproxy.io/?https://calendar.google.com/calendar/ical/cs.czech%23holiday%40group.v.calendar.google.com/public/basic.ics',
+      format: 'ics',
+      color: '#ff8a80',
+      textColor: '#000000'
+    }
+],
 
         views: {
             workWeek: {
