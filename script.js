@@ -83,27 +83,37 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
 
 
 function renderCalendar(view = null) {
-    const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
+const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
-    calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: savedView,
-        editable: true,
-        locale: 'cs',
-        height: 'auto',
-        contentHeight: 'auto',
-        aspectRatio: 1.8,
-        events: allEvents,
+calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: savedView,
+    editable: true,
+    locale: 'cs',
+    height: 'auto',
+    contentHeight: 'auto',
+    aspectRatio: 1.8,
+    events: allEvents,
 
-        views: {
-            workWeek: {
-                type: 'timeGridWeek',
-                weekends: false
-            },
-            monthWorkDays: {
-                type: 'dayGridMonth',
-                hiddenDays: [0, 6]
-            }
-        },
+views: {
+    workWeek: {
+        type: 'timeGridWeek',
+        weekends: false,
+        buttonText: 'Týden (pracovní)'
+    },
+    monthWorkDays: {
+        type: 'dayGridMonth',
+        hiddenDays: [0, 6],
+        buttonText: 'Měsíc (pracovní)'
+    },
+    listMonth: {
+        type: 'listMonth',
+        buttonText: 'Seznam (měsíc)'
+    },
+    timeGridDay: {
+        type: 'timeGridDay',
+        buttonText: 'Denní agenda'
+    }
+},
 
         eventDrop: async function (info) {
             const updatedEvent = {
