@@ -102,16 +102,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         color: '#ffebee',
       }
     ],
-    eventDidMount: function(info) {
-        if (info.event.display === 'background') {
-            const dateStr = info.event.startStr;
-            const dayCell = document.querySelector(`[data-date="${dateISO(dateOnly(info.event.startStr))}"]`);
-            if (dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayIsValid(dayCell)))))))))))))))))))))))) {
-                dayCell.style.backgroundColor = '#ffebee';
-            }
-        }
-    },
-
 
 views: {
     workWeek: {
