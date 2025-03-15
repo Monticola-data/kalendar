@@ -103,6 +103,15 @@ calendar = new FullCalendar.Calendar(calendarEl, {
       }
     ],
 
+dayCellDidMount: function(arg) {
+    const date = arg.date.toISOString().split('T')[0];
+    const eventsOnThisDay = calendar.getEvents().filter(event => event.startStr === date && event.url && event.url.includes('calendar.google.com'));
+      
+    if (eventsOnThisDay.length > 0) {
+    arg.el.style.backgroundColor = '#ffebee'; // ✅ světle červené pozadí celého dne
+    }
+},
+
 views: {
     workWeek: {
         type: 'timeGridWeek',
@@ -122,19 +131,6 @@ views: {
         type: 'timeGridDay',
         buttonText: 'Denní agenda'
     }
-},
-
-eventDidMount: function(info) {
-  // Detekce událostí načtených z ICS kalendáře
-  if (info.event.url && info.event.url.includes('calendar.google.com')) {
-    // Tady nastavíš styl svátků (barva pozadí apod.)
-    const dayEl = info.el.closest('.fc-daygrid-day');
-    if (dayEl) {
-      info.el.style.backgroundColor = '#ffebee'; // Světlá červená barva celého dne
-      info.el.style.borderRadius = '0';
-      info.el.style.border = 'none';
-    }
-  }
 },
 
         eventDrop: async function (info) {
