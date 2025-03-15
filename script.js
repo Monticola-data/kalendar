@@ -98,19 +98,12 @@ calendar = new FullCalendar.Calendar(calendarEl, {
       {
         googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
         googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+        display: 'background',
         color: '#ff8a80',
         textColor: '#000000'
       }
     ],
 
-dayCellDidMount: function(arg) {
-    const date = arg.date.toISOString().split('T')[0];
-    const eventsOnThisDay = calendar.getEvents().filter(event => event.startStr === date && event.url && event.url.includes('calendar.google.com'));
-      
-    if (eventsOnThisDay.length > 0) {
-    arg.el.style.backgroundColor = '#ffebee'; // ✅ světle červené pozadí celého dne
-    }
-},
 
 views: {
     workWeek: {
