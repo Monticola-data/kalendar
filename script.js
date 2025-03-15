@@ -136,33 +136,40 @@ views: {
             await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
         },
 
-        eventClick: function (info) {
-            selectedEvent = info.event;
-            partySelect.innerHTML = "";
+eventClick: function (info) {
+    // ✅ Neklikej na eventy, které pochází ze svátků (display='background')
+    if (info.event.display === 'background' || info.event.source.googleCalendarId) {
+        console.log('⛔ Kliknutí na svátek nebo background událost ignorováno.');
+        return;
+    }
 
-            Object.entries(partyMap).forEach(([id, party]) => {
-                let option = document.createElement("option");
-                option.value = id;
-                option.textContent = party.name;
+    selectedEvent = info.event;
+    partySelect.innerHTML = "";
 
-                if (id === info.event.extendedProps.party) {
-                    option.selected = true;
-                }
-                partySelect.appendChild(option);
-            });
+    Object.entries(partyMap).forEach(([id, party]) => {
+        let option = document.createElement("option");
+        option.value = id;
+        option.textContent = party.name;
 
-            let detailButton = document.getElementById("detailButton");
-            if (info.event.extendedProps.detail) {
-                detailButton.style.display = "block";
-                detailButton.onclick = function () {
-                    window.open(info.event.extendedProps.detail, "_blank");
-                };
-            } else {
-                detailButton.style.display = "none";
-            }
+        if (id === info.event.extendedProps.party) {
+            option.selected = true;
+        }
+        partySelect.appendChild(option);
+    });
 
-            modal.style.display = "block";
-        },
+    let detailButton = document.getElementById("detailButton");
+    if (info.event.extendedProps.detail) {
+        detailButton.style.display = "block";
+        detailButton.onclick = function () {
+            window.open(info.event.extendedProps.detail, "_blank");
+        };
+    } else {
+        detailButton.style.display = "none";
+    }
+
+    modal.style.display = "block";
+},
+
 
         eventContent: function (arg) {
             let icon = "";
