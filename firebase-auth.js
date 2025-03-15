@@ -4,10 +4,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loginButton.addEventListener('click', () => {
         firebase.auth().signInWithPopup(provider)
-            .then(result => {
-                console.log("✅ Přihlášený uživatel (popup):", result.user.email);
-                // zde nevolej initApp, o to se postará onAuthStateChanged
-            })
             .catch(error => {
                 console.error("❌ Chyba přihlášení:", error);
             });
@@ -15,25 +11,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
-            console.log("🔒 Už přihlášený:", user.email);
             loginButton.style.display = "none";
             window.currentUser = user;
             sessionStorage.setItem('userEmail', user.email);
-
             user.getIdToken(true);
 
-            if (typeof fetchAppSheetData === 'function' && typeof listenForUpdates === 'function') {
-                initApp(user);
-            } else {
-                document.addEventListener("readystatechange", () => {
-                    if (document.readyState === "complete") {
-                        initApp(user);
-                    }
-                });
-            }
-
+            waitForFunctionsAndInitApp(user);
         } else {
-            console.warn("🔓 Uživatel není přihlášen");
             loginButton.style.display = "inline-block";
             sessionStorage.removeItem('userEmail');
             window.currentUser = null;
@@ -42,25 +26,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-// Definitivní verze funkce initApp v firebase-auth.js
-function initApp(user) {
-    if (!user || !user.email) {
-        console.error("❌ Chybí uživatel nebo email!");
-        return;
-    }
+function waitForFunctionsAndInitApp(user) {
+    const checkInterval = setInterval(() => {
+        if (typeof fetchAppSheetData === 'function' && typeof listenForUpdates === 'function') {
+            clearInterval(checkInterval);
+            initApp(user);
+        }
+    }, 200);
+}
 
+function initApp(user) {
     window.currentUser = user;
     sessionStorage.setItem('userEmail', user.email);
-    console.log("🚀 Přihlášený:", user.email);
-
-    const attemptInitialization = () => {
-        if (typeof fetchAppSheetData === 'function' && typeof listenForUpdates === 'function') {
-            fetchAppSheetData(user.email);
-            listenForUpdates();
-        } else {
-            setTimeout(attemptInitialization, 500); // ✅ počká 0,5 sekundy a zkusí znovu
-        }
-    };
-
-    attemptInitialization();
+    fetchAppSheetData(user.email);
+    listenForUpdates();
 }
