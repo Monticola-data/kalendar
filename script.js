@@ -13,7 +13,7 @@ async function fetchAppSheetData(userEmail) {
 
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        const fetchedEvents = data.events.filter(event => {
+        allEvents = data.events.filter(event => {
             const security = event.extendedProps.SECURITY_filter;
             const allowedEmails = Array.isArray(security)
                 ? security.map(e => e.trim().toLowerCase())
@@ -22,19 +22,7 @@ async function fetchAppSheetData(userEmail) {
             return allowedEmails.includes(normalizedUserEmail);
         });
 
-        const queuedEventIds = updateQueue.map(item => item.eventId);
-
-        allEvents = fetchedEvents.map(event => {
-            if (queuedEventIds.includes(event.id)) {
-                const localEvent = allEvents.find(e => e.id === event.id);
-                if (localEvent) {
-                    return localEvent;
-                }
-            }
-            return event;
-        });
-
-        console.log("✅ Eventy po filtrování a sloučení fronty:", allEvents);
+        console.log("✅ Eventy po filtrování:", allEvents);
 
         if (calendar) {
             calendar.removeAllEvents();
@@ -54,7 +42,6 @@ function normalizeEmail(email) {
     return email.trim().toLowerCase();
 }
 
-// ✅ Globální deklarace proměnných
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 const isLocal = window.location.hostname === "localhost";
@@ -81,10 +68,18 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
         const responseData = await response.json();
         console.log("✅ Odpověď z Firebase API:", responseData);
 
+        // 🟢 Zavolání webhooku pro refreshStatus
+        await fetch(`${API_BASE_URL}/webhook`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ rowId: eventId })
+        });
+
     } catch (error) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
+
 
 
 function renderCalendar() {
@@ -239,7 +234,7 @@ async function listenForUpdates() {
         }
     }
 
-    // ✅ správný interval místo setTimeout (opraveno!)
+    // ✅ Zde používej setInterval místo setTimeout pro robustnější běh
     function startInterval() {
         clearInterval(refreshInterval); // vyčištění předchozího intervalu
         refreshInterval = setInterval(checkForChanges, 5000); 
@@ -256,79 +251,10 @@ async function listenForUpdates() {
             checkForChanges(); // okamžitě zkontroluj při obnovení stránky
         }
     });
-
-    async function checkForChanges() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-            const data = await response.json();
-
-            if (data.type === "update") {
-                const userEmail = window.currentUser?.email || sessionStorage.getItem('userEmail');
-
-                if (userEmail) {
-                    await fetchAppSheetData(userEmail);
-                } else {
-                    console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
-                }
-            }
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-        }
-    });
-
-    async function checkForChanges() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-            const data = await response.json();
-
-            if (data.type === "update") {
-                const userEmail = window.currentUser?.email || sessionStorage.getItem('userEmail');
-
-                if (userEmail) {
-                    await fetchAppSheetData(userEmail);
-                } else {
-                    console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
-                }
-            }
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-        }
-    }
 }
 
 
-let updateQueue = []; // ✅ fronta požadavků
-let processingQueue = false;
-
-async function processQueue() {
-    if (processingQueue || updateQueue.length === 0) {
-        return;
-    }
-
-    processingQueue = true;
-    const { eventId, newDate, newParty } = updateQueue.shift();
-
-    try {
-        await updateAppSheetEvent(eventId, newDate, newParty);
-    } catch (error) {
-        console.error("❌ Chyba při aktualizaci:", error);
-    } finally {
-        processingQueue = false;
-
-        if (updateQueue.length === 0) { // ✅ Fronta je prázdná
-            // až teď volej webhook pro aktualizaci!
-            await fetch(`${API_BASE_URL}/webhook`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ rowId: eventId })
-            });
-        }
-
-        processQueue(); // Pokračuje zpracování fronty
-    }
-}
-
-
+// ✅ Ostatní DOM věci musí být uvnitř DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function () {
     calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
@@ -336,44 +262,26 @@ document.addEventListener('DOMContentLoaded', function () {
     savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
 
-savePartyButton.addEventListener("click", function () {
-    if (selectedEvent) {
-        const selectedPartyId = partySelect.value;
-        const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
-        const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+    savePartyButton.addEventListener("click", async function () {
+        if (selectedEvent) {
+            const selectedPartyId = partySelect.value;
+            const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
+            const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+            if (updatedEvent) {
+                updatedEvent.party = selectedPartyId;
+                updatedEvent.color = selectedPartyColor;
+                selectedEvent.setExtendedProp("party", selectedPartyId);
+                selectedEvent.setProp("backgroundColor", selectedPartyColor);
 
-        if (updatedEvent) {
-            updatedEvent.party = selectedPartyId;
-            updatedEvent.color = selectedPartyColor;
-            selectedEvent.setExtendedProp("party", selectedPartyId);
-            selectedEvent.setProp("backgroundColor", selectedPartyColor);
-
-            const newDate = selectedEvent.startStr;
-            
-            if (!newDate) {
-                console.error("❌ Nelze odeslat: chybí platné datum události.");
-                return;
+                await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
+                modal.style.display = "none";
             }
-
-            updateQueue.push({
-                eventId: updatedEvent.id,
-                newDate: newDate,
-                newParty: selectedPartyId
-            });
-
-            processQueue();
-
-            modal.style.display = "none";
-        } else {
-            console.warn("⚠️ Žádná událost není vybrána!");
         }
-    }
-});
+    });
 
-document.getElementById("viewSelect").addEventListener("change", function () {
-    calendar.changeView(this.value);
-});
+    document.getElementById("viewSelect").addEventListener("change", function () {
+        calendar.changeView(this.value);
+    });
 
-listenForUpdates();
+    listenForUpdates();
 });
-
