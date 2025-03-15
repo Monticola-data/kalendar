@@ -42,6 +42,9 @@ function normalizeEmail(email) {
     return email.trim().toLowerCase();
 }
 
+// ✅ Globální proměnná pro blokování dvojitého uložení
+let isSaving = false;
+// ✅ Globální deklarace proměnných
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 const isLocal = window.location.hostname === "localhost";
@@ -254,7 +257,6 @@ async function listenForUpdates() {
 }
 
 
-// ✅ Ostatní DOM věci musí být uvnitř DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function () {
     calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
@@ -263,17 +265,33 @@ document.addEventListener('DOMContentLoaded', function () {
     partyFilter = document.getElementById('partyFilter');
 
     savePartyButton.addEventListener("click", async function () {
+        if (isSaving) {
+            console.warn("⚠️ Probíhá ukládání, vyčkejte prosím...");
+            return;
+        }
+
         if (selectedEvent) {
+            isSaving = true; // ✅ Nastaví, že probíhá ukládání
+            savePartyButton.disabled = true; // Zablokuje tlačítko během ukládání
+
             const selectedPartyId = partySelect.value;
             const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
             const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+
             if (updatedEvent) {
                 updatedEvent.party = selectedPartyId;
                 updatedEvent.color = selectedPartyColor;
                 selectedEvent.setExtendedProp("party", selectedPartyId);
                 selectedEvent.setProp("backgroundColor", selectedPartyColor);
 
-                await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
+                try {
+                    await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
+                } catch (error) {
+                    console.error("❌ Chyba při aktualizaci:", error);
+                } finally {
+                    isSaving = false; // ✅ ukládání skončeno
+                    savePartyButton.disabled = false; // Znovu povolí tlačítko
+                }
                 modal.style.display = "none";
             }
         }
