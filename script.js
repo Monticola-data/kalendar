@@ -93,7 +93,6 @@ function renderCalendar(view = null) {
         contentHeight: 'auto',
         aspectRatio: 1.8,
         eventSources: [
-        eventSources: [
         allEvents,  // tvá data z AppSheet
         {
             url: 'https://calendar.google.com/calendar/ical/cs.czech%23holiday%40group.v.calendar.google.com/public/basic.ics',
