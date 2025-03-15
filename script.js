@@ -93,7 +93,6 @@ height: 'auto',
 contentHeight: 'auto',
 aspectRatio: 1.8,
 
-plugins: [FullCalendar.ICalendar],
 eventSources: [
     allEvents,
     {  
