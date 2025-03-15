@@ -14,39 +14,38 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-            console.log("🔒 Už přihlášený:", user.email);
-            loginButton.style.display = "none";
-            window.currentUser = user;
-            sessionStorage.setItem('userEmail', user.email);
-            user.getIdToken(true);
-            initApp(user);
-        } else {
-            console.warn("🔓 Uživatel byl odhlášen");
-            loginButton.style.display = "inline-block";
-            sessionStorage.removeItem('userEmail');
-            window.currentUser = null;
-        }
-    });
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        console.log("🔒 Už přihlášený:", user.email);
+        loginButton.style.display = "none"; // skryj tlačítko
+        window.currentUser = user; // nastavení globální proměnné
+        sessionStorage.setItem('userEmail', user.email); // bezpečné uložení emailu
+
+        user.getIdToken(true); // ✅ vynutí pravidelnou obnovu tokenu Firebase Auth
+
+        initApp(user);
+        listenForUpdates(); // ✅ ujisti se, že běží pravidelná kontrola změn
+    } else {
+        console.warn("🔓 Uživatel byl odhlášen");
+        loginButton.style.display = "inline-block"; // zobraz tlačítko
+        sessionStorage.removeItem('userEmail');
+        window.currentUser = null;
+    }
 });
 
-// ✅ Opravená a jednoduchá inicializace aplikace
+});
+
+// ✅ Jediná správná definice initApp
 function initApp(user) {
     window.currentUser = user;
     sessionStorage.setItem('userEmail', user.email);
     console.log("🚀 Přihlášený:", user.email);
 
-    if (typeof fetchAppSheetData === "function") {
+    // ✅ spolehlivá oprava:
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => fetchAppSheetData(user.email));
+    } else {
         fetchAppSheetData(user.email);
-    } else {
-        console.error("❌ Funkce fetchAppSheetData není definována!");
-    }
-
-    // ✅ Zde voláme listenForUpdates jen jednou
-    if (typeof listenForUpdates === "function") {
         listenForUpdates();
-    } else {
-        console.error("❌ Funkce listenForUpdates není definována!");
     }
 }
