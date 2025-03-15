@@ -348,16 +348,24 @@ savePartyButton.addEventListener("click", function () {
             selectedEvent.setExtendedProp("party", selectedPartyId);
             selectedEvent.setProp("backgroundColor", selectedPartyColor);
 
-            // ✅ Přidat požadavek do fronty (neblokuje uživatele!)
+            const newDate = selectedEvent.startStr;
+            
+            if (!newDate) {
+                console.error("❌ Nelze odeslat: chybí platné datum události.");
+                return;
+            }
+
             updateQueue.push({
                 eventId: updatedEvent.id,
-                newDate: selectedEvent.startStr,
+                newDate: newDate,
                 newParty: selectedPartyId
             });
 
-            processQueue(); // ✅ začít zpracovávat frontu (asynchronně)
+            processQueue();
 
             modal.style.display = "none";
+        } else {
+            console.warn("⚠️ Žádná událost není vybrána!");
         }
     }
 });
