@@ -14,16 +14,25 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-    firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-            console.log("🔒 Už přihlášený:", user.email);
-            loginButton.style.display = "none"; // skryj tlačítko
-            initApp(user);
-        } else {
-            console.log("🔓 Uživatel není přihlášen");
-            loginButton.style.display = "inline-block"; // zobraz tlačítko
-        }
-    });
+firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+        console.log("🔒 Už přihlášený:", user.email);
+        loginButton.style.display = "none"; // skryj tlačítko
+        window.currentUser = user; // nastavení globální proměnné
+        sessionStorage.setItem('userEmail', user.email); // bezpečné uložení emailu
+
+        user.getIdToken(true); // ✅ vynutí pravidelnou obnovu tokenu Firebase Auth
+
+        initApp(user);
+        listenForUpdates(); // ✅ ujisti se, že běží pravidelná kontrola změn
+    } else {
+        console.warn("🔓 Uživatel byl odhlášen");
+        loginButton.style.display = "inline-block"; // zobraz tlačítko
+        sessionStorage.removeItem('userEmail');
+        window.currentUser = null;
+    }
+});
+
 });
 
 // ✅ Jediná správná definice initApp
