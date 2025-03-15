@@ -2,32 +2,34 @@
 <html lang="cs">
   
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#4d719e">
-  <title>Plánování zakázek</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4d719e">
+<title>Plánování zakázek</title>
 
-  <!-- 🔹 FullCalendar knihovny -->
-  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/cs.js"></script>
+<!-- 🔹 FullCalendar knihovny -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/cs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/icalendar@6.1.10/index.global.min.js"></script>
 
-  <!-- 🔹 Připojení externího CSS -->
-  <link rel="stylesheet" href="style.css">
 
-  <!-- 🔹 Favicon pro běžné prohlížeče -->
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<!-- 🔹 Připojení externího CSS -->
+<link rel="stylesheet" href="style.css">
 
-  <!-- 🔹 Apple Touch Icon pro iOS -->
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<!-- 🔹 Favicon pro běžné prohlížeče -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
-  <!-- 🔹 Web App Manifest -->
-  <link rel="manifest" href="manifest.json">
+<!-- 🔹 Apple Touch Icon pro iOS -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 
-  <!-- 🔹 Service Worker -->
-  <script>
+<!-- 🔹 Web App Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- 🔹 Service Worker -->
+<script>
     window.addEventListener('load', function() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js')
