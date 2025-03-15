@@ -42,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// Definitivní verze funkce initApp v firebase-auth.js
 function initApp(user) {
     if (!user || !user.email) {
         console.error("❌ Chybí uživatel nebo email!");
@@ -52,6 +53,14 @@ function initApp(user) {
     sessionStorage.setItem('userEmail', user.email);
     console.log("🚀 Přihlášený:", user.email);
 
-    fetchAppSheetData(user.email);
-    listenForUpdates();
+    const attemptInitialization = () => {
+        if (typeof fetchAppSheetData === 'function' && typeof listenForUpdates === 'function') {
+            fetchAppSheetData(user.email);
+            listenForUpdates();
+        } else {
+            setTimeout(attemptInitialization, 500); // ✅ počká 0,5 sekundy a zkusí znovu
+        }
+    };
+
+    attemptInitialization();
 }
