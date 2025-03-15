@@ -96,7 +96,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     eventSources: [
       allEvents,
       {
-        googleCalendarApiKey: 'AIzaSyBg9E8w5C5azvMKAJ3VY_YQmwu5DgaAU80',
+        googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
         googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
         color: '#ff8a80',
         textColor: '#000000'
