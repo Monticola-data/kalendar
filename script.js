@@ -13,7 +13,7 @@ async function fetchAppSheetData(userEmail) {
 
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = data.events.filter(event => {
+        const fetchedEvents = data.events.filter(event => {
             const security = event.extendedProps.SECURITY_filter;
             const allowedEmails = Array.isArray(security)
                 ? security.map(e => e.trim().toLowerCase())
@@ -22,7 +22,19 @@ async function fetchAppSheetData(userEmail) {
             return allowedEmails.includes(normalizedUserEmail);
         });
 
-        console.log("✅ Eventy po filtrování:", allEvents);
+        const queuedEventIds = updateQueue.map(item => item.eventId);
+
+        allEvents = fetchedEvents.map(event => {
+            if (queuedEventIds.includes(event.id)) {
+                const localEvent = allEvents.find(e => e.id === event.id);
+                if (localEvent) {
+                    return localEvent;
+                }
+            }
+            return event;
+        });
+
+        console.log("✅ Eventy po filtrování a sloučení fronty:", allEvents);
 
         if (calendar) {
             calendar.removeAllEvents();
