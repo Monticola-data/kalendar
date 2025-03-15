@@ -100,6 +100,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
         display: 'background',
         color: '#854646',
+        textColor: '#000',
       }
     ],
 
