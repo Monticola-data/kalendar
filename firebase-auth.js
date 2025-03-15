@@ -16,28 +16,27 @@ document.addEventListener("DOMContentLoaded", () => {
             sessionStorage.setItem('userEmail', user.email);
             user.getIdToken(true);
 
-            waitForFunctionsAndInitApp(user);
+            waitForFunctionsAndInit(user);
         } else {
             loginButton.style.display = "inline-block";
-            sessionStorage.removeItem('userEmail');
             window.currentUser = null;
+            sessionStorage.removeItem('userEmail');
         }
     });
 
-});
-
-function waitForFunctionsAndInitApp(user) {
-    const checkInterval = setInterval(() => {
-        if (typeof fetchAppSheetData === 'function' && typeof listenForUpdates === 'function') {
-            clearInterval(checkInterval);
-            initApp(user);
+    function waitForFunctionsAndInit(user) {
+        const interval = setInterval(() => {
+            if (typeof fetchAppSheetData === "function" && typeof listenForUpdates === "function") {
+                clearInterval(interval);
+                initApp(user);
+            } else {
+                console.log("⏳ Čekám na načtení funkcí...");
+            }
         }
     }, 200);
-}
+});
 
 function initApp(user) {
-    window.currentUser = user;
-    sessionStorage.setItem('userEmail', user.email);
     fetchAppSheetData(user.email);
     listenForUpdates();
 }
