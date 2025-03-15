@@ -125,11 +125,16 @@ views: {
 },
 
 eventDidMount: function(info) {
-    if (info.event.url && info.event.url.includes('calendar.google.com')) {
-    info.el.style.backgroundColor = '#fff3e0';  // Světlá barva celého dne
-    info.el.style.borderRadius = '0';
-    info.el.style.border = 'none';
+  // Detekce událostí načtených z ICS kalendáře
+  if (info.event.url && info.event.url.includes('calendar.google.com')) {
+    // Tady nastavíš styl svátků (barva pozadí apod.)
+    const dayEl = info.el.closest('.fc-daygrid-day');
+    if (dayEl) {
+      info.el.style.backgroundColor = '#ffebee'; // Světlá červená barva celého dne
+      info.el.style.borderRadius = '0';
+      info.el.style.border = 'none';
     }
+  }
 },
 
         eventDrop: async function (info) {
