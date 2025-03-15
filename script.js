@@ -86,13 +86,21 @@ function renderCalendar(view = null) {
 const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
 calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: savedView,
-    editable: true,
-    locale: 'cs',
-    height: 'auto',
-    contentHeight: 'auto',
-    aspectRatio: 1.8,
-    events: allEvents,
+initialView: savedView,
+editable: true,
+locale: 'cs',
+height: 'auto',
+contentHeight: 'auto',
+aspectRatio: 1.8,
+eventSources: [
+    allEvents,
+    {  
+        url: 'https://calendar.google.com/calendar/ical/cs.czech%23holiday%40group.v.calendar.google.com/public/basic.ics',
+        format: 'ics',
+        color: '#ff8a80', // světle červená
+        textColor: '#000000'
+    }
+],
 
 views: {
     workWeek: {
