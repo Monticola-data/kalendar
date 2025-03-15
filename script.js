@@ -101,6 +101,8 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         display: 'background',
         color: '#854646',
         textColor: '#000',
+        className: 'holiday-event',
+        extendedProps: { isHoliday: true }
       }
     ],
 
@@ -137,39 +139,39 @@ views: {
         },
 
 eventClick: function (info) {
-    // ✅ Přesně ověř, zda event pochází z Google Kalendáře (svátky)
-    if (info.event.source && info.event.source.googleCalendarId) {
-        console.log("⛔ Kliknutí na sváteční událost ignorováno.");
+    // ✅ Nová a spolehlivá kontrola
+    if (info.event.extendedProps && info.event.extendedProps.SECURITY_filter) {
+        selectedEvent = info.event;
+        partySelect.innerHTML = "";
+
+        Object.entries(partyMap).forEach(([id, party]) => {
+            let option = document.createElement("option");
+            option.value = id;
+            option.textContent = party.name;
+
+            if (id === info.event.extendedProps.party) {
+                option.selected = true;
+            }
+            partySelect.appendChild(option);
+        });
+
+        let detailButton = document.getElementById("detailButton");
+        if (info.event.extendedProps.detail) {
+            detailButton.style.display = "block";
+            detailButton.onclick = function () {
+                window.open(info.event.extendedProps.detail, "_blank");
+            };
+        } else {
+            detailButton.style.display = "none";
+        }
+
+        modal.style.display = "block";
+    } else {
+        // ✅ Události BEZ SECURITY_filter ignoruj (např. svátky)
+        console.log("⛔ Ignoruji kliknutí na událost bez SECURITY_filter");
         return;
     }
-
-    selectedEvent = info.event;
-    partySelect.innerHTML = "";
-
-    Object.entries(partyMap).forEach(([id, party]) => {
-        let option = document.createElement("option");
-        option.value = id;
-        option.textContent = party.name;
-
-        if (id === info.event.extendedProps.party) {
-            option.selected = true;
-        }
-        partySelect.appendChild(option);
-    });
-
-    let detailButton = document.getElementById("detailButton");
-    if (info.event.extendedProps.detail) {
-        detailButton.style.display = "block";
-        detailButton.onclick = function () {
-            window.open(info.event.extendedProps.detail, "_blank");
-        };
-    } else {
-        detailButton.style.display = "none";
-    }
-
-    modal.style.display = "block";
 },
-
 
 
         eventContent: function (arg) {
