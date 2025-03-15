@@ -92,6 +92,7 @@ function renderCalendar(view = null) {
         height: 'auto',
         contentHeight: 'auto',
         aspectRatio: 1.8,
+        plugins: [FullCalendar.ICalendarPlugin],
         eventSources: [
         allEvents,  // tvá data z AppSheet
         {
