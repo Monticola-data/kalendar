@@ -103,6 +103,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
       }
     ],
 
+
 views: {
     workWeek: {
         type: 'timeGridWeek',
