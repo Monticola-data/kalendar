@@ -92,7 +92,16 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     height: 'auto',
     contentHeight: 'auto',
     aspectRatio: 1.8,
-    events: allEvents,
+    
+    eventSources: [
+      allEvents,
+      {
+        googleCalendarApiKey: 'AIzaSyCwH_gRVoz-ty_HGbImWqXrrymB0Zk7mL0', // ✅ tvůj nový API klíč
+        googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+        color: '#ff8a80',
+        textColor: '#000000'
+      }
+    ],
 
 views: {
     workWeek: {
