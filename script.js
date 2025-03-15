@@ -99,8 +99,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
         googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
         display: 'background',
-        color: '#ff8a80',
-        textColor: '#000000'
+        color: '#ffebee',
       }
     ],
 
