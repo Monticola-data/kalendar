@@ -93,6 +93,17 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     aspectRatio: 1.8,
     events: allEvents,
 
+views: {
+workWeek: { // ✅ Nový vlastní pohled „pracovní týden“
+    type: 'timeGridWeek',
+    weekends: false // ✅ Bez víkendů
+},
+monthWorkDays: { // ✅ Měsíc jen s pracovními dny
+    type: 'dayGridMonth',
+    hiddenDays: [0, 6] // skryje sobotu (6) a neděli (0)
+}
+},
+
 eventDrop: async function (info) {
     const updatedEvent = {
         id: info.event.id,
