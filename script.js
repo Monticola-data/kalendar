@@ -124,6 +124,14 @@ views: {
     }
 },
 
+eventDidMount: function(info) {
+    if (info.event.url && info.event.url.includes('calendar.google.com')) {
+    info.el.style.backgroundColor = '#fff3e0';  // Světlá barva celého dne
+    info.el.style.borderRadius = '0';
+    info.el.style.border = 'none';
+    }
+},
+
         eventDrop: async function (info) {
             const updatedEvent = {
                 id: info.event.id,
