@@ -1,3 +1,5 @@
+import { db } from './firebase.js';
+
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
 let calendarEl, modal, partySelect, savePartyButton, partyFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
