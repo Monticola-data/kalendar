@@ -70,10 +70,23 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
-        eventDrop: async function (info) {
-            const newDate = info.event.startStr.split('T')[0];
-            await updateFirestoreEvent(info.event.id, { Datum: newDate });
-        },
+eventDrop: async function(info) {
+  try {
+    await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eventId: info.event.id,
+        start: info.event.startStr,
+        party: info.event.extendedProps.party
+      })
+    });
+    console.log("✅ Změna poslána do AppSheet!");
+  } catch (err) {
+    console.error("❌ Chyba při odeslání do AppSheet:", err);
+    info.revert(); // pokud se aktualizace nezdaří, změna se vrátí zpět
+  }
+},
         eventClick: function (info) {
             if (info.event.extendedProps?.SECURITY_filter) {
                 selectedEvent = info.event;
