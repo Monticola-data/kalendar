@@ -70,35 +70,62 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
-eventDrop: async function(info) {
-  try {
-    await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        eventId: info.event.id,
-        start: info.event.startStr,
-        party: info.event.extendedProps.party
-      })
-    });
-    console.log("✅ Změna poslána do AppSheet!");
-  } catch (err) {
-    console.error("❌ Chyba při odeslání do AppSheet:", err);
-    info.revert(); // pokud se aktualizace nezdaří, změna se vrátí zpět
-  }
-},
-        eventClick: function (info) {
+        eventDrop: async function(info) {
+            try {
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        eventId: info.event.id,
+                        start: info.event.startStr,
+                        party: info.event.extendedProps.party
+                    })
+                });
+                console.log("✅ Změna poslána do AppSheet!");
+            } catch (err) {
+                console.error("❌ Chyba při odeslání do AppSheet:", err);
+                info.revert();
+            }
+        },
+        eventClick: async function (info) {
             if (info.event.extendedProps?.SECURITY_filter) {
                 selectedEvent = info.event;
-                partySelect.innerHTML = "";
 
-                Object.entries(partyMap).forEach(([id, party]) => {
+                const partiesSnapshot = await getDocs(collection(db, "parties"));
+                const parties = partiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                partySelect.innerHTML = "";
+                parties.forEach(party => {
                     const option = document.createElement("option");
-                    option.value = id;
+                    option.value = party.id;
                     option.textContent = party.name;
-                    option.selected = id === info.event.extendedProps.party;
+                    option.selected = party.id === info.event.extendedProps.party;
                     partySelect.appendChild(option);
                 });
+
+                partySelect.onchange = async (e) => {
+                    const selectedParty = parties.find(p => p.id === e.target.value);
+                    if (selectedParty) {
+                        try {
+                            await updateDoc(doc(db, "events", info.event.id), {
+                                party: selectedParty.id,
+                                color: selectedParty.color
+                            });
+                            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    eventId: info.event.id,
+                                    party: selectedParty.id
+                                })
+                            });
+                            calendar.refetchEvents();
+                            console.log("✅ Party změněna a aktualizována.");
+                        } catch (error) {
+                            console.error("❌ Chyba při změně party:", error);
+                        }
+                    }
+                };
 
                 const detailButton = document.getElementById("detailButton");
                 detailButton.style.display = info.event.extendedProps.detail ? "block" : "none";
