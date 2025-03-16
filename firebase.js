@@ -10,7 +10,8 @@ const firebaseConfig = {
   appId: "1:745578521928:web:c5c733cb9061b1668aff7d"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, { databaseId: "muj-kalendar" });
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
 
 export { db };
