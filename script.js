@@ -1,6 +1,5 @@
 import { db } from './firebase.js';
 import { collection, doc, getDocs, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js';
-import { fetchFirestoreEvents } from './script.js';
 
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
@@ -136,3 +135,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
+
+export { updateFirestoreEvent };
