@@ -83,6 +83,7 @@
 <!-- Firebase kompatibilní verze -->
 <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
 
 <script>
   const firebaseConfig = {
@@ -97,9 +98,8 @@
   firebase.initializeApp(firebaseConfig);
 </script>
 
-<!-- standardní načtení bez modulu -->
-<script src="script.js"></script>
-<script src="firebase-auth.js"></script>
+<script type="module" src="script.js"></script>
+<script type="module" src="firebase-auth.js"></script>
   
 </body>
 
