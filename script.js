@@ -32,7 +32,6 @@ async function fetchAppSheetData(userEmail) {
             calendar.render();
         } else {
             renderCalendar();
-            populateFilter();
             renderLegend();
         }
     } catch (error) {
