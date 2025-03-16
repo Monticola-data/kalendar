@@ -1,11 +1,9 @@
-import { db } from './firebase.js';
-import { collection, doc, getDocs, setDoc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js';
-
-let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
+// 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
+let calendarEl, modal, partySelect, savePartyButton, partyFilter;
+let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 export async function fetchFirestoreEvents(userEmail) {
-    const eventsCol = collection(db, 'events');
-    const eventsSnapshot = await getDocs(eventsCol);
+    const eventsSnapshot = await firebase.firestore().collection('events').get();
     const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
@@ -33,18 +31,13 @@ export async function fetchFirestoreEvents(userEmail) {
         calendar.render();
     } else {
         renderCalendar();
-        renderLegend();
     }
 
     console.log("✅ Data načtena z Firestore:", allEvents);
 }
 
-async function updateFirestoreEvent(eventId, { Datum = null, Parta = null } = {}) {
-    const updates = {};
-    if (Datum) updates.start = Datum;
-    if (Parta) updates.party = Parta;
-
-    await setDoc(doc(db, "events", eventId), updates, { merge: true });
+async function updateFirestoreEvent(eventId, updates = {}) {
+    await firebase.firestore().collection("events").doc(eventId).set(updates, { merge: true });
     console.log("✅ Data uložena do Firestore:", updates);
 }
 
@@ -56,8 +49,6 @@ function renderCalendar(view = null) {
         editable: true,
         locale: 'cs',
         height: 'auto',
-        contentHeight: 'auto',
-        aspectRatio: 1.8,
         eventSources: [
             allEvents,
             {
@@ -91,7 +82,7 @@ function renderCalendar(view = null) {
             if (info.event.extendedProps?.SECURITY_filter) {
                 selectedEvent = info.event;
 
-                const partiesSnapshot = await getDocs(collection(db, "parties"));
+                const partiesSnapshot = await firebase.firestore().collection("parties").get();
                 const parties = partiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
                 partySelect.innerHTML = "";
@@ -107,7 +98,7 @@ function renderCalendar(view = null) {
                     const selectedParty = parties.find(p => p.id === e.target.value);
                     if (selectedParty) {
                         try {
-                            await updateDoc(doc(db, "events", info.event.id), {
+                            await firebase.firestore().collection("events").doc(info.event.id).update({
                                 party: selectedParty.id,
                                 color: selectedParty.color
                             });
@@ -151,22 +142,20 @@ function renderCalendar(view = null) {
     calendar.render();
 }
 
-
 function populateFilter() {
     partyFilter.innerHTML = '<option value="all">Všechny party</option>';
-
     Object.entries(partyMap).forEach(([id, party]) => {
-        let option = document.createElement("option");
+        const option = document.createElement("option");
         option.value = id;
         option.textContent = party.name;
         partyFilter.appendChild(option);
     });
 
-    partyFilter.addEventListener("change", () => {
+    partyFilter.onchange = () => {
         const selectedParty = partyFilter.value;
         calendar.removeAllEvents();
         calendar.addEventSource(selectedParty === "all" ? allEvents : allEvents.filter(event => event.party === selectedParty));
-    });
+    };
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -180,48 +169,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     savePartyButton.onclick = async () => {
         if (selectedEvent) {
-            const partyId = partySelect.value;
-            await updateFirestoreEvent(selectedEvent.id, { Parta: partyId });
+            await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
             modal.style.display = "none";
         }
     };
 });
 
 export function listenForUpdates(userEmail) {
-    const eventsCol = collection(db, 'events');
-
-    onSnapshot(eventsCol, (snapshot) => {
+    firebase.firestore().collection('events').onSnapshot((snapshot) => {
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                start: data.start,
-                color: data.color,
-                party: data.party,
-                extendedProps: data.extendedProps || {}
-            };
-        }).filter(event => {
-            const security = event.extendedProps.SECURITY_filter || [];
-            return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
-        });
+        allEvents = snapshot.docs.map(doc => ({
+            id: doc.id, ...doc.data()
+        })).filter(event => event.extendedProps?.SECURITY_filter?.map(e => e.toLowerCase()).includes(normalizedUserEmail));
 
         populateFilter();
-
-        if (calendar) {
-            calendar.removeAllEvents();
-            calendar.addEventSource(allEvents);
-            calendar.render();
-        } else {
-            renderCalendar();
-            renderLegend();
-        }
-
-        console.log("✅ Realtime data z Firestore načtena:", allEvents);
+        calendar.removeAllEvents();
+        calendar.addEventSource(allEvents);
     });
 }
 
-
-export { updateFirestoreEvent };
