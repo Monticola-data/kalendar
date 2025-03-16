@@ -1,3 +1,6 @@
+import { fetchFirestoreEvents } from './script.js';
+import { listenForUpdates } from './script.js';
+
 const provider = new firebase.auth.GoogleAuthProvider();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,38 +17,39 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
-firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-        console.log("🔒 Už přihlášený:", user.email);
-        loginButton.style.display = "none"; // skryj tlačítko
-        window.currentUser = user; // nastavení globální proměnné
-        sessionStorage.setItem('userEmail', user.email); // bezpečné uložení emailu
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            console.log("🔒 Už přihlášený:", user.email);
+            loginButton.style.display = "none";
+            window.currentUser = user;
+            sessionStorage.setItem('userEmail', user.email);
 
-        user.getIdToken(true); // ✅ vynutí pravidelnou obnovu tokenu Firebase Auth
+            user.getIdToken(true);
 
-        initApp(user);
-        listenForUpdates(); // ✅ ujisti se, že běží pravidelná kontrola změn
-    } else {
-        console.warn("🔓 Uživatel byl odhlášen");
-        loginButton.style.display = "inline-block"; // zobraz tlačítko
-        sessionStorage.removeItem('userEmail');
-        window.currentUser = null;
-    }
+            initApp(user);
+        } else {
+            console.warn("🔓 Uživatel byl odhlášen");
+            loginButton.style.display = "inline-block";
+            sessionStorage.removeItem('userEmail');
+            window.currentUser = null;
+        }
+    });
+
 });
 
-});
-
-// ✅ Jediná správná definice initApp
+// ✅ Definitivní podoba funkce initApp
 function initApp(user) {
     window.currentUser = user;
     sessionStorage.setItem('userEmail', user.email);
     console.log("🚀 Přihlášený:", user.email);
 
-    // ✅ spolehlivá oprava:
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", () => fetchFirestoreEvents(user.email));
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchFirestoreEvents(user.email);
+            listenForUpdates(user.email);
+        });
     } else {
         fetchFirestoreEvents(user.email);
-        listenForUpdates();
+        listenForUpdates(user.email);
     }
 }
