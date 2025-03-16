@@ -1,6 +1,3 @@
-import { fetchFirestoreEvents, listenForUpdates } from './script.js';
-
-// kompatibilní verze Firebase, která je načtená přes <script> tag
 const provider = new firebase.auth.GoogleAuthProvider();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
             loginButton.style.display = "none";
             window.currentUser = user;
             sessionStorage.setItem('userEmail', user.email);
-
             user.getIdToken(true);
             initApp(user);
         } else {
@@ -33,10 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
             window.currentUser = null;
         }
     });
-
 });
 
-// ✅ Definitivní podoba funkce initApp
 function initApp(user) {
     window.currentUser = user;
     sessionStorage.setItem('userEmail', user.email);
@@ -52,3 +46,12 @@ function initApp(user) {
         listenForUpdates(user.email);
     }
 }
+
+// ✅ Obnovení dat při návratu do aplikace (mobilní zařízení)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && window.currentUser) {
+        console.log("🔄 Obnovení dat po návratu do aplikace");
+        fetchFirestoreEvents(window.currentUser.email);
+        listenForUpdates(window.currentUser.email);
+    }
+});
