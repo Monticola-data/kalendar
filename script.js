@@ -13,14 +13,27 @@ async function fetchAppSheetData(userEmail) {
 
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = data.events.filter(event => {
+        const newEvents = data.events.filter(event => {
             const security = event.extendedProps.SECURITY_filter;
             const allowedEmails = Array.isArray(security)
                 ? security.map(e => e.trim().toLowerCase())
                 : [];
-
             return allowedEmails.includes(normalizedUserEmail);
         });
+
+        // 🔴 Přidej tuto kontrolu
+        newEvents.forEach(newEvent => {
+            const existingEvent = allEvents.find(e => e.id === newEvent.id);
+            if (existingEvent && existingEvent.justUpdated) {
+                newEvent.party = existingEvent.party;
+                newEvent.color = existingEvent.color;
+
+                // smaž příznak po zpracování
+                delete existingEvent.justUpdated;
+            }
+        });
+
+        allEvents = newEvents;
 
         console.log("✅ Eventy po filtrování:", allEvents);
 
@@ -307,23 +320,33 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderCalendar(savedView); // ✅ předání pohledu do funkce
 
-    savePartyButton.addEventListener("click", async function () {
-        if (selectedEvent) {
-            const selectedPartyId = partySelect.value;
-            const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
-            const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+savePartyButton.addEventListener("click", async function () {
+    if (selectedEvent) {
+        const selectedPartyId = partySelect.value;
+        const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
 
-            if (updatedEvent) {
-                updatedEvent.party = selectedPartyId;
-                updatedEvent.color = selectedPartyColor;
-                selectedEvent.setExtendedProp("party", selectedPartyId);
-                selectedEvent.setProp("backgroundColor", selectedPartyColor);
+        // Ihned aktualizuj v poli
+        const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
+        if (updatedEvent) {
+            updatedEvent.party = selectedPartyId;
+            updatedEvent.color = selectedPartyColor;
 
-                await updateAppSheetEvent(updatedEvent.id, selectedEvent.startStr, selectedPartyId);
-                modal.style.display = "none";
-            }
+            selectedEvent.setExtendedProp("party", selectedPartyId);
+            selectedEvent.setProp("backgroundColor", selectedPartyColor);
+
+            modal.style.display = "none";
+
+            // 🔴 Přidej tuto část – nastav příznak aktualizace
+            updatedEvent._updating = true;
+
+            await updateAppSheetEvent(updatedEvent.id, { Parta: selectedPartyId });
+
+            // ✅ Počkej chvíli, než znovu načteš data
+            setTimeout(() => { updatedEvent.justUpdated = true; }, 2000);
         }
-    });
+    }
+});
+
 
     document.getElementById("viewSelect").addEventListener("change", function () {
         const selectedView = this.value;
