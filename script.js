@@ -6,7 +6,17 @@ let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = []
 export async function fetchFirestoreEvents(userEmail) {
     const eventsCol = collection(db, 'events');
     const eventsSnapshot = await getDocs(eventsCol);
-    const allFirestoreEvents = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            title: data.title,
+            start: data.start,
+            color: data.color,
+            party: data.party,
+            extendedProps: data.extendedProps || {}
+        };
+    });
 
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
@@ -140,12 +150,20 @@ export function listenForUpdates(userEmail) {
     const eventsCol = collection(db, 'events');
 
     onSnapshot(eventsCol, (snapshot) => {
-        const allFirestoreEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = allFirestoreEvents.filter(event => {
-            const security = event.extendedProps?.SECURITY_filter || [];
+        allEvents = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title,
+                start: data.start,
+                color: data.color,
+                party: data.party,
+                extendedProps: data.extendedProps || {}
+            };
+        }).filter(event => {
+            const security = event.extendedProps.SECURITY_filter || [];
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
@@ -163,5 +181,6 @@ export function listenForUpdates(userEmail) {
         console.log("✅ Realtime data z Firestore načtena:", allEvents);
     });
 }
+
 
 export { updateFirestoreEvent };
