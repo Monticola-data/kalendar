@@ -1,6 +1,6 @@
-import { fetchFirestoreEvents } from './script.js';
-import { listenForUpdates } from './script.js';
+import { fetchFirestoreEvents, listenForUpdates } from './script.js';
 
+// kompatibilní verze Firebase, která je načtená přes <script> tag
 const provider = new firebase.auth.GoogleAuthProvider();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", () => {
             sessionStorage.setItem('userEmail', user.email);
 
             user.getIdToken(true);
-
             initApp(user);
         } else {
             console.warn("🔓 Uživatel byl odhlášen");
