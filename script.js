@@ -24,6 +24,8 @@ async function fetchAppSheetData(userEmail) {
 
         console.log("✅ Eventy po filtrování:", allEvents);
 
+        populateFilter();
+
         if (calendar) {
             calendar.removeAllEvents();
             calendar.addEventSource(allEvents);
