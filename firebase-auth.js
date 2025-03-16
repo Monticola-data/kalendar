@@ -43,9 +43,9 @@ function initApp(user) {
 
     // ✅ spolehlivá oprava:
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", () => fetchAppSheetData(user.email));
+        document.addEventListener("DOMContentLoaded", () => fetchFirestoreEvents(user.email));
     } else {
-        fetchAppSheetData(user.email);
+        fetchFirestoreEvents(user.email);
         listenForUpdates();
     }
 }
