@@ -1,13 +1,13 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk",
-  authDomain: "...",
+  apiKey: "AIzaSyBg9E8w5C5azvMKAJ3VY_YQmwu5DgaAU80",
+  authDomain: "kalendar-831f8.firebaseapp.com",
   projectId: "kalendar-831f8",
-  storageBucket: "...",
-  messagingSenderId: "...",
-  appId: "..."
+  storageBucket: "kalendar-831f8.appspot.com",
+  messagingSenderId: "745578521928",
+  appId: "1:745578521928:web:c5c733cb9061b1668aff7d"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -39,3 +39,4 @@ async function testWriteEvent() {
 // Spuštění testů
 testReadEvent();
 testWriteEvent();
+
