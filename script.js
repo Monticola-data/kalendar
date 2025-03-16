@@ -48,6 +48,8 @@ async function updateFirestoreEvent(eventId, { Datum = null, Parta = null } = {}
     console.log("✅ Data uložena do Firestore:", updates);
 }
 
+import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
+
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
@@ -150,6 +152,7 @@ function renderCalendar(view = null) {
 
     calendar.render();
 }
+
 
 function populateFilter() {
     partyFilter.innerHTML = '<option value="all">Všechny party</option>';
