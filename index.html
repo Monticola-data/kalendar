@@ -80,10 +80,11 @@
   </div>
 
 
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js';
-  import { getAuth } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-auth.js';
+<!-- Firebase kompatibilní verze -->
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
 
+<script>
   const firebaseConfig = {
     apiKey: "AIzaSyBg9E8w5C5azvMKAJ3VY_YQmwu5DgaAU80",
     authDomain: "kalendar-831f8.firebaseapp.com",
@@ -93,14 +94,12 @@
     appId: "1:745578521928:web:c5c733cb9061b1668aff7d"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  export { app, auth };
+  firebase.initializeApp(firebaseConfig);
 </script>
 
-<script type="module" src="script.js"></script>
-<script type="module" src="firebase-auth.js"></script>
+<!-- standardní načtení bez modulu -->
+<script src="script.js"></script>
+<script src="firebase-auth.js"></script>
   
 </body>
 
