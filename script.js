@@ -52,18 +52,19 @@ const API_BASE_URL = isLocal
     : "https://us-central1-kalendar-831f8.cloudfunctions.net";
 
 
-async function updateAppSheetEvent(eventId, newDate, newParty = null) {
-    console.log(`📡 Odesílám do Firebase: ID: ${eventId}, Datum: ${newDate}, Parta: ${newParty}`);
+async function updateAppSheetEvent(eventId, { Datum = null, Parta = null } = {}) {
+    const body = { rowId: eventId };
+
+    if (Datum) body.Datum = Datum;
+    if (Parta) body.Parta = Parta;
+
+    console.log("📡 Odesílám do Firebase:", body);
 
     try {
         const response = await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                rowId: eventId,
-                Datum: newDate,
-                Parta: newParty
-            })
+            body: JSON.stringify(body)
         });
 
         const responseData = await response.json();
@@ -80,7 +81,6 @@ async function updateAppSheetEvent(eventId, newDate, newParty = null) {
         console.error("❌ Chyba při aktualizaci události:", error);
     }
 }
-
 
 
 function renderCalendar(view = null) {
