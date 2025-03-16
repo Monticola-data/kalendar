@@ -129,15 +129,19 @@ views: {
     }
 },
 
-        eventDrop: async function (info) {
-            const updatedEvent = {
-                id: info.event.id,
-                start: info.event.startStr,
-                party: info.event.extendedProps.party || null
-            };
-            console.log("🔄 Událost přesunuta:", updatedEvent);
-            await updateAppSheetEvent(updatedEvent.id, updatedEvent.start, updatedEvent.party);
-        },
+eventDrop: async function (info) {
+    const newDate = info.event.startStr.split('T')[0];
+
+    // ✅ Zde aktualizuješ allEvents, aby data byla vždy synchronní
+    const eventInAllEvents = allEvents.find(ev => ev.id === info.event.id);
+    if (eventInAllEvents) {
+        eventInAllEvents.start = newDate;
+    }
+
+    console.log("🔄 Událost přesunuta, nové datum:", newDate);
+    await updateAppSheetEvent(info.event.id, { Datum: newDate });
+},
+
 
 eventClick: function (info) {
     // ✅ Nová a spolehlivá kontrola
