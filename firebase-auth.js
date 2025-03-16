@@ -1,3 +1,5 @@
+import { fetchFirestoreEvents, listenForUpdates } from './script.js';
+
 const provider = new firebase.auth.GoogleAuthProvider();
 
 document.addEventListener("DOMContentLoaded", () => {
