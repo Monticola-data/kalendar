@@ -136,4 +136,32 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 });
 
+export function listenForUpdates(userEmail) {
+    const eventsCol = collection(db, 'events');
+
+    onSnapshot(eventsCol, (snapshot) => {
+        const allFirestoreEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        const normalizedUserEmail = userEmail.trim().toLowerCase();
+
+        allEvents = allFirestoreEvents.filter(event => {
+            const security = event.extendedProps?.SECURITY_filter || [];
+            return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
+        });
+
+        populateFilter();
+
+        if (calendar) {
+            calendar.removeAllEvents();
+            calendar.addEventSource(allEvents);
+            calendar.render();
+        } else {
+            renderCalendar();
+            renderLegend();
+        }
+
+        console.log("✅ Realtime data z Firestore načtena:", allEvents);
+    });
+}
+
 export { updateFirestoreEvent };
