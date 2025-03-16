@@ -5,13 +5,15 @@ let calendarEl, modal, partySelect, savePartyButton, partyFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 export async function fetchFirestoreEvents(userEmail) {
-    const eventsSnapshot = await firebase.firestore().collection('events').get();
+    const eventsCol = collection(db, 'events');
+    const eventsSnapshot = await getDocs(eventsCol);
+    
     const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
             id: doc.id,
             title: data.title,
-            start: data.start,
+            start: new Date(data.start).toISOString().split('T')[0], // ✅ Vloženo sem
             color: data.color,
             party: data.party,
             extendedProps: data.extendedProps || {}
@@ -33,10 +35,12 @@ export async function fetchFirestoreEvents(userEmail) {
         calendar.render();
     } else {
         renderCalendar();
+        renderLegend();
     }
 
     console.log("✅ Data načtena z Firestore:", allEvents);
 }
+
 
 async function updateFirestoreEvent(eventId, updates = {}) {
     await firebase.firestore().collection("events").doc(eventId).set(updates, { merge: true });
