@@ -1,5 +1,5 @@
 import { db } from './firebase.js';
-import { collection, doc, getDocs, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js';
+import { collection, doc, getDocs, setDoc, onSnapshot, updateDoc } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js';
 
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
@@ -47,8 +47,6 @@ async function updateFirestoreEvent(eventId, { Datum = null, Parta = null } = {}
     await setDoc(doc(db, "events", eventId), updates, { merge: true });
     console.log("✅ Data uložena do Firestore:", updates);
 }
-
-import { doc, updateDoc, collection, getDocs } from "firebase/firestore";
 
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
