@@ -1,147 +1,71 @@
+import { db } from './firebase.js';
+import { collection, doc, getDocs, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js';
+
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, allEvents = [], partyMap = {}, selectedEvent = null, calendar;
-const isLocal = window.location.hostname === "localhost";
-const API_BASE_URL = isLocal
-    ? "http://127.0.0.1:5001/kalendar-831f8/us-central1"
-    : "https://us-central1-kalendar-831f8.cloudfunctions.net";
 
-const updatingEventIds = new Set();
+async function fetchFirestoreEvents(userEmail) {
+    const eventsCol = collection(db, 'events');
+    const eventsSnapshot = await getDocs(eventsCol);
+    const allFirestoreEvents = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-async function fetchAppSheetData(userEmail) {
-    try {
-        if (!userEmail) {
-            console.error("❌ Chyba: uživatel není přihlášený nebo chybí email.");
-            return;
-        }
+    const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        const response = await fetch(`${API_BASE_URL}/fetchAppSheetData`);
-        if (!response.ok) throw new Error(`Chyba ${response.status}`);
+    allEvents = allFirestoreEvents.filter(event => {
+        const security = event.extendedProps?.SECURITY_filter || [];
+        return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
+    });
 
-        const data = await response.json();
-        partyMap = data.partyMap;
+    populateFilter();
 
-        const normalizedUserEmail = userEmail.trim().toLowerCase();
-
-        const newEvents = data.events.filter(event => {
-            const allowedEmails = Array.isArray(event.extendedProps.SECURITY_filter)
-                ? event.extendedProps.SECURITY_filter.map(e => e.trim().toLowerCase())
-                : [];
-            return allowedEmails.includes(normalizedUserEmail);
-        });
-
-        allEvents = newEvents.map(ev => {
-            if (updatingEventIds.has(ev.id)) {
-                const existing = allEvents.find(e => e.id === ev.id);
-                return existing || ev;
-            }
-            return ev;
-        });
-
-        populateFilter();
-
-        if (calendar) {
-            calendar.removeAllEvents();
-            calendar.addEventSource(allEvents);
-            calendar.render();
-        } else {
-            renderCalendar();
-            renderLegend();
-        }
-
-    } catch (error) {
-        console.error("❌ Chyba načtení dat:", error);
+    if (calendar) {
+        calendar.removeAllEvents();
+        calendar.addEventSource(allEvents);
+        calendar.render();
+    } else {
+        renderCalendar();
+        renderLegend();
     }
+
+    console.log("✅ Data načtena z Firestore:", allEvents);
 }
 
-function normalizeEmail(email) {
-    return email.trim().toLowerCase();
+async function updateFirestoreEvent(eventId, { Datum = null, Parta = null } = {}) {
+    const updates = {};
+    if (Datum) updates.start = Datum;
+    if (Parta) updates.party = Parta;
+
+    await setDoc(doc(db, "events", eventId), updates, { merge: true });
+    console.log("✅ Data uložena do Firestore:", updates);
 }
-
-async function updateAppSheetEvent(eventId, { Datum = null, Parta = null } = {}) {
-    const body = { rowId: eventId };
-    if (Datum) body.Datum = Datum;
-    if (Parta) body.Parta = Parta;
-
-    updatingEventIds.add(eventId);
-
-    try {
-        await fetch(`${API_BASE_URL}/updateAppSheetEvent`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        });
-
-        await fetch(`${API_BASE_URL}/webhook`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ rowId: eventId })
-        });
-    } catch (error) {
-        console.error("❌ Chyba při aktualizaci události:", error);
-    } finally {
-        setTimeout(() => updatingEventIds.delete(eventId), 2000);
-    }
-}
-
 
 function renderCalendar(view = null) {
-const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
+    const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
-calendar = new FullCalendar.Calendar(calendarEl, {
-initialView: savedView,
-editable: true,
-locale: 'cs',
-height: 'auto',
-contentHeight: 'auto',
-aspectRatio: 1.8,
-    
-eventSources: [
-allEvents,
-{
-googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-display: 'background',
-color: '#854646',
-textColor: '#000',
-className: 'holiday-event',
-extendedProps: { isHoliday: true }
-}
-],
-
-
-views: {
-    workWeek: {
-        type: 'timeGridWeek',
-        weekends: false,
-        buttonText: 'Týden (pracovní)'
-    },
-    monthWorkDays: {
-        type: 'dayGridMonth',
-        hiddenDays: [0, 6],
-        buttonText: 'Měsíc (pracovní)'
-    },
-    listMonth: {
-        type: 'listMonth',
-        buttonText: 'Seznam (měsíc)'
-    },
-    timeGridDay: {
-        type: 'timeGridDay',
-        buttonText: 'Denní agenda'
-    }
-},
-
-eventDrop: function (info) {
-            clearTimeout(info.event.dragDropTimeout);
-            info.event.dragDropTimeout = setTimeout(async () => {
-                const newDate = info.event.startStr.split('T')[0];
-                const eventInAllEvents = allEvents.find(ev => ev.id === info.event.id);
-                if (eventInAllEvents) eventInAllEvents.start = newDate;
-                await updateAppSheetEvent(info.event.id, { Datum: newDate });
-            }, 1000);
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: savedView,
+        editable: true,
+        locale: 'cs',
+        height: 'auto',
+        contentHeight: 'auto',
+        aspectRatio: 1.8,
+        eventSources: [
+            allEvents,
+            {
+                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+                display: 'background',
+                color: '#854646',
+                textColor: '#000',
+                className: 'holiday-event',
+                extendedProps: { isHoliday: true }
+            }
+        ],
+        eventDrop: async function (info) {
+            const newDate = info.event.startStr.split('T')[0];
+            await updateFirestoreEvent(info.event.id, { Datum: newDate });
         },
-
-
         eventClick: function (info) {
-            if (info.event.extendedProps && info.event.extendedProps.SECURITY_filter) {
+            if (info.event.extendedProps?.SECURITY_filter) {
                 selectedEvent = info.event;
                 partySelect.innerHTML = "";
 
@@ -154,181 +78,60 @@ eventDrop: function (info) {
                 });
 
                 const detailButton = document.getElementById("detailButton");
-                if (info.event.extendedProps.detail) {
-                    detailButton.style.display = "block";
-                    detailButton.onclick = () => window.open(info.event.extendedProps.detail, "_blank");
-                } else {
-                    detailButton.style.display = "none";
-                }
+                detailButton.style.display = info.event.extendedProps.detail ? "block" : "none";
+                detailButton.onclick = () => window.open(info.event.extendedProps.detail, "_blank");
 
                 modal.style.display = "block";
             } else {
                 console.log("⛔ Ignoruji kliknutí na událost bez SECURITY_filter");
             }
         },
-
-
         eventContent: function (arg) {
             let icon = "";
-            let title = arg.event.title;
+            if (arg.event.extendedProps.predane) icon = "✍️";
+            else if (arg.event.extendedProps.hotove) icon = "✅";
+            else if (arg.event.extendedProps.odeslane) icon = "📩";
 
-            if (arg.event.extendedProps.predane) {
-                icon = "✍️";
-                title = title.toUpperCase();
-            } else if (arg.event.extendedProps.hotove) {
-                icon = "✅";
-                title = title.toUpperCase();
-            } else if (arg.event.extendedProps.odeslane) {
-                icon = "📩";
-                title = title.toUpperCase();
-            }
+            const title = arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane ? arg.event.title.toUpperCase() : arg.event.title;
+
             return { html: `<b>${icon}</b> ${title}` };
         }
-
     });
 
     calendar.render();
 }
 
+function populateFilter() {
+    partyFilter.innerHTML = '<option value="all">Všechny party</option>';
 
-
-
-
-    // 🟢 5️⃣ Funkce pro naplnění filtru podle party
-    function populateFilter() {
-        partyFilter.innerHTML = '<option value="all">Všechny party</option>';
-
-        Object.entries(partyMap).forEach(([id, party]) => {
-            let option = document.createElement("option");
-            option.value = id; 
-            option.textContent = party.name; 
-            partyFilter.appendChild(option);
-        });
-
-        partyFilter.addEventListener("change", function () {
-            const selectedParty = partyFilter.value;
-            calendar.removeAllEvents();
-
-            if (selectedParty === "all") {
-                calendar.addEventSource(allEvents);
-            } else {
-                const filteredEvents = allEvents.filter(event => event.party === selectedParty);
-                calendar.addEventSource(filteredEvents);
-            }
-        });
-    }
-
-    function renderLegend() {
-        var legendContainer = document.getElementById("legend");
-
-        Object.entries(partyMap).forEach(([id, party]) => {
-            let legendItem = document.createElement("div");
-            legendItem.classList.add("legend-item");
-            legendItem.style.backgroundColor = party.color;
-            legendItem.textContent = party.name;
-            legendContainer.appendChild(legendItem);
-        });
-    }
-
-    window.addEventListener("click", function (event) {
-        let modal = document.getElementById("eventModal");
-
-        if (modal.style.display === "block") {
-            if (!modal.contains(event.target) && !event.target.closest(".fc-event")) {
-                modal.style.display = "none";
-            }
-        }
+    Object.entries(partyMap).forEach(([id, party]) => {
+        let option = document.createElement("option");
+        option.value = id;
+        option.textContent = party.name;
+        partyFilter.appendChild(option);
     });
 
-async function listenForUpdates() {
-    let refreshInterval;
-
-    async function checkForChanges() {
-        try {
-            const response = await fetch(`${API_BASE_URL}/checkRefreshStatus`);
-            const data = await response.json();
-
-            if (data.type === "update") {
-                const userEmail = window.currentUser?.email || sessionStorage.getItem('userEmail');
-
-                if (userEmail) {
-                    await fetchAppSheetData(userEmail);
-                } else {
-                    console.warn("⚠️ Nelze načíst data: email uživatele není dostupný.");
-                }
-            }
-        } catch (error) {
-            console.error("❌ Chyba při kontrole změn:", error);
-        }
-    }
-
-    // ✅ Zde používej setInterval místo setTimeout pro robustnější běh
-    function startInterval() {
-        clearInterval(refreshInterval); // vyčištění předchozího intervalu
-        refreshInterval = setInterval(checkForChanges, 5000); 
-    }
-
-    // ✅ Spuštění při prvním načtení
-    startInterval();
-
-    // ✅ Obnovení kontroly po probuzení stránky z uspání (mobil/PC)
-    document.addEventListener("visibilitychange", () => {
-        if (!document.hidden) {
-            console.log("✅ Stránka znovu aktivována, obnovuji kontrolu změn.");
-            startInterval();
-            checkForChanges(); // okamžitě zkontroluj při obnovení stránky
-        }
+    partyFilter.addEventListener("change", () => {
+        const selectedParty = partyFilter.value;
+        calendar.removeAllEvents();
+        calendar.addEventSource(selectedParty === "all" ? allEvents : allEvents.filter(event => event.party === selectedParty));
     });
 }
 
-
-// ✅ Ostatní DOM věci musí být uvnitř DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
     partySelect = document.getElementById('partySelect');
     savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
 
-    // ✅ Tohle je klíčová oprava (načtení posledního pohledu)!
-    const savedView = localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
-    document.getElementById("viewSelect").value = savedView;
+    renderCalendar();
 
-    renderCalendar(savedView); // ✅ předání pohledu do funkce
-
-savePartyButton.addEventListener("click", async function () {
-    if (selectedEvent) {
-        const selectedPartyId = partySelect.value;
-        const selectedPartyColor = partyMap[selectedPartyId]?.color || "#145C7E";
-
-        // Ihned aktualizuj v poli
-        const updatedEvent = allEvents.find(event => event.id === selectedEvent.id);
-        if (updatedEvent) {
-            updatedEvent.party = selectedPartyId;
-            updatedEvent.color = selectedPartyColor;
-
-            selectedEvent.setExtendedProp("party", selectedPartyId);
-            selectedEvent.setProp("backgroundColor", selectedPartyColor);
-
+    savePartyButton.onclick = async () => {
+        if (selectedEvent) {
+            const partyId = partySelect.value;
+            await updateFirestoreEvent(selectedEvent.id, { Parta: partyId });
             modal.style.display = "none";
-
-            // 🔴 Přidej tuto část – nastav příznak aktualizace
-            updatedEvent._updating = true;
-
-            await updateAppSheetEvent(updatedEvent.id, { Parta: selectedPartyId });
-
-            // ✅ Počkej chvíli, než znovu načteš data
-            setTimeout(() => { updatedEvent.justUpdated = true; }, 2000);
         }
-    }
-});
-
-
-    document.getElementById("viewSelect").addEventListener("change", function () {
-        const selectedView = this.value;
-        calendar.changeView(selectedView);
-        localStorage.setItem('selectedCalendarView', selectedView);
-    });
-
-    listenForUpdates();
+    };
 });
