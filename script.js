@@ -231,6 +231,11 @@ partySelect.onchange = (e) => {
         }
 };
 
+        // ✅ Zobraz informace v modalu
+        const modalEventInfo = document.getElementById('modalEventInfo');
+        modalEventInfo.innerHTML = `
+        ${info.event.title} - ${info.event.startStr} (${getPartyName(info.event.extendedProps.party)})
+        `;
         modal.style.display = "block";
         modalOverlay.style.display = "block";
         }
