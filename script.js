@@ -12,9 +12,9 @@ async function processQueue() {
 
     isProcessing = true;
 
-    const eventId = eventIds.shift(); // vezme první událost z fronty
+    const eventId = eventIds[0];
     const task = eventQueue[eventId];
-    delete eventQueue[eventId]; // smaže úkol z fronty ihned, jak začne zpracování
+    delete eventQueue[eventId];
 
     try {
         await task();
@@ -23,14 +23,8 @@ async function processQueue() {
     }
 
     isProcessing = false;
-
-    // Spusť znovu, pokud ve frontě ještě něco zbývá
-    if (Object.keys(eventQueue).length > 0) {
-        processQueue();
-    }
+    processQueue();
 }
-
-
 
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
@@ -116,7 +110,6 @@ function renderCalendar(view = null) {
 eventDrop: function(info) {
     const eventId = info.event.id;
 
-    // aktualizace fronty podle ID události
     eventQueue[eventId] = async () => {
         try {
             await db.collection("events").doc(eventId).update({
@@ -139,10 +132,11 @@ eventDrop: function(info) {
             console.error("❌ Chyba při odeslání do AppSheet:", err);
             info.revert();
         }
-    });
+    };
 
-    processQueue();  // ⚠️ toto je klíčové!
+    processQueue();
 },
+
 
 
 eventClick: async function (info) {
