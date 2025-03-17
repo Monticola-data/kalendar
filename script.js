@@ -1,6 +1,25 @@
 import { db } from './firebase.js';
 import { holidays } from './holidays.js';
 
+let eventQueue = [];
+let isProcessing = false;
+
+async function processQueue() {
+    if (isProcessing || eventQueue.length === 0) return;
+    isProcessing = true;
+
+    const task = eventQueue.shift();
+
+    try {
+        await task();
+    } catch (error) {
+        console.error("Chyba při zpracování úkolu:", error);
+    }
+
+    isProcessing = false;
+    processQueue();
+}
+
 
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
@@ -83,23 +102,28 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
-        eventDrop: async function(info) {
-            try {
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        eventId: info.event.id,
-                        start: info.event.startStr,
-                        party: info.event.extendedProps.party
-                    })
-                });
-                console.log("✅ Změna poslána do AppSheet!");
-            } catch (err) {
-                console.error("❌ Chyba při odeslání do AppSheet:", err);
-                info.revert();
-            }
-        },
+eventDrop: function(info) {
+    eventQueue.push(async () => {
+        try {
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    eventId: info.event.id,
+                    start: info.event.startStr,
+                    party: info.event.extendedProps.party
+                })
+            });
+            console.log("✅ Změna poslána do AppSheet!");
+        } catch (err) {
+            console.error("❌ Chyba při odeslání do AppSheet:", err);
+            info.revert();
+        }
+    });
+
+    processQueue(); // spusť frontu
+},
+
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
@@ -118,32 +142,34 @@ eventClick: async function (info) {
             }
         });
 
-partySelect.onchange = async (e) => {
+partySelect.onchange = (e) => {
     const selectedParty = partyMap[e.target.value];
-    if (selectedParty) {
-        try {
-            // Aktualizace ve Firestore
-            await db.collection("events").doc(info.event.id).update({
-                party: e.target.value,
-                color: selectedParty.color
-            });
+    if (selectedParty && selectedEvent) {
+        eventQueue.push(async () => {
+            try {
+                await db.collection("events").doc(selectedEvent.id).update({
+                    party: e.target.value,
+                    color: selectedParty.color
+                });
 
-            // ✅ Přidáno zpět odeslání změn do AppSheet
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    eventId: info.event.id,
-                    party: e.target.value
-                })
-            });
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        eventId: selectedEvent.id,
+                        party: e.target.value
+                    })
+                });
 
-            console.log("✅ Party změněna a aktualizována.");
-        } catch (error) {
-            console.error("❌ Chyba při změně party:", error);
-        }
-        }
-    };
+                console.log("✅ Party změněna a aktualizována.");
+            } catch (error) {
+                console.error("❌ Chyba při změně party:", error);
+            }
+        });
+
+        processQueue(); // spusť frontu
+    }
+};
                 modal.style.display = "block";
         }
         },
