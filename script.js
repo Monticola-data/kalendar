@@ -12,10 +12,10 @@ async function fetchFirestoreParties() {
     }, {});
     populateFilter();
 }
-export async function fetchFirestoreEvents(userEmail) {
 
+
+export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
-    
     const eventsSnapshot = await db.collection('events').get();
     
     const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
@@ -98,33 +98,22 @@ function renderCalendar(view = null) {
             if (info.event.extendedProps?.SECURITY_filter) {
                 selectedEvent = info.event;
 
-                const partiesSnapshot = await firebase.firestore().collection("parties").get();
-                const parties = partiesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
                 partySelect.innerHTML = "";
-                parties.forEach(party => {
+                Object.entries(partyMap).forEach(([id, party]) => {
                     const option = document.createElement("option");
-                    option.value = party.id;
+                    option.value = id;
                     option.textContent = party.name;
-                    option.selected = party.id === info.event.extendedProps.party;
+                    option.selected = id === info.event.extendedProps.party;
                     partySelect.appendChild(option);
                 });
 
                 partySelect.onchange = async (e) => {
-                    const selectedParty = parties.find(p => p.id === e.target.value);
+                    const selectedParty = partyMap[e.target.value];
                     if (selectedParty) {
                         try {
-                            await firebase.firestore().collection("events").doc(info.event.id).update({
-                                party: selectedParty.id,
+                            await db.collection("events").doc(info.event.id).update({
+                                party: e.target.value,
                                 color: selectedParty.color
-                            });
-                            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    eventId: info.event.id,
-                                    party: selectedParty.id
-                                })
                             });
                             calendar.refetchEvents();
                             console.log("✅ Party změněna a aktualizována.");
@@ -132,15 +121,8 @@ function renderCalendar(view = null) {
                             console.error("❌ Chyba při změně party:", error);
                         }
                     }
-                };
-
-                const detailButton = document.getElementById("detailButton");
-                detailButton.style.display = info.event.extendedProps.detail ? "block" : "none";
-                detailButton.onclick = () => window.open(info.event.extendedProps.detail, "_blank");
-
+                });
                 modal.style.display = "block";
-            } else {
-                console.log("⛔ Ignoruji kliknutí na událost bez SECURITY_filter");
             }
         },
         eventContent: function (arg) {
@@ -161,17 +143,22 @@ function renderCalendar(view = null) {
 function populateFilter() {
     partyFilter.innerHTML = '<option value="all">Všechny party</option>';
     Object.entries(partyMap).forEach(([id, party]) => {
-        const option = document.createElement("option");
-        option.value = id;
-        option.textContent = party.name;
-        partyFilter.appendChild(option);
+        if (strediskoFilter.value === "vše" || party.stredisko === strediskoFilter.value) {
+            const option = document.createElement("option");
+            option.value = id;
+            option.textContent = party.name;
+            partyFilter.appendChild(option);
+        }
     });
 
-    partyFilter.onchange = () => {
-        const selectedParty = partyFilter.value;
-        calendar.removeAllEvents();
-        calendar.addEventSource(selectedParty === "all" ? allEvents : allEvents.filter(event => event.party === selectedParty));
-    };
+    filterAndRenderEvents();
+}
+
+function filterAndRenderEvents() {
+    const selectedParty = partyFilter.value;
+    const filteredEvents = allEvents.filter(event => selectedParty === "all" || event.party === selectedParty);
+    calendar.removeAllEvents();
+    calendar.addEventSource(filteredEvents);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
