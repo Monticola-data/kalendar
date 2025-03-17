@@ -138,14 +138,12 @@ partySelect.onchange = async (e) => {
                 })
             });
 
-            calendar.refetchEvents();
             console.log("✅ Party změněna a aktualizována.");
         } catch (error) {
             console.error("❌ Chyba při změně party:", error);
         }
         }
     };
-
                 modal.style.display = "block";
         }
         },
