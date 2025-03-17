@@ -189,6 +189,7 @@ partySelect.onchange = (e) => {
     selectedEvent.setExtendedProp('party', e.target.value);
 
     processQueue(); // spusť frontu
+        }
 };
 
                 modal.style.display = "block";
