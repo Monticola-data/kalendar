@@ -15,7 +15,9 @@ self.addEventListener('install', event => {
       ]);
     })
     .then(() => self.skipWaiting())
+  ); // ⬅️ Tato závorka ti chyběla!
 });
+
 
 // ✅ Aktivace SW – vyčištění starých cache
 self.addEventListener('activate', event => {
