@@ -83,23 +83,35 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
-        eventDrop: async function(info) {
-            try {
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        eventId: info.event.id,
-                        start: info.event.startStr,
-                        party: info.event.extendedProps.party
-                    })
-                });
-                console.log("✅ Změna poslána do AppSheet!");
-            } catch (err) {
-                console.error("❌ Chyba při odeslání do AppSheet:", err);
-                info.revert();
-            }
-        },
+ eventDrop: async function(info) {
+    const newStart = info.event.startStr;
+    const eventId = info.event.id;
+    const party = info.event.extendedProps.party;
+
+    try {
+        // ✅ Aktualizace Firestore
+        await db.collection("events").doc(eventId).update({
+            start: new Date(new Date(new Date(new Date(new Date(newStart).setHours(0,0,0,0)))).setHours(0,0,0,0))
+        });
+
+        // ✅ Aktualizace AppSheet
+        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                eventId: info.event.id,
+                start: info.event.startStr,
+                party: info.event.extendedProps.party
+            })
+        });
+
+        console.log("✅ Změna poslána do AppSheet a Firestore!");
+    } catch (err) {
+        console.error("❌ Chyba při aktualizaci:", err);
+        info.revert();
+    }
+},
+
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
