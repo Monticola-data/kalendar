@@ -83,31 +83,35 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
- eventDrop: async function(info) {
-    try {
-        const eventId = info.event.id;
-        const newStart = info.event.startStr;
+eventDrop: async function(info) {
+    const eventId = info.event.id;
+    const newStart = info.event.startStr;
 
-        // Aktualizace Firestore
-        await db.collection("events").doc(eventId).update({
-            start: new Date(new Date(newStart).setHours(0,0,0,0)).toISOString().split('T')[0]
+    try {
+        // ✅ Okamžitě aktualizuj Firestore
+        await db.collection("events").doc(eventId).update({ 
+            start: new Date(info.event.start).toISOString().split('T')[0]
         });
 
-        // Aktualizace AppSheet
+        // ✅ Zavolej AppSheet (jen informativní, neovlivní kalendář!)
         await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                eventId: info.event.id,
-                start: info.event.startStr,
+                eventId: eventId,
+                start: new Date(info.event.start).toISOString().split('T')[0],
                 party: info.event.extendedProps.party
             })
         });
 
-        console.log("✅ Změna úspěšně uložena bez překreslení!");
+        console.log("✅ Změna byla uložena do Firestore a AppSheet!");
+
+        // ✅ Aktualizuj pouze konkrétní event bez refetche
+        info.event.setDates(info.event.start);
+
     } catch (err) {
-        console.error("❌ Chyba při odeslání změny:", err);
-        info.revert(); // Vrátí změnu zpět v případě chyby
+        console.error("❌ Chyba při aktualizaci:", err);
+        info.revert();
     }
 },
 
