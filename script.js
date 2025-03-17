@@ -182,18 +182,16 @@ function filterAndRenderEvents() {
     const selectedStredisko = strediskoFilter.value;
 
     const filteredEvents = allEvents.filter(event => {
-        const party = partyMap[event.party];
         const matchParty = selectedParty === "all" || event.party === selectedParty;
-        const matchStredisko = selectedStredisko === "vše" || (party && party.stredisko === selectedStredisko);
-        return matchParty && matchStredisko;
+        const matchStredisko = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
+
+        return matchStredisko && matchParty;
     });
 
-    if (calendar) {
-        calendar.removeAllEvents();
-        calendar.addEventSource(filteredEvents);
-        calendar.render();
-    }
+    calendar.removeAllEvents();
+    calendar.addEventSource(filteredEvents);
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
