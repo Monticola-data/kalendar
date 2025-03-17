@@ -4,6 +4,10 @@ import { db } from './firebase.js';
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
+function getPartyName(partyId) {
+    return partyMap[partyId]?.name || 'Neznámá parta';
+}
+
 async function fetchFirestoreParties() {
     const snapshot = await db.collection("parties").get();
     partyMap = snapshot.docs.reduce((map, doc) => {
@@ -139,16 +143,27 @@ partySelect.onchange = async (e) => {
                 modal.style.display = "block";
         }
         },
-        eventContent: function (arg) {
-            let icon = "";
-            if (arg.event.extendedProps.predane) icon = "✍️";
-            else if (arg.event.extendedProps.hotove) icon = "✅";
-            else if (arg.event.extendedProps.odeslane) icon = "📩";
+eventContent: function (arg) {
+    let icon = "";
+    if (arg.event.extendedProps.predane) icon = "✍️";
+    else if (arg.event.extendedProps.hotove) icon = "✅";
+    else if (arg.event.extendedProps.odeslane) icon = "📩";
 
-            const title = arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane ? arg.event.title.toUpperCase() : arg.event.title;
+    const title = arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane 
+        ? arg.event.title.toUpperCase() 
+        : arg.event.title;
 
-            return { html: `<b>${icon}</b> ${title}` };
-        }
+    return { 
+        html: `
+        <div style="font-size: 0.75em; color: gray;">
+            ${getPartyName(arg.event.extendedProps.party)}
+        </div>
+        <div>
+            <b>${icon}</b> ${title}
+        </div>`
+    };
+}
+
     });
 
     calendar.render();
