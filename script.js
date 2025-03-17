@@ -120,7 +120,7 @@ eventDrop: function(info) {
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({
-                    id: eventId,
+                    eventId: eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party
                 }),
