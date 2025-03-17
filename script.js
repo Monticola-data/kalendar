@@ -132,10 +132,11 @@ partySelect.onchange = async (e) => {
         } catch (error) {
             console.error("❌ Chyba při změně party:", error);
         }
+        }
     };
 
                 modal.style.display = "block";
-            }
+        }
         },
         eventContent: function (arg) {
             let icon = "";
