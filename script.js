@@ -26,6 +26,7 @@ export async function fetchFirestoreEvents(userEmail) {
             start: new Date(data.start).toISOString().split('T')[0], // ✅ Vloženo sem
             color: data.color,
             party: data.party,
+            stredisko: data.stredisko,
             extendedProps: data.extendedProps || {}
         };
     });
@@ -38,6 +39,7 @@ export async function fetchFirestoreEvents(userEmail) {
     });
 
     populateFilter();
+    filterAndRenderEvents();
 
     if (calendar) {
         calendar.removeAllEvents();
@@ -180,15 +182,19 @@ function filterAndRenderEvents() {
     const selectedStredisko = strediskoFilter.value;
 
     const filteredEvents = allEvents.filter(event => {
-        const partyDetails = partyMap[event.party] || {};
+        const party = partyMap[event.party];
         const matchParty = selectedParty === "all" || event.party === selectedParty;
-        const matchStredisko = strediskoFilter.value === "vše" || partyDetails.stredisko === strediskoFilter.value;
+        const matchStredisko = selectedStredisko === "vše" || (party && party.stredisko === selectedStredisko);
         return matchParty && matchStredisko;
     });
 
-    calendar.removeAllEvents();
-    calendar.addEventSource(filteredEvents);
+    if (calendar) {
+        calendar.removeAllEvents();
+        calendar.addEventSource(filteredEvents);
+        calendar.render();
+    }
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
@@ -198,16 +204,13 @@ document.addEventListener('DOMContentLoaded', () => {
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
 
-    // ✅ načtení uloženého střediska
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     strediskoFilter.value = savedStredisko;
-
-    // ✅ okamžité filtrování při načtení stránky
-    populateFilter(); // toto je zásadní!
 
     strediskoFilter.onchange = () => {
         localStorage.setItem('selectedStredisko', strediskoFilter.value);
         populateFilter();
+        filterAndRenderEvents();
     };
 
     partyFilter.onchange = filterAndRenderEvents;
@@ -221,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
+
 
 
 
