@@ -1,4 +1,7 @@
 import { db } from './firebase.js';
+import { Calendar } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import listPlugin from '@fullcalendar/list';
 
 let eventQueue = {};
 let isProcessing = false;
@@ -86,32 +89,40 @@ function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
 calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: savedView,
+    plugins: [dayGridPlugin, listPlugin],
+    initialView: 'customMonth',
     editable: true,
     locale: 'cs',
     height: 'auto',
     headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'monthWorkDays,weekWorkDays,list14Days'  // tlačítka views
+        right: 'customMonth,customWeek,list14Days'
     },
-    views: {   // ✅ Tady přesně přidáš jednotlivá zobrazení
-        monthWorkDays: {
+    views: {
+        customMonth: {
             type: 'dayGridMonth',
-            hiddenDays: [0, 6] // skrýt víkendy (neděle, sobota)
+            buttonText: 'Měsíc',
         },
-        weekWorkDays: {
-            type: 'timeGridWeek',
-            hiddenDays: [0,6]
+        customWeek: {
+            type: 'dayGridWeek',
+            buttonText: 'Týden',
+            allDaySlot: true,
+            slotDuration: { days: 1 },
+            slotDuration: { days: 1 },
+            displayEventTime: false,
         },
         list14Days: {
             type: 'list',
-            duration: { days: 14 }
+            duration: { days: 14 },
+            buttonText: '14 dní',
         }
     },
-    initialView: 'monthWorkDays',
-    editable: true,
-    locale: 'cs',
+    headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'customMonth,customWeek,list14Days'
+    },
         eventSources: [
             {
                 id: 'firestore', // ✅ zde přidáno správné id
@@ -238,7 +249,14 @@ eventContent: function (arg) {
 
 
     });
-
+// ✅ Přidej tento CSS kód pro odlišení tlačítek barevně
+const style = document.createElement('style');
+style.innerHTML = `
+.fc-customMonth-button { background-color: #4CAF50 !important; color: white !important; }
+.fc-customWeek-button { background-color: #2196F3 !important; color: white !important; }
+.fc-list14Days-button { background-color: #FF5722 !important; color: white !important; }
+`;
+document.head.appendChild(style);
     calendar.render();    
 }
 
