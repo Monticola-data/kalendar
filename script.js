@@ -86,40 +86,33 @@ function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
 calendar = new FullCalendar.Calendar(calendarEl, {
-    plugins: [dayGridPlugin, listPlugin],
-    initialView: 'customMonth',
-    editable: true,
-    locale: 'cs',
-    height: 'auto',
-    headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'customMonth,customWeek,list14Days'
-    },
-    views: {
-        customMonth: {
-            type: 'dayGridMonth',
-            buttonText: 'Měsíc',
+        initialView: savedView,
+        editable: true,
+        locale: 'cs',
+        height: 'auto',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'customMonth,customWeek,list14Days'
         },
-        customWeek: {
-            type: 'dayGridWeek',
-            buttonText: 'Týden',
-            allDaySlot: true,
-            slotDuration: { days: 1 },
-            slotDuration: { days: 1 },
-            displayEventTime: false,
+        views: {
+            customMonth: {
+                type: 'dayGridMonth',
+                buttonText: 'Měsíc',
+            },
+            customWeek: {
+                type: 'dayGridWeek',
+                buttonText: 'Týden',
+                allDaySlot: true,
+                slotDuration: { days: 1 },
+                displayEventTime: false,
+            },
+            list14Days: {
+                type: 'list',
+                duration: { days: 14 },
+                buttonText: '14 dní',
+            }
         },
-        list14Days: {
-            type: 'list',
-            duration: { days: 14 },
-            buttonText: '14 dní',
-        }
-    },
-    headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'customMonth,customWeek,list14Days'
-    },
         eventSources: [
             {
                 id: 'firestore', // ✅ zde přidáno správné id
@@ -241,12 +234,10 @@ eventContent: function (arg) {
             <div style="font-weight:bold;">${icon} ${title}</div>
             <div style="font-size:9px; color:#ffffff;">${partyName}</div>
         </div>`
-    };
-}
-
-
-    });
-// ✅ Přidej tento CSS kód pro odlišení tlačítek barevně
+        };
+    }
+});
+// ✅ CSS kód pro odlišení tlačítek barevně
 const style = document.createElement('style');
 style.innerHTML = `
 .fc-customMonth-button { background-color: #4CAF50 !important; color: white !important; }
@@ -254,6 +245,7 @@ style.innerHTML = `
 .fc-list14Days-button { background-color: #FF5722 !important; color: white !important; }
 `;
 document.head.appendChild(style);
+    
     calendar.render();    
 }
 
