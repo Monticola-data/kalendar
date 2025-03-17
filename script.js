@@ -155,15 +155,14 @@ eventContent: function (arg) {
 
     const partyName = getPartyName(arg.event.extendedProps.party);
 
-    return {
-        html: `
-          <div style="text-align:left; font-size:11px; line-height:1;">
+    return { html: `
+        <div style="text-align:left; font-size:12px; color:#ffffff; padding:2px;">
             <div style="font-weight:bold;">${icon} ${title}</div>
-            <div style="font-size:9px; color:#555;">${partyName}</div>
-          </div>
-        `
+            <div style="font-size:10px; color:#ffffff99;">${partyName}</div>
+        </div>`
     };
 }
+
 
     });
 
