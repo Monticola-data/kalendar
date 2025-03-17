@@ -130,6 +130,16 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 extendedProps: { isHoliday: true }
             }
         ],
+
+eventMouseEnter: function(info) {
+    const tooltip = new Tooltip(info.el, {
+    title: `${info.event.title} (${getPartyName(info.event.extendedProps.party)})`,
+        placement: 'top',
+        trigger: 'hover',
+        container: 'body'
+    });
+},
+    
 eventDrop: function(info) {
     const eventId = info.event.id;
 
