@@ -90,6 +90,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         editable: true,
         locale: 'cs',
         height: 'auto',
+        firstDay: 1,
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
