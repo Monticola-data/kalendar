@@ -5,8 +5,7 @@ let calendarEl, modal, partySelect, savePartyButton, partyFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 export async function fetchFirestoreEvents(userEmail) {
-    const eventsCol = collection(db, 'events');
-    const eventsSnapshot = await getDocs(eventsCol);
+    const eventsSnapshot = await db.collection('events').get();
     
     const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
         const data = doc.data();
