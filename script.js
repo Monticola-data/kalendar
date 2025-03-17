@@ -231,7 +231,8 @@ partySelect.onchange = (e) => {
         }
 };
 
-                modal.style.display = "block";
+        modal.style.display = "block";
+        modalOverlay.style.display = "block";
         }
         },
 eventContent: function (arg) {
