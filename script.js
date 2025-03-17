@@ -160,7 +160,9 @@ eventClick: async function (info) {
 partySelect.onchange = (e) => {
     const selectedParty = partyMap[e.target.value];
     if (selectedParty && selectedEvent) {
-        eventQueue.push(async () => {
+        const eventId = selectedEvent.id;
+
+        eventQueue[eventId] = async () => {
             try {
                 await db.collection("events").doc(selectedEvent.id).update({
                     party: e.target.value,
@@ -169,22 +171,26 @@ partySelect.onchange = (e) => {
 
                 await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         eventId: selectedEvent.id,
                         party: e.target.value
-                    })
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
                 });
 
                 console.log("✅ Party změněna a aktualizována.");
             } catch (error) {
                 console.error("❌ Chyba při změně party:", error);
             }
-        });
+        };
 
-        processQueue(); // spusť frontu
-    }
+    // ✅ Aktualizuj barvu ihned ve frontendu!
+    selectedEvent.setProp('backgroundColor', selectedParty.color);
+    selectedEvent.setExtendedProp('party', e.target.value);
+
+    processQueue(); // spusť frontu
 };
+
                 modal.style.display = "block";
         }
         },
