@@ -1,7 +1,7 @@
 import { db } from './firebase.js';
 
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
-let calendarEl, modal, partySelect, savePartyButton, partyFilter;
+let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 async function fetchFirestoreParties() {
