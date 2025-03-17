@@ -94,18 +94,23 @@ function renderCalendar(view = null) {
                 info.revert();
             }
         },
-        eventClick: async function (info) {
-            if (info.event.extendedProps?.SECURITY_filter) {
-                selectedEvent = info.event;
+eventClick: async function (info) {
+    if (info.event.extendedProps?.SECURITY_filter) {
+        selectedEvent = info.event;
 
-                partySelect.innerHTML = "";
-                Object.entries(partyMap).forEach(([id, party]) => {
-                    const option = document.createElement("option");
-                    option.value = id;
-                    option.textContent = party.name;
-                    option.selected = id === info.event.extendedProps.party;
-                    partySelect.appendChild(option);
-                });
+        const selectedStredisko = strediskoFilter.value;
+
+        partySelect.innerHTML = "";
+        Object.entries(partyMap).forEach(([id, party]) => {
+            // ✅ Přidána kontrola střediska
+            if (selectedEvent && (strediskoFilter.value === "vše" || party.stredisko === strediskoFilter.value)) {
+                const option = document.createElement("option");
+                option.value = id;
+                option.textContent = party.name;
+                option.selected = id === info.event.extendedProps.party;
+                partySelect.appendChild(option);
+            }
+        });
 
 partySelect.onchange = async (e) => {
     const selectedParty = partyMap[e.target.value];
