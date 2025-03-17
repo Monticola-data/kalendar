@@ -159,12 +159,12 @@ partySelect.onchange = async (e) => {
 }
 
 function populateFilter() {
-    const stredisko = strediskoFilter.value;
+    const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
+    strediskoFilter.value = savedStredisko;
 
     partyFilter.innerHTML = '<option value="all">Všechny party</option>';
-
     Object.entries(partyMap).forEach(([id, party]) => {
-        if (stredisko === "vše" || party.stredisko === stredisko) {
+        if (savedStredisko === "vše" || party.stredisko === savedStredisko) {
             const option = document.createElement("option");
             option.value = id;
             option.textContent = party.name;
@@ -198,7 +198,15 @@ document.addEventListener('DOMContentLoaded', () => {
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
 
-    strediskoFilter.onchange = populateFilter;
+    // ✅ Načtení uloženého výběru střediska
+    const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
+    strediskoFilter.value = savedStredisko;
+
+    strediskoFilter.onchange = () => {
+        localStorage.setItem('selectedStredisko', strediskoFilter.value);
+        populateFilter();
+    };
+
     partyFilter.onchange = filterAndRenderEvents;
 
     renderCalendar();
@@ -210,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
+
 
 export function listenForUpdates(userEmail) {
     firebase.firestore().collection('events').onSnapshot((snapshot) => {
