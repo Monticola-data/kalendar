@@ -4,7 +4,19 @@ import { db } from './firebase.js';
 let calendarEl, modal, partySelect, savePartyButton, partyFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
+async function fetchFirestoreParties() {
+    const snapshot = await db.collection("parties").get();
+    partyMap = snapshot.docs.reduce((map, doc) => {
+        map[doc.id] = doc.data();
+        return map;
+    }, {});
+    populateFilter();
+}
+
 export async function fetchFirestoreEvents(userEmail) {
+
+    await fetchFirestoreParties();
+    
     const eventsSnapshot = await db.collection('events').get();
     
     const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
