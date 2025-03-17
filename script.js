@@ -23,10 +23,10 @@ export async function fetchFirestoreEvents(userEmail) {
         return {
             id: doc.id,
             title: data.title,
-            start: new Date(data.start).toISOString().split('T')[0], // ✅ Vloženo sem
+            start: new Date(data.start).toISOString().split('T')[0],
             color: data.color,
             party: data.party,
-            stredisko: data.stredisko,
+            stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
             extendedProps: data.extendedProps || {}
         };
     });
@@ -38,20 +38,14 @@ export async function fetchFirestoreEvents(userEmail) {
         return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
     });
 
-    populateFilter();
-    filterAndRenderEvents();
+    // ✅ Načtení uloženého filtru a správné zobrazení
+    const savedStredisko = localStorage.getItem('selectedStrediskoFilter') || 'vše';
+    strediskoFilter.value = savedStredisko;
 
-    if (calendar) {
-        calendar.removeAllEvents();
-        calendar.addEventSource(allEvents);
-        calendar.render();
-    } else {
-        renderCalendar();
-        renderLegend();
-    }
-
-    console.log("✅ Data načtena z Firestore:", allEvents);
+    populateFilter(); // Aktualizuje možnosti filtru podle střediska
+    filterAndRenderEvents(); // Ihned filtruje a vykreslí kalendář
 }
+
 
 
 async function updateFirestoreEvent(eventId, updates = {}) {
