@@ -115,6 +115,14 @@ body {
   background-color: rgba(0,0,0,0.3);
   z-index: 99; /* pod modal, nad ostatní obsah */
 }
+.modal-event-info {
+  font-size: 14px;
+  font-weight: bold;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 8px;
+  color: #555;
+}
 
 
 #filter-container {
