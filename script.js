@@ -198,9 +198,12 @@ document.addEventListener('DOMContentLoaded', () => {
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
 
-    // ✅ Načtení uloženého výběru střediska
+    // ✅ načtení uloženého střediska
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     strediskoFilter.value = savedStredisko;
+
+    // ✅ okamžité filtrování při načtení stránky
+    populateFilter(); // toto je zásadní!
 
     strediskoFilter.onchange = () => {
         localStorage.setItem('selectedStredisko', strediskoFilter.value);
@@ -218,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
+
 
 
 export function listenForUpdates(userEmail) {
