@@ -67,17 +67,8 @@ function renderCalendar(view = null) {
         editable: true,
         locale: 'cs',
         height: 'auto',
-        eventSources: [
-            allEvents,
-            holidays.map(h => ({
-                title: h.title,
-                start: h.date,
-                display: 'background',
-                color: '#854646',
-                className: 'holiday-event',
-                extendedProps: { isHoliday: true }
-            }))
-        ],
+        eventSources: [allEvents],
+
         eventDrop: async function(info) {
             try {
                 await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -168,6 +159,16 @@ eventContent: function (arg) {
     });
 
     calendar.render();
+    calendar.addEventSource({
+        googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+        googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+        display: 'background',
+        color: '#854646',
+        textColor: '#000',
+        className: 'holiday-event',
+        extendedProps: { isHoliday: true }
+    });
+    
 }
 
 function populateFilter() {
