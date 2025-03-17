@@ -132,14 +132,13 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         ],
 
 eventMouseEnter: function(info) {
-    const tooltip = new Tooltip(info.el, {
-    title: `${info.event.title} (${getPartyName(info.event.extendedProps.party)})`,
-        placement: 'top',
-        trigger: 'hover',
-        container: 'body'
-    });
+  tippy(info.el, {
+    content: `${info.event.title} (${getPartyName(info.event.extendedProps.party)})`,
+    placement: 'top',
+    animation: 'shift-away',
+  });
 },
-    
+
 eventDrop: function(info) {
     const eventId = info.event.id;
 
