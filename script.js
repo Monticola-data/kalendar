@@ -129,7 +129,7 @@ eventDrop: function(info) {
             console.error("❌ Chyba při odeslání do AppSheet:", err);
             info.revert();
         }
-    });
+    };
 
     processQueue();
 },
