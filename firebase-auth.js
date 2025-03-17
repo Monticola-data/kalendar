@@ -4,6 +4,7 @@ const provider = new firebase.auth.GoogleAuthProvider();
 
 document.addEventListener("DOMContentLoaded", () => {
     const loginButton = document.getElementById('loginButton');
+    const logoutButton = document.getElementById('logoutButton');
 
     loginButton.addEventListener('click', () => {
         firebase.auth().signInWithPopup(provider)
@@ -16,21 +17,39 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     });
 
+    logoutButton.addEventListener('click', () => {
+        firebase.auth().signOut()
+            .then(() => {
+                console.log("🔓 Uživatel byl odhlášen");
+                window.currentUser = null;
+                sessionStorage.removeItem('userEmail');
+                loginButton.style.display = "inline-block";
+                logoutButton.style.display = "none";
+                location.reload();  // Reload stránky po odhlášení
+            })
+            .catch(error => {
+                console.error("❌ Chyba při odhlašování:", error);
+            });
+    });
+
     firebase.auth().onAuthStateChanged(user => {
         if (user) {
             console.log("🔒 Už přihlášený:", user.email);
-            loginButton.style.display = "none";
+            document.getElementById('loginButton').style.display = "none";
+            logoutButton.style.display = "inline-block";
             window.currentUser = user;
             sessionStorage.setItem('userEmail', user.email);
-            user.getIdToken(true);
+
             initApp(user);
         } else {
             console.warn("🔓 Uživatel byl odhlášen");
             loginButton.style.display = "inline-block";
+            logoutButton.style.display = "none";
             sessionStorage.removeItem('userEmail');
             window.currentUser = null;
         }
     });
+
 });
 
 function initApp(user) {
