@@ -172,17 +172,7 @@ eventContent: function (arg) {
 
     });
 
-    calendar.render();
-    calendar.addEventSource({
-        googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-        googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-        display: 'background',
-        color: '#854646',
-        textColor: '#000',
-        className: 'holiday-event',
-        extendedProps: { isHoliday: true }
-    });
-    
+    calendar.render();    
 }
 
 function populateFilter() {
