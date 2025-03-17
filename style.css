@@ -19,14 +19,31 @@ body {
   display: flex;
   justify-content: center; /* zarovná doprostřed */
 }
-.header-controls {
-  display: flex;
-  gap: 10px;
-}
+/* Stylování filtrů střediska a party */
 .header-controls select {
-  padding: 5px;
+  padding: 8px 12px;
   font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin: 5px;
+  cursor: pointer;
+  color: #333;
 }
+
+.header-controls select:hover {
+  background-color: #eaeaea;
+  border-color: #999;
+}
+
+.header-controls select:focus {
+  outline: none;
+  border-color: #555;
+  box-shadow: 0 0 5px rgba(85,85,85,0.3);
+}
+
 #calendar-wrapper {
   max-width: 1188px;
   margin: auto;
