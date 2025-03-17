@@ -73,7 +73,8 @@ function renderCalendar(view = null) {
                 events: allEvents
             },
             {
-                googleCalendarApiKey: 'tvuj-google-api-key',
+                id: 'holidays',
+                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
                 googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
                 display: 'background',
                 color: '#854646',
