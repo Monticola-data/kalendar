@@ -1,7 +1,4 @@
 import { db } from './firebase.js';
-import { Calendar } from '@fullcalendar/core';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import listPlugin from '@fullcalendar/list';
 
 let eventQueue = {};
 let isProcessing = false;
