@@ -84,17 +84,16 @@ function renderCalendar(view = null) {
             }
         ],
  eventDrop: async function(info) {
-    const newStart = info.event.startStr;
-    const eventId = info.event.id;
-    const party = info.event.extendedProps.party;
-
     try {
-        // ✅ Aktualizace Firestore
+        const eventId = info.event.id;
+        const newStart = info.event.startStr;
+
+        // Aktualizace Firestore
         await db.collection("events").doc(eventId).update({
-            start: new Date(new Date(new Date(new Date(new Date(newStart).setHours(0,0,0,0)))).setHours(0,0,0,0))
+            start: new Date(new Date(newStart).setHours(0,0,0,0)).toISOString().split('T')[0]
         });
 
-        // ✅ Aktualizace AppSheet
+        // Aktualizace AppSheet
         await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -105,10 +104,10 @@ function renderCalendar(view = null) {
             })
         });
 
-        console.log("✅ Změna poslána do AppSheet a Firestore!");
+        console.log("✅ Změna úspěšně uložena bez překreslení!");
     } catch (err) {
-        console.error("❌ Chyba při aktualizaci:", err);
-        info.revert();
+        console.error("❌ Chyba při odeslání změny:", err);
+        info.revert(); // Vrátí změnu zpět v případě chyby
     }
 },
 
