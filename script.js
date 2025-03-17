@@ -5,7 +5,7 @@ let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilte
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 function getPartyName(partyId) {
-    return partyMap[partyId]?.name || 'Neznámá parta';
+    return partyMap[partyId]?.name || '';
 }
 
 async function fetchFirestoreParties() {
