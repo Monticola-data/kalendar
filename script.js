@@ -293,7 +293,6 @@ document.head.appendChild(style);
 calendar.render();
 
 // Swipe navigace pro mobilní telefony pomocí Hammer.js
-const calendarEl = document.getElementById('calendar');
 const hammer = new Hammer(calendarEl);
 
 // Swipe doprava (předchozí měsíc/týden)
