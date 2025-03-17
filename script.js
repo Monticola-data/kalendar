@@ -129,10 +129,10 @@ eventDrop: function(info) {
             console.error("❌ Chyba při odeslání do AppSheet:", err);
             info.revert();
         }
-    };
+    });
 
     processQueue();
-}
+},
 
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
