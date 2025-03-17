@@ -246,16 +246,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 export function listenForUpdates(userEmail) {
-    firebase.firestore().collection('events').onSnapshot((snapshot) => {
+    db.collection('events').onSnapshot((snapshot) => {
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
         allEvents = snapshot.docs.map(doc => ({
             id: doc.id, ...doc.data()
-        })).filter(event => event.extendedProps?.SECURITY_filter?.map(e => e.toLowerCase()).includes(normalizedUserEmail));
+        })).filter(event => {
+            const security = event.extendedProps?.SECURITY_filter || [];
+            return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
+        });
 
         populateFilter();
-        calendar.removeAllEvents();
-        calendar.addEventSource(allEvents);
+
+        if (calendar) {
+            const firestoreSource = calendar.getEventSourceById('firestore');
+            if (firestoreSource) firestoreSource.remove();
+
+            calendar.addEventSource({
+                id: 'firestore',
+                events: allEvents
+            });
+
+            calendar.render();
+        }
     });
 }
-
