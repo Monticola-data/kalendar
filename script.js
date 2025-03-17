@@ -83,39 +83,23 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
-eventDrop: async function(info) {
-    const originalEvent = {
-        id: info.event.id,
-        start: info.oldEvent.startStr,
-        party: info.event.extendedProps.party
-    };
-
-    const newStart = info.event.startStr;
-
-    try {
-        // Ihned uprav událost lokálně bez reloadu celého kalendáře
-        info.event.setStart(new Date(new Date(info.event.start).setHours(0,0,0,0)));
-
-        // Aktualizace Firestore
-        await db.collection("events").doc(info.event.id).update({ start: info.event.startStr });
-
-        // Aktualizace AppSheet
-        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                eventId: info.event.id,
-                start: newStartDate,
-                party: info.event.extendedProps.party
-            })
-        });
-
-        console.log("✅ Změna poslána do AppSheet a Firestore!");
-    } catch (err) {
-        console.error("❌ Chyba při aktualizaci:", err);
-        info.revert(); // Pokud chyba, vrať původní stav
-    }
-},
+        eventDrop: async function(info) {
+            try {
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        eventId: info.event.id,
+                        start: info.event.startStr,
+                        party: info.event.extendedProps.party
+                    })
+                });
+                console.log("✅ Změna poslána do AppSheet!");
+            } catch (err) {
+                console.error("❌ Chyba při odeslání do AppSheet:", err);
+                info.revert();
+            }
+        },
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
