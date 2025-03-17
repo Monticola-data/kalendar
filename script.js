@@ -149,18 +149,19 @@ eventContent: function (arg) {
     else if (arg.event.extendedProps.hotove) icon = "✅";
     else if (arg.event.extendedProps.odeslane) icon = "📩";
 
-    const title = arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane 
-        ? arg.event.title.toUpperCase() 
+    const title = (arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane)
+        ? arg.event.title.toUpperCase()
         : arg.event.title;
 
-    return { 
+    const partyName = getPartyName(arg.event.extendedProps.party);
+
+    return {
         html: `
-        <div style="font-size: 0.75em; color: gray;">
-            ${getPartyName(arg.event.extendedProps.party)}
-        </div>
-        <div>
-            <b>${icon}</b> ${title}
-        </div>`
+          <div style="text-align:left; font-size:11px; line-height:1;">
+            <div style="font-weight:bold;">${icon} ${title}</div>
+            <div style="font-size:9px; color:#555;">${partyName}</div>
+          </div>
+        `
     };
 }
 
