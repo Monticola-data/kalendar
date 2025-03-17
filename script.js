@@ -123,7 +123,6 @@ function renderCalendar(view = null) {
                     }
                 });
                 modal.style.display = "block";
-            }
         },
         eventContent: function (arg) {
             let icon = "";
