@@ -167,6 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     partySelect = document.getElementById('partySelect');
     savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
+    strediskoFilter = document.getElementById('strediskoFilter');
+
+    strediskoFilter.onchange = populateFilter;
+    partyFilter.onchange = filterAndRenderEvents;
 
     renderCalendar();
 
