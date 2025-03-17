@@ -107,30 +107,23 @@ function renderCalendar(view = null) {
                     partySelect.appendChild(option);
                 });
 
-               partySelect.onchange = async (e) => {
-    const selectedParty = partyMap[e.target.value];
-    if (selectedParty) {
-        try {
-            await firebase.firestore().collection("events").doc(selectedEvent.id).update({
-                party: e.target.value,
-                color: selectedParty.color
-            });
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    eventId: selectedEvent.id,
-                    party: e.target.value
-                })
-            });
-            calendar.refetchEvents();
-            console.log("✅ Party změněna a aktualizována.");
-        } catch (error) {
-            console.error("❌ Chyba při změně party:", error);
-        }
-    }
-};
+                partySelect.onchange = async (e) => {
+                    const selectedParty = partyMap[e.target.value];
+                    if (selectedParty) {
+                        try {
+                            await db.collection("events").doc(info.event.id).update({
+                                party: e.target.value,
+                                color: selectedParty.color
+                            });
+                            calendar.refetchEvents();
+                            console.log("✅ Party změněna a aktualizována.");
+                        } catch (error) {
+                            console.error("❌ Chyba při změně party:", error);
+                        }
+                    }
+                };
                 modal.style.display = "block";
+            }
         },
         eventContent: function (arg) {
             let icon = "";
