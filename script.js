@@ -1,5 +1,4 @@
 import { db } from './firebase.js';
-import { holidays } from './holidays.js';
 
 let eventQueue = {};
 let isProcessing = false;
