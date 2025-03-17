@@ -12,7 +12,6 @@ async function fetchFirestoreParties() {
     }, {});
     populateFilter();
 }
-
 export async function fetchFirestoreEvents(userEmail) {
 
     await fetchFirestoreParties();
