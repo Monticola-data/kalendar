@@ -68,22 +68,20 @@ function renderCalendar(view = null) {
         locale: 'cs',
         height: 'auto',
         eventSources: [
-    {
-        id: 'firestore', // ✅ Důležité ID
-        events: allEvents,
-    },
-    {
-        googleCalendarApiKey: 'tvůj-api-klíč',
-        googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-        display: 'background',
-        color: '#854646',
-        textColor: '#000',
-        className: 'holiday-event',
-        extendedProps: { isHoliday: true }
-    }
-],
-
-
+            {
+                id: 'firestore', // ✅ zde přidáno správné id
+                events: allEvents
+            },
+            {
+                googleCalendarApiKey: 'tvuj-google-api-key',
+                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+                display: 'background',
+                color: '#854646',
+                textColor: '#000',
+                className: 'holiday-event',
+                extendedProps: { isHoliday: true }
+            }
+        ],
         eventDrop: async function(info) {
             try {
                 await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -208,22 +206,20 @@ function filterAndRenderEvents() {
     const selectedStredisko = strediskoFilter.value;
 
     const filteredEvents = allEvents.filter(event => {
-        const partyStredisko = partyMap[event.party]?.stredisko;
         const partyMatch = selectedParty === "all" || event.party === selectedParty;
-        const strediskoMatch = strediskoFilter.value === "vše" || strediskoFilter.value === event.stredisko || strediskoFilter.value === partyMap[event.party]?.stredisko;
+        const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
         return partyMatch && strediskoMatch;
     });
 
     const firestoreSource = calendar.getEventSourceById('firestore');
-    if (firestoreSource) {
-        firestoreSource.remove();
-    }
+    if (firestoreSource) firestoreSource.remove();
 
     calendar.addEventSource({
         id: 'firestore',
         events: filteredEvents
     });
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
