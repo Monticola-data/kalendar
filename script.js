@@ -290,7 +290,22 @@ style.innerHTML = `
 document.head.appendChild(style);
 
     
-    calendar.render();    
+calendar.render();
+
+// Swipe navigace pro mobilní telefony pomocí Hammer.js
+const calendarEl = document.getElementById('calendar');
+const hammer = new Hammer(calendarEl);
+
+// Swipe doprava (předchozí měsíc/týden)
+hammer.on('swiperight', function() {
+  calendar.prev();
+});
+
+// Swipe doleva (další měsíc/týden)
+hammer.on('swipeleft', function() {
+  calendar.next();
+});
+
 }
 
 function populateFilter() {
