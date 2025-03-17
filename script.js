@@ -199,7 +199,14 @@ function filterAndRenderEvents() {
     });
 
     calendar.removeAllEvents();
-    calendar.addEventSource(filteredEvents);
+    calendar.addEventSource([...filteredEvents, ...holidays.map(h => ({
+        title: h.title,
+        start: h.date, // ověř že property je správná v tvém souboru holidays.js (např. start: h.start)
+        display: 'background',
+        color: '#854646',
+        className: 'holiday-event',
+        extendedProps: { isHoliday: true }
+    }))]);
 }
 
 
