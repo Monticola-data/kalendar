@@ -85,11 +85,33 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
-    calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: savedView,
-        editable: true,
-        locale: 'cs',
-        height: 'auto',
+calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: savedView,
+    editable: true,
+    locale: 'cs',
+    height: 'auto',
+    headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'monthWorkDays,weekWorkDays,list14Days'  // tlačítka views
+    },
+    views: {   // ✅ Tady přesně přidáš jednotlivá zobrazení
+        monthWorkDays: {
+            type: 'dayGridMonth',
+            hiddenDays: [0, 6] // skrýt víkendy (neděle, sobota)
+        },
+        weekWorkDays: {
+            type: 'timeGridWeek',
+            hiddenDays: [0,6]
+        },
+        list14Days: {
+            type: 'list',
+            duration: { days: 14 }
+        }
+    },
+    initialView: 'monthWorkDays',
+    editable: true,
+    locale: 'cs',
         eventSources: [
             {
                 id: 'firestore', // ✅ zde přidáno správné id
