@@ -386,19 +386,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedEvent) {
             await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
             modal.style.display = "none";
+            modalOverlay.style.display = "none"; // ✅ schovej overlay
         }
     };
 
-// Zavření modalu kliknutím mimo něj
-window.onclick = function(event) {
-  if (modal.style.display === "block" && !modal.contains(event.target)) {
-    modal.style.display = "none";
-  }
-};
-
-
+    // ✅ Zavření modalu kliknutím mimo modal přes overlay
+    modalOverlay.onclick = function() {
+        modal.style.display = "none";
+        modalOverlay.style.display = "none";
+    };
 });
-
 
 
 
