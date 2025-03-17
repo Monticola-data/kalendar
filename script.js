@@ -12,9 +12,9 @@ async function processQueue() {
 
     isProcessing = true;
 
-    const eventId = eventIds[0]; // Vezmi první event z fronty
+    const eventId = eventIds.shift(); // vezme první událost z fronty
     const task = eventQueue[eventId];
-    delete eventQueue[eventIds[0]]; // odstraní z fronty před zpracováním
+    delete eventQueue[eventId]; // smaže úkol z fronty ihned, jak začne zpracování
 
     try {
         await task();
@@ -24,9 +24,12 @@ async function processQueue() {
 
     isProcessing = false;
 
-    // zpracuj další úkol
-    processQueue();
+    // Spusť znovu, pokud ve frontě ještě něco zbývá
+    if (Object.keys(eventQueue).length > 0) {
+        processQueue();
+    }
 }
+
 
 
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
@@ -113,8 +116,14 @@ function renderCalendar(view = null) {
 eventDrop: function(info) {
     const eventId = info.event.id;
 
+    // aktualizace fronty podle ID události
     eventQueue[eventId] = async () => {
         try {
+            await db.collection("events").doc(eventId).update({
+                start: info.event.startStr,
+                party: info.event.extendedProps.party
+            });
+
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({
@@ -124,15 +133,17 @@ eventDrop: function(info) {
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
+
             console.log("✅ Změna poslána do AppSheet!");
         } catch (err) {
             console.error("❌ Chyba při odeslání do AppSheet:", err);
             info.revert();
         }
-    };
+    });
 
-    processQueue();
+    processQueue();  // ⚠️ toto je klíčové!
 },
+
 
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
