@@ -57,6 +57,12 @@ function initApp(user) {
     sessionStorage.setItem('userEmail', user.email);
     console.log("🚀 Přihlášený:", user.email);
 
+    const loginButton = document.getElementById('loginButton');
+    const logoutButton = document.getElementById('logoutButton');
+
+    loginButton.style.display = "none";
+    logoutButton.style.display = "inline-block";
+
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", () => {
             fetchFirestoreEvents(user.email);
