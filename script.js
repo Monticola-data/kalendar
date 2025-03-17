@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Zavření modalu kliknutím mimo něj
 window.onclick = function(event) {
-  if (eventModal.style.display === "block" && !modal.contains(event.target)) {
+  if (modal.style.display === "block" && !modal.contains(event.target)) {
     modal.style.display = "none";
   }
 };
