@@ -154,9 +154,12 @@ partySelect.onchange = async (e) => {
 }
 
 function populateFilter() {
+    const stredisko = strediskoFilter.value;
+
     partyFilter.innerHTML = '<option value="all">Všechny party</option>';
+
     Object.entries(partyMap).forEach(([id, party]) => {
-        if (strediskoFilter.value === "vše" || party.stredisko === strediskoFilter.value) {
+        if (stredisko === "vše" || party.stredisko === stredisko) {
             const option = document.createElement("option");
             option.value = id;
             option.textContent = party.name;
@@ -169,7 +172,15 @@ function populateFilter() {
 
 function filterAndRenderEvents() {
     const selectedParty = partyFilter.value;
-    const filteredEvents = allEvents.filter(event => selectedParty === "all" || event.party === selectedParty);
+    const selectedStredisko = strediskoFilter.value;
+
+    const filteredEvents = allEvents.filter(event => {
+        const partyDetails = partyMap[event.party] || {};
+        const matchParty = selectedParty === "all" || event.party === selectedParty;
+        const matchStredisko = strediskoFilter.value === "vše" || partyDetails.stredisko === strediskoFilter.value;
+        return matchParty && matchStredisko;
+    });
+
     calendar.removeAllEvents();
     calendar.addEventSource(filteredEvents);
 }
