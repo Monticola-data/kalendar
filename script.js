@@ -68,20 +68,21 @@ function renderCalendar(view = null) {
         locale: 'cs',
         height: 'auto',
         eventSources: [
-            {
-                events: allEvents,
-                id: 'firestoreEvents' // ✅ Označení zdroje pro pozdější aktualizaci
-            },
-            {
-                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-                display: 'background',
-                color: '#854646',
-                textColor: '#000',
-                className: 'holiday-event',
-                extendedProps: { isHoliday: true }
-            }
-        ],
+    {
+        id: 'firestore', // ✅ Důležité ID
+        events: allEvents,
+    },
+    {
+        googleCalendarApiKey: 'tvůj-api-klíč',
+        googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+        display: 'background',
+        color: '#854646',
+        textColor: '#000',
+        className: 'holiday-event',
+        extendedProps: { isHoliday: true }
+    }
+],
+
 
         eventDrop: async function(info) {
             try {
