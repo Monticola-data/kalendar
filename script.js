@@ -1,4 +1,6 @@
 import { db } from './firebase.js';
+import { holidays } from './holidays.js';
+
 
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
@@ -67,15 +69,14 @@ function renderCalendar(view = null) {
         height: 'auto',
         eventSources: [
             allEvents,
-            {
-                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+            holidays.map(h => ({
+                title: h.title,
+                start: h.date,
                 display: 'background',
                 color: '#854646',
-                textColor: '#000',
                 className: 'holiday-event',
                 extendedProps: { isHoliday: true }
-            }
+            }))
         ],
         eventDrop: async function(info) {
             try {
