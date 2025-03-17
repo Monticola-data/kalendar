@@ -236,9 +236,22 @@ partySelect.onchange = (e) => {
         modalEventInfo.innerHTML = `
         ${info.event.title} - ${info.event.startStr} (${getPartyName(info.event.extendedProps.party)})
         `;
+
+        // ✅ Zobrazení tlačítka detail, pokud existuje detail URL
+        const detailButton = document.getElementById('detailButton');
+        if (info.event.extendedProps.detail && info.event.extendedProps.detail.trim() !== "") {
+            detailButton.style.display = "inline-block";
+            detailButton.onclick = () => {
+                window.open(info.event.extendedProps.detail, '_blank');
+            };
+        } else {
+            detailButton.style.display = "none"; // schovej, pokud není detail
+        }
+        
         modal.style.display = "block";
         modalOverlay.style.display = "block";
         }
+    
         },
 eventContent: function (arg) {
     let icon = "";
