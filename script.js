@@ -241,11 +241,54 @@ eventContent: function (arg) {
 // ✅ CSS kód pro odlišení tlačítek barevně
 const style = document.createElement('style');
 style.innerHTML = `
-.fc-customMonth-button { background-color: #4CAF50 !important; color: white !important; }
-.fc-customWeek-button { background-color: #2196F3 !important; color: white !important; }
-.fc-list14Days-button { background-color: #FF5722 !important; color: white !important; }
+.fc-button {
+  background-color: #f0f0f0 !important;
+  color: #555 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.fc-button:hover {
+  background-color: #e0e0e0 !important;
+  color: #000 !important;
+}
+
+.fc-button.fc-button-active {
+  background-color: #d0d0d0 !important;
+  color: #000 !important;
+}
+
+.fc-customMonth-button {
+  background-color: #a3c9a8 !important;
+  color: #fff !important;
+}
+
+.fc-customWeek-button {
+  background-color: #9cb9d9 !important;
+  color: #fff !important;
+}
+
+.fc-list14Days-button {
+  background-color: #f0b49e !important;
+  color: #fff !important;
+}
+
+.fc-customMonth-button:hover {
+  background-color: #92b894 !important;
+}
+
+.fc-customWeek-button:hover {
+  background-color: #89aacd !important;
+}
+
+.fc-list14Days-button:hover {
+  background-color: #dfa08a !important;
+}
 `;
 document.head.appendChild(style);
+
     
     calendar.render();    
 }
