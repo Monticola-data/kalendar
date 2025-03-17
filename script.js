@@ -158,7 +158,7 @@ eventContent: function (arg) {
     return { html: `
         <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
             <div style="font-weight:bold;">${icon} ${title}</div>
-            <div style="font-size:9px; color:#ffffff99;">${partyName}</div>
+            <div style="font-size:9px; color:#ffffff;">${partyName}</div>
         </div>`
     };
 }
