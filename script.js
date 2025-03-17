@@ -1,22 +1,30 @@
 import { db } from './firebase.js';
 import { holidays } from './holidays.js';
 
-let eventQueue = [];
+let eventQueue = {};
 let isProcessing = false;
 
 async function processQueue() {
-    if (isProcessing || eventQueue.length === 0) return;
+    if (isProcessing) return;
+
+    const eventIds = Object.keys(eventQueue);
+    if (eventIds.length === 0) return;
+
     isProcessing = true;
 
-    const task = eventQueue.shift();
+    const eventId = eventIds[0]; // Vezmi první event z fronty
+    const task = eventQueue[eventId];
+    delete eventQueue[eventIds[0]]; // odstraní z fronty před zpracováním
 
     try {
         await task();
     } catch (error) {
-        console.error("Chyba při zpracování úkolu:", error);
+        console.error("❌ Chyba při zpracování úkolu:", error);
     }
 
     isProcessing = false;
+
+    // zpracuj další úkol
     processQueue();
 }
 
@@ -103,16 +111,18 @@ function renderCalendar(view = null) {
             }
         ],
 eventDrop: function(info) {
-    eventQueue.push(async () => {
+    const eventId = info.event.id;
+
+    eventQueue[eventId] = async () => {
         try {
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    eventId: info.event.id,
+                    id: eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party
-                })
+                }),
+                headers: { 'Content-Type': 'application/json' }
             });
             console.log("✅ Změna poslána do AppSheet!");
         } catch (err) {
@@ -121,8 +131,8 @@ eventDrop: function(info) {
         }
     });
 
-    processQueue(); // spusť frontu
-},
+    processQueue();
+}
 
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
