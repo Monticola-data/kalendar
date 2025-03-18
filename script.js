@@ -377,13 +377,18 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
+    // ✅ Zde správně aktualizuj existující zdroj místo jeho odstranění a přidání
     const firestoreSource = calendar.getEventSourceById('firestore');
-    if (firestoreSource) firestoreSource.remove();
-
-    calendar.addEventSource({
-        id: 'firestore',
-        events: filteredEvents
-    });
+    
+    if (firestoreSource) {
+        firestoreSource.refetch = () => filteredEvents;  // přímá aktualizace dat
+        calendar.refetchEvents(); // okamžitá aktualizace eventů
+    } else {
+        calendar.addEventSource({
+            id: 'firestore',
+            events: filteredEvents
+        });
+    }
 }
 
 
