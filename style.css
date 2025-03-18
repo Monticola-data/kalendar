@@ -144,6 +144,28 @@ body {
   color: #555;
 }
 
+.modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+.modal-row label {
+  width: 60px;
+  font-weight: bold;
+}
+
+.modal-row select {
+  flex: 1;
+  padding: 5px;
+}
+
+.button-save, .button-detail {
+  margin-right: 5px;
+}
+
+
 
 #filter-container {
   text-align: center;
