@@ -91,7 +91,7 @@ function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
     function displayTime(cas) {
         return cas && cas !== 99 ? cas + ':00 ' : '';
-      }
+      };
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
