@@ -84,7 +84,6 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
-    const cas = arg.event.extendedProps.cas;
 
 calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
@@ -266,6 +265,7 @@ eventContent: function (arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
+    const cas = arg.event.extendedProps.cas;
 
     return { html: `
         <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
