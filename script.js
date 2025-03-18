@@ -86,7 +86,7 @@ function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
 
 calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: savedView,
+        initialView: 'dayGridMonth',
         editable: true,
         locale: 'cs',
         height: 'auto',
@@ -267,10 +267,20 @@ eventContent: function (arg) {
     const partyName = getPartyName(arg.event.extendedProps.party);
     const cas = arg.event.extendedProps.cas;
 
-    return { html: `
-        <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
+    return { 
+        html: `
+        <div style="
+          width:100%; 
+          font-size:11px; 
+          color:#ffffff; 
+          line-height:1.1; 
+          overflow:hidden; 
+          text-overflow:ellipsis;
+          white-space:nowrap;">
+          
             <div style="font-weight:bold;">${icon} ${cas ? cas + ':00 ' : ''}${title}</div>
             <div style="font-size:9px; color:#ffffff;">${partyName}</div>
+            
         </div>`
         };
     }
