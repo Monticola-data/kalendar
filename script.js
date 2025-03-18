@@ -294,6 +294,9 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
+    // ✅ Zde zachovej aktuální datum
+    const currentViewDate = calendar.getDate();
+
     const firestoreSource = calendar.getEventSourceById('firestore');
     if (firestoreSource) firestoreSource.remove();
 
@@ -301,8 +304,10 @@ function filterAndRenderEvents() {
         id: 'firestore',
         events: filteredEvents
     });
-}
 
+    // ✅ Zde se vrať zpět na aktuální datum
+    calendar.gotoDate(currentViewDate);
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {
