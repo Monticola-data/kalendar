@@ -192,6 +192,8 @@ savePartyButton.onclick = async () => {
         const newParty = partySelect.value;
         const newCas = Number(document.getElementById('casSelect').value) || 0;
 
+        const selectedParty = partyMap[newParty];
+
         eventQueue[selectedEvent.id] = async () => {
             try {
                 // update Firestore
