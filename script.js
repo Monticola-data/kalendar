@@ -219,9 +219,10 @@ savePartyButton.onclick = async () => {
             }
         };
 
-        // ihned aktualizuj zobrazení v kalendáři
+         // ✅ ihned aktualizuj zobrazení v kalendáři
         selectedEvent.setExtendedProp('party', newParty);
         selectedEvent.setExtendedProp('cas', newCas);
+        selectedEvent.setProp('backgroundColor', selectedParty.color);
 
         processQueue();
 
