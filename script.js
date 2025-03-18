@@ -57,7 +57,7 @@ const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
         party: data.party,
         stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
         allDay: true,
-        cas: data.extendedProps.cas ? Number(data.extendedProps.cas) : 99,  // ✅ cas mimo extendedProps
+        cas: data.extendedProps.cas ? Number(data.extendedProps.cas) : 0,  // ✅ cas mimo extendedProps
         extendedProps: {
             ...data.extendedProps
         }
@@ -90,7 +90,7 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
     function displayTime(cas) {
-        return cas && cas !== 99 ? cas + ':00 ' : '';
+        return cas && cas !== 0 ? cas + ':00 ' : '';
       }
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
@@ -147,7 +147,7 @@ eventDrop: function(info) {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
                 party: info.event.extendedProps.party,
-                cas: info.event.extendedProps.cas || 99,  // přidej tento řádek!
+                cas: info.event.extendedProps.cas || 0,  // přidej tento řádek!
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -156,7 +156,7 @@ eventDrop: function(info) {
                     eventId: eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party,
-                    cas: info.event.extendedProps.cas || 99  // přidej i zde!
+                    cas: info.event.extendedProps.cas || 0  // přidej i zde!
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -259,7 +259,7 @@ eventContent: function (arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
-    const displayCas = arg.event.extendedProps.cas !== 99 ? arg.event.extendedProps.cas + ":00 " : "";
+    const displayCas = arg.event.extendedProps.cas !== 0 ? arg.event.extendedProps.cas + ":00 " : "";
 
     return {
         html: `
