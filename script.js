@@ -47,18 +47,30 @@ export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
     const eventsSnapshot = await db.collection('events').get();
     
-    const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            id: doc.id,
-            title: data.title,
-            start: new Date(data.start).toISOString().split('T')[0],
-            color: data.color,
-            party: data.party,
-            stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-            extendedProps: data.extendedProps || {}
-        };
-    });
+const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
+    const data = doc.data();
+
+    // ✅ Převod data na správný objekt s časem z hodnoty cas
+    const eventDate = new Date(data.start);
+    if (data.extendedProps && data.extendedProps.cas) {
+        const hour = parseInt(data.extendedProps.cas);
+        if (!isNaN(hour)) {
+            eventDate.setHours(hour, 0, 0); // Nastavení času dle "cas"
+        }
+    }
+
+    return {
+        id: doc.id,
+        title: data.title,
+        start: eventDate.toISOString(), // ✅ datum i čas
+        color: data.color,
+        party: data.party,
+        stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
+        allDay: !data.extendedProps.cas, // ✅ pokud cas neexistuje, pak celodenní event
+        extendedProps: data.extendedProps || {}
+    };
+});
+
 
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
