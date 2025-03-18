@@ -265,16 +265,22 @@ eventContent: function (arg) {
 
     const partyName = getPartyName(arg.event.extendedProps.party);
 
+  // ✅ Bezpečně získání hodnoty cas (pokud neexistuje, bude prázdný text)
+  const cas = (arg.event.extendedProps && arg.event.extendedProps.cas) 
+    ? arg.event.extendedProps.cas 
+    : '';
+
   return {
     html: `
       <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
         <div style="font-weight:bold;">
-          ${icon} ${info.event.extendedProps.cas || ''} ${title}
+          ${icon} ${cas} ${title}
         </div>
         <div style="font-size:9px; color:#ffffff;">${partyName}</div>
       </div>`
   };
 }
+
 });
 // ✅ CSS kód pro odlišení tlačítek barevně
 const style = document.createElement('style');
