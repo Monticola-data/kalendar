@@ -141,12 +141,14 @@ function renderCalendar(view = null) {
 
 eventDrop: function(info) {
     const eventId = info.event.id;
+    const cas = info.event.extendedProps.cas; // ✅ Načtení hodnoty cas z extendedProps
 
     eventQueue[eventId] = async () => {
         try {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
-                party: info.event.extendedProps.party
+                party: info.event.extendedProps.party,
+                "extendedProps.cas": cas // ✅ Ukládáme cas zpět do Firestore správně
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -154,7 +156,8 @@ eventDrop: function(info) {
                 body: JSON.stringify({
                     eventId: eventId,
                     start: info.event.startStr,
-                    party: info.event.extendedProps.party
+                    party: info.event.extendedProps.party,
+                    cas // ✅ Poslat i do AppSheet
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -168,7 +171,6 @@ eventDrop: function(info) {
 
     processQueue();
 },
-
 
 
 eventClick: async function (info) {
@@ -246,7 +248,7 @@ partySelect.onchange = (e) => {
         }
     
         },
-eventContent: function (arg) {
+eventContent: function(arg) {
     let icon = "";
     if (arg.event.extendedProps.predane) icon = "✍️";
     else if (arg.event.extendedProps.hotove) icon = "✅";
@@ -275,7 +277,7 @@ eventContent: function (arg) {
             <div style="font-size:9px; opacity:0.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                 ${partyName}
             </div>
-        </div>`,
+        </div>`
     };
 }
 
@@ -444,9 +446,9 @@ export function listenForUpdates(userEmail) {
                 party: data.party,
                 stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
                 allDay: true,
-                cas: data.cas !== undefined ? Number(data.cas) : 0,
                 extendedProps: {
-                    ...data.extendedProps
+                    ...data.extendedProps,
+                    cas: data.extendedProps?.cas ? Number(data.extendedProps.cas) : 0
                 }
             };
         }).filter(event => {
@@ -454,6 +456,6 @@ export function listenForUpdates(userEmail) {
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
-        filterAndRenderEvents(); // aktualizuje kalendář bezprostředně po změně
+        filterAndRenderEvents(); // ✅ Aktualizuje kalendář bezprostředně po změně
     });
 }
