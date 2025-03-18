@@ -141,26 +141,27 @@ function renderCalendar(view = null) {
 
 eventDrop: function(info) {
     const eventId = info.event.id;
-    const newDate = info.event.startStr;
 
     eventQueue[eventId] = async () => {
         try {
-            await db.collection("events").doc(eventId).update({ start: newDate });
+            await db.collection("events").doc(eventId).update({
+                start: info.event.startStr,
+                party: info.event.extendedProps.party,
+                cas: info.event.extendedProps.cas || 99,  // přidej tento řádek!
+            });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({
                     eventId: eventId,
-                    start: newDate
+                    start: info.event.startStr,
+                    party: info.event.extendedProps.party,
+                    cas: info.event.extendedProps.cas || 99  // přidej i zde!
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
             console.log("✅ Změna poslána do AppSheet!");
-
-            // ✅ Tady ihned nastavíme správné datum ve frontendu:
-            info.event.setStart(newDate);
-
         } catch (err) {
             console.error("❌ Chyba při odeslání do AppSheet:", err);
             info.revert();
@@ -169,7 +170,6 @@ eventDrop: function(info) {
 
     processQueue();
 },
-
 
 
 
