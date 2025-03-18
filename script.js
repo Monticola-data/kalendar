@@ -47,23 +47,18 @@ export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
     const eventsSnapshot = await db.collection('events').get();
     
-const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-        id: doc.id,
-        title: data.title,
-        start: new Date(data.start).toISOString().split('T')[0],
-        color: data.color,
-        party: data.party,
-        stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-        extendedProps: {
-            ...data.extendedProps,
-            cas: data.extendedProps?.cas ? Number(data.extendedProps.cas) : 0
-        }
-    };
-});
-
-
+    const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            title: data.title,
+            start: new Date(data.start).toISOString().split('T')[0],
+            color: data.color,
+            party: data.party,
+            stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
+            extendedProps: data.extendedProps || {}
+        };
+    });
 
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
@@ -89,10 +84,8 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
-    function displayTime(cas) {
-        return cas && cas !== 0 ? cas + ':00 ' : '';
-    }
-    calendar = new FullCalendar.Calendar(calendarEl, {
+
+calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
         locale: 'cs',
@@ -137,18 +130,30 @@ function renderCalendar(view = null) {
                 extendedProps: { isHoliday: true }
             }
         ],
-    eventOrder: "cas,title",
+
+eventMouseEnter: function(info) {
+  tippy(info.el, {
+    content: `
+      <strong>${info.event.title}</strong><br>
+      Parta: ${getPartyName(info.event.extendedProps.party)}<br>
+      Datum: ${info.event.startStr}
+    `,
+    allowHTML: true,
+    placement: 'top',
+    theme: 'light-border',
+    animation: 'shift-away',
+  });
+},
+
 
 eventDrop: function(info) {
     const eventId = info.event.id;
-    const cas = info.event.extendedProps.cas; // správně načten cas
 
     eventQueue[eventId] = async () => {
         try {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
-                party: info.event.extendedProps.party,
-                "extendedProps.cas": cas
+                party: info.event.extendedProps.party
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -156,8 +161,7 @@ eventDrop: function(info) {
                 body: JSON.stringify({
                     eventId: eventId,
                     start: info.event.startStr,
-                    party: info.event.extendedProps.party,
-                    extendedProps: { cas } // ✅ posíláme správně objekt extendedProps
+                    party: info.event.extendedProps.party
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -249,7 +253,7 @@ partySelect.onchange = (e) => {
         }
     
         },
-eventContent: function(arg) {
+eventContent: function (arg) {
     let icon = "";
     if (arg.event.extendedProps.predane) icon = "✍️";
     else if (arg.event.extendedProps.hotove) icon = "✅";
@@ -260,30 +264,14 @@ eventContent: function(arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
-    const cas = arg.event.extendedProps.cas;
 
-    return {
-        html: `
-        <div style="
-          width:100%; 
-          font-size:11px; 
-          color:#ffffff; 
-          line-height:1.1; 
-          overflow:hidden; 
-          text-overflow:ellipsis;
-          white-space:nowrap;">
-            <div style="font-weight:bold; white-space:nowrap;">
-                ${icon} ${cas ? cas + ':00 ' : ''}${title}
-            </div>
-            <div style="font-size:9px; opacity:0.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                ${partyName}
-            </div>
+    return { html: `
+        <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
+            <div style="font-weight:bold;">${icon} ${title}</div>
+            <div style="font-size:9px; color:#ffffff;">${partyName}</div>
         </div>`
-    };
-}
-
-
-
+        };
+    }
 });
 // ✅ CSS kód pro odlišení tlačítek barevně
 const style = document.createElement('style');
@@ -382,17 +370,14 @@ function filterAndRenderEvents() {
     });
 
     const firestoreSource = calendar.getEventSourceById('firestore');
-    if (firestoreSource) {
-        firestoreSource.remove();  
-    }
+    if (firestoreSource) firestoreSource.remove();
 
     calendar.addEventSource({
         id: 'firestore',
-        events: [...filteredEvents] // Kopie pole, aby se kalendář správně aktualizoval
+        events: filteredEvents
     });
-
-    calendar.render(); // explicitně přerenderovat kalendář
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -437,26 +422,26 @@ export function listenForUpdates(userEmail) {
     db.collection('events').onSnapshot((snapshot) => {
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                start: new Date(data.start).toISOString().split('T')[0],
-                color: data.color,
-                party: data.party,
-                stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-                allDay: true,
-                extendedProps: {
-                    ...data.extendedProps,
-                    cas: data.extendedProps?.cas ? Number(data.extendedProps.cas) : 0
-                }
-            };
-        }).filter(event => {
+        allEvents = snapshot.docs.map(doc => ({
+            id: doc.id, ...doc.data()
+        })).filter(event => {
             const security = event.extendedProps?.SECURITY_filter || [];
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
-        filterAndRenderEvents(); // ✅ Aktualizuje kalendář bezprostředně po změně
+        populateFilter();
+
+        if (calendar) {
+            const firestoreSource = calendar.getEventSourceById('firestore');
+            if (firestoreSource) firestoreSource.remove();
+
+            calendar.addEventSource({
+                id: 'firestore',
+                events: allEvents
+            });
+
+            calendar.render();
+        }
     });
 }
+
