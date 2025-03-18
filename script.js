@@ -91,6 +91,7 @@ function renderCalendar(view = null) {
 
 calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
+        eventOrder: "extendedProps.cas,title",
         editable: true,
         locale: 'cs',
         height: 'auto',
@@ -134,7 +135,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 extendedProps: { isHoliday: true }
             }
         ],
-    eventOrder: 'extendedProps.cas,title',
 
 eventDrop: function(info) {
     const eventId = info.event.id;
