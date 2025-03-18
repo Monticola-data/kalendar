@@ -92,6 +92,7 @@
   <div id="eventModal" class="modal">
     <div id="modalEventInfo" class="modal-event-info"></div> <!-- ✅ nový řádek -->
 
+    <div class="modal-row">
 <label for="casSelect">Čas:</label>
 <select id="casSelect">
   <option value="0">cely-den</option>
@@ -109,11 +110,15 @@
   <option value="17">17:00</option>
   <option value="18">18:00</option>
 </select>
+      </div>
     
-    <label for="partySelect">Vyberte partu:</label>
+    <label for="partySelect">Parta:</label>
     <select id="partySelect"></select>
     <button id="saveParty" class="button-save">💾 Uložit</button>
+    
+     <div class="modal-row">
     <button id="detailButton" class="button-detail" style="display: none;">🔍 Detail</button>
+        </div>
     
   </div>
   <div id="modalOverlay" class="modal-overlay"></div>
