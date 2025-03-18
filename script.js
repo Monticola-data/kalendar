@@ -151,15 +151,16 @@ eventDrop: function(info) {
                 cas: info.event.cas || 0   // ✅ opraveno na info.event.cas místo info.event.extendedProps.cas
             });
 
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                body: JSON.stringify({
-                    eventId: eventId,
-                    start: info.event.startStr,
-                    party: info.event.extendedProps.party
-                }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+    method: "POST",
+    body: JSON.stringify({
+        eventId: eventId,
+        start: info.event.startStr,
+        party: info.event.extendedProps.party,
+        cas: info.event.cas || 0 // ✅ přidáno posílání cas do backendu
+    }),
+    headers: { 'Content-Type': 'application/json' }
+});
 
             console.log("✅ Změna poslána do AppSheet!");
         } catch (err) {
