@@ -50,26 +50,30 @@ export async function fetchFirestoreEvents(userEmail) {
 const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
     const data = doc.data();
 
-    // ✅ Převod data na správný objekt s časem z hodnoty cas
+    // ✅ Nastavení datumu a času
     const eventDate = new Date(data.start);
+    let isAllDay = true;
+
     if (data.extendedProps && data.extendedProps.cas) {
         const hour = parseInt(data.extendedProps.cas);
         if (!isNaN(hour)) {
-            eventDate.setHours(hour, 0, 0); // Nastavení času dle "cas"
+            eventDate.setHours(hour, 0, 0);
+            isAllDay = false;
         }
     }
 
     return {
         id: doc.id,
         title: data.title,
-        start: eventDate.toISOString(), // ✅ datum i čas
-        color: data.color,
+        start: eventDate.toISOString(),
+        color: data.color, // ✅ vždy nastav barvu
         party: data.party,
         stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-        allDay: !data.extendedProps.cas, // ✅ pokud cas neexistuje, pak celodenní event
+        allDay: isAllDay,
         extendedProps: data.extendedProps || {}
     };
 });
+
 
 
     const normalizedUserEmail = userEmail.trim().toLowerCase();
