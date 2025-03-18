@@ -57,12 +57,13 @@ const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
         party: data.party,
         stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
         allDay: true,
-        cas: data.extendedProps.cas ? Number(data.extendedProps.cas) : 0,  // ✅ cas mimo extendedProps
+        cas: data.cas !== undefined ? Number(data.cas) : 0,  // cas přímo v hlavních datech
         extendedProps: {
             ...data.extendedProps
         }
     };
 });
+
 
 
     const normalizedUserEmail = userEmail.trim().toLowerCase();
@@ -91,7 +92,7 @@ function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
     function displayTime(cas) {
         return cas && cas !== 0 ? cas + ':00 ' : '';
-      }
+    }
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
@@ -259,7 +260,6 @@ eventContent: function (arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
-    const displayCas = arg.event.extendedProps.cas !== 0 ? arg.event.extendedProps.cas + ":00 " : "";
 
     return {
         html: `
@@ -272,7 +272,7 @@ eventContent: function (arg) {
           text-overflow:ellipsis;
           white-space:nowrap;">
             <div style="font-weight:bold; white-space:nowrap;">
-                ${icon} ${displayTime(arg.event.extendedProps.cas)}${title}
+                ${icon} ${displayTime(arg.event.cas)}${title}
             </div>
             <div style="font-size:9px; opacity:0.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                 ${partyName}
