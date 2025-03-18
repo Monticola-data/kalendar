@@ -89,8 +89,10 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
-
-calendar = new FullCalendar.Calendar(calendarEl, {
+    function displayTime(cas) {
+        return cas && cas !== 99 ? cas + ':00 ' : '';
+      }
+    calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
         locale: 'cs',
@@ -275,12 +277,6 @@ eventContent: function (arg) {
             </div>
         </div>`,
 };
-
-function displayTime(cas) {
-    return cas && cas !== 99 ? cas + ':00 ' : '';
-}
-
-
 
 });
 // ✅ CSS kód pro odlišení tlačítek barevně
