@@ -382,18 +382,17 @@ function filterAndRenderEvents() {
     });
 
     const firestoreSource = calendar.getEventSourceById('firestore');
-    
-    if (firestoreSource) {
-        // ✅ Opravdu spolehlivý způsob aktualizace eventů
-        firestoreSource.refetch(); 
-    } else {
-        calendar.addEventSource({
-            id: 'firestore',
-            events: filteredEvents
-        });
-    }
-}
 
+    if (firestoreSource) {
+        firestoreSource.refetch(); // Toto aktualizuje zdroj
+        firestoreSource.remove();  // Pokud refetch nezabere, ponech remove a add
+    }
+
+    calendar.addEventSource({
+        id: 'firestore',
+        events: filteredEvents
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
@@ -437,25 +436,26 @@ export function listenForUpdates(userEmail) {
     db.collection('events').onSnapshot((snapshot) => {
         const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = snapshot.docs.map(doc => ({
-            id: doc.id, ...doc.data()
-        })).filter(event => {
+        allEvents = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                title: data.title,
+                start: new Date(data.start).toISOString().split('T')[0],
+                color: data.color,
+                party: data.party,
+                stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
+                allDay: true,
+                cas: data.cas !== undefined ? Number(data.cas) : 0,
+                extendedProps: {
+                    ...data.extendedProps
+                }
+            };
+        }).filter(event => {
             const security = event.extendedProps?.SECURITY_filter || [];
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
-        populateFilter();
-
-        if (calendar) {
-            const firestoreSource = calendar.getEventSourceById('firestore');
-            if (firestoreSource) firestoreSource.remove();
-
-            calendar.addEventSource({
-                id: 'firestore',
-                events: allEvents
-            });
-
-            calendar.render();
-        }
+        filterAndRenderEvents(); // aktualizuje kalendář bezprostředně po změně
     });
 }
