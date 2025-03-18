@@ -177,8 +177,9 @@ eventClick: async function (info) {
             }
         });
 
-        // ✅ Odstraněna původní onchange logika
-        // partySelect.onchange = (e) => { ... };
+         // ✅ Inicializace výběru času
+        const casSelect = document.getElementById('casSelect');
+        casSelect.value = selectedEvent.extendedProps.cas || "";
 
         // ✅ Tlačítko uložit – připraví si pouze změny, ale ještě je neprovede
         savePartyButton.onclick = async () => {
