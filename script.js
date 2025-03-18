@@ -141,14 +141,14 @@ function renderCalendar(view = null) {
 
 eventDrop: function(info) {
     const eventId = info.event.id;
-    const cas = info.event.extendedProps.cas; // ✅ Načtení hodnoty cas z extendedProps
+    const cas = info.event.extendedProps.cas; // správně načten cas
 
     eventQueue[eventId] = async () => {
         try {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
                 party: info.event.extendedProps.party,
-                "extendedProps.cas": cas // ✅ Ukládáme cas zpět do Firestore správně
+                "extendedProps.cas": cas
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -157,7 +157,7 @@ eventDrop: function(info) {
                     eventId: eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party,
-                    cas // ✅ Poslat i do AppSheet
+                    extendedProps: { cas } // ✅ posíláme správně objekt extendedProps
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -171,6 +171,7 @@ eventDrop: function(info) {
 
     processQueue();
 },
+
 
 
 eventClick: async function (info) {
