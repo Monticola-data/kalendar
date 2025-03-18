@@ -121,12 +121,14 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 
     eventDrop: function(info) {
         const eventId = info.event.id;
+        const cas = Number(info.event.extendedProps.cas) || 0;
 
         eventQueue[eventId] = async () => {
             try {
                 await db.collection("events").doc(eventId).update({
                     start: info.event.startStr,
-                    party: info.event.extendedProps.party
+                    party: info.event.extendedProps.party,
+                    "extendedProps.cas": cas
                 });
 
                 await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -135,6 +137,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                         eventId: eventId,
                         start: info.event.startStr,
                         party: info.event.extendedProps.party
+                        cas: cas
                     }),
                     headers: { 'Content-Type': 'application/json' }
                 });
