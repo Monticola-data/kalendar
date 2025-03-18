@@ -147,8 +147,8 @@ eventDrop: function(info) {
         try {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
-                party: info.event.extendedProps.party,
-                cas: info.event.extendedProps.cas || 0 // ✅ SPRÁVNĚ přístup přes extendedProps
+                party: info.event.extendedProps.party
+                // ✅ odstraněn řádek s hodnotou "cas"
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -156,8 +156,8 @@ eventDrop: function(info) {
                 body: JSON.stringify({
                     eventId: eventId,
                     start: info.event.startStr,
-                    party: info.event.extendedProps.party,
-                    cas: info.event.extendedProps.cas || 0 // ✅ Zde taky SPRÁVNĚ přes extendedProps
+                    party: info.event.extendedProps.party
+                    // ✅ také odstraněn "cas" zde
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
