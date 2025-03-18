@@ -131,21 +131,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         ],
 
-eventMouseEnter: function(info) {
-  tippy(info.el, {
-    content: `
-      <strong>${info.event.title}</strong><br>
-      Parta: ${getPartyName(info.event.extendedProps.party)}<br>
-      Datum: ${info.event.startStr}
-    `,
-    allowHTML: true,
-    placement: 'top',
-    theme: 'light-border',
-    animation: 'shift-away',
-  });
-},
-
-
 eventDrop: function(info) {
     const eventId = info.event.id;
 
