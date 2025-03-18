@@ -203,8 +203,6 @@ eventClick: async function (info) {
             detailButton.style.display = "none";
         }
 
-        // ✅ Oddělená tlačítka pro ČAS a PARTU
-
         // ✅ Uložit změnu ČASU
         document.getElementById('saveCas').onclick = async () => {
             const newCas = Number(casSelect.value) || 0;
@@ -280,6 +278,7 @@ eventClick: async function (info) {
         modalOverlay.style.display = "block";
     }
 },
+
 
 
         // ✅ Zobraz informace v modalu
