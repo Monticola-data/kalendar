@@ -124,23 +124,24 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         const cas = Number(info.event.extendedProps.cas) || 0;
 
         eventQueue[eventId] = async () => {
-            try {
-                await db.collection("events").doc(eventId).update({
+        try {
+            await db.collection("events").doc(eventId).update({
+                start: info.event.startStr,
+                party: info.event.extendedProps.party,
+                "extendedProps.cas": cas // ✅ tady je důležitá změna
+            });
+
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({
+                    eventId: eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party,
-                    "extendedProps.cas": cas
-                });
+                    cas: cas // ✅ přidat i do AppSheet
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        eventId: eventId,
-                        start: info.event.startStr,
-                        party: info.event.extendedProps.party
-                        cas: cas
-                    }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
 
                 console.log("✅ Změna poslána do AppSheet!");
             } catch (err) {
