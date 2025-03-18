@@ -177,50 +177,53 @@ eventClick: async function (info) {
             }
         });
 
+
          // ✅ Inicializace výběru času
         const casSelect = document.getElementById('casSelect');
         casSelect.value = selectedEvent.extendedProps.cas || "";
 
         // ✅ Tlačítko uložit – připraví si pouze změny, ale ještě je neprovede
-        savePartyButton.onclick = async () => {
-            const selectedPartyId = partySelect.value;
-            const selectedParty = partyMap[selectedPartyId];
+savePartyButton.onclick = async () => {
+    if (selectedEvent) {
+        const newParty = partySelect.value;
+        const newCas = Number(document.getElementById('casSelect').value) || 0;
 
-            if (selectedParty && selectedEvent) {
-                const eventId = selectedEvent.id;
+        eventQueue[selectedEvent.id] = async () => {
+            try {
+                // update Firestore
+                await db.collection("events").doc(selectedEvent.id).update({
+                    party: newParty,
+                    'extendedProps.cas': newCas
+                });
 
-                eventQueue[eventId] = async () => {
-                    try {
-                        await db.collection("events").doc(eventId).update({
-                            party: selectedPartyId,
-                            color: selectedParty.color
-                        });
+                // aktualizace AppSheet
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        eventId: selectedEvent.id,
+                        party: newParty,
+                        cas: newCas
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-                        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                eventId: selectedEvent.id,
-                                party: selectedPartyId
-                            }),
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-
-                        console.log("✅ Party změněna a aktualizována.");
-                    } catch (error) {
-                        console.error("❌ Chyba při změně party:", error);
-                    }
-                };
-
-                // ✅ Aktualizuj barvu ihned ve frontendu až po kliknutí na tlačítko uložit!
-                selectedEvent.setProp('backgroundColor', selectedParty.color);
-                selectedEvent.setExtendedProp('party', selectedPartyId);
-
-                processQueue(); // spusť frontu
-
-                modal.style.display = "none";
-                modalOverlay.style.display = "none"; // zavři modal
+                console.log("✅ Změny party a času uloženy.");
+            } catch (error) {
+                console.error("❌ Chyba při ukládání:", error);
             }
         };
+
+        // ihned aktualizuj zobrazení v kalendáři
+        selectedEvent.setExtendedProp('party', newParty);
+        selectedEvent.setExtendedProp('cas', newCas);
+
+        processQueue();
+
+        modal.style.display = "none";
+        modalOverlay.style.display = "none";
+    }
+};
+
 
         // ✅ Zobraz informace v modalu
         const modalEventInfo = document.getElementById('modalEventInfo');
