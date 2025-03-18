@@ -256,18 +256,22 @@ eventContent: function (arg) {
 
     const partyName = getPartyName(arg.event.extendedProps.party);
 
-    const cas = arg.event.extendedProps.cas || "";
+    // ✅ Zobrazení času pouze pokud není 99
+    const displayCas = arg.event.extendedProps.cas !== 99 ? arg.event.extendedProps.cas + ":00" : "";
 
     return {
         html: `
         <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
-          <div style="font-weight:bold;">
-            ${icon} ${cas} ${title}
+            <div style="font-weight:bold;">
+              ${icon} ${displayCas ? displayCas + ' ' : ''}${title}
           </div>
-          <div style="font-size:9px; color:#ffffff;">${partyName}</div>
+          <div style="font-size:9px; color:#ffffff; opacity:0.85;">
+            ${partyName}
+          </div>
       </div>`
   };
 }
+
 
 });
 // ✅ CSS kód pro odlišení tlačítek barevně
