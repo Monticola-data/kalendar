@@ -148,19 +148,19 @@ eventDrop: function(info) {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
                 party: info.event.extendedProps.party,
-                cas: info.event.cas || 0   // ✅ opraveno na info.event.cas místo info.event.extendedProps.cas
+                cas: info.event.extendedProps.cas || 0 // ✅ SPRÁVNĚ přístup přes extendedProps
             });
 
-await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-    method: "POST",
-    body: JSON.stringify({
-        eventId: eventId,
-        start: info.event.startStr,
-        party: info.event.extendedProps.party,
-        cas: info.event.cas || 0 // ✅ přidáno posílání cas do backendu
-    }),
-    headers: { 'Content-Type': 'application/json' }
-});
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({
+                    eventId: eventId,
+                    start: info.event.startStr,
+                    party: info.event.extendedProps.party,
+                    cas: info.event.extendedProps.cas || 0 // ✅ Zde taky SPRÁVNĚ přes extendedProps
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
 
             console.log("✅ Změna poslána do AppSheet!");
         } catch (err) {
