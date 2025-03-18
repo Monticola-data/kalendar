@@ -264,10 +264,11 @@ eventContent: function (arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
+    const cas = arg.event.extendedProps.cas;
 
     return { html: `
         <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
-            <div style="font-weight:bold;">${icon} ${title}</div>
+            <div style="font-weight:bold;">${icon} ${cas ? cas + ':00 ' : ''}${title}</div>
             <div style="font-size:9px; color:#ffffff;">${partyName}</div>
         </div>`
         };
