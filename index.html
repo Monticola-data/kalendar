@@ -89,39 +89,43 @@
 
   <div id="legend"></div>
 
-  <div id="eventModal" class="modal">
-    <div id="modalEventInfo" class="modal-event-info"></div> <!-- ✅ nový řádek -->
+<div id="eventModal" class="modal">
+  
+  <div id="modalEventInfo" class="modal-event-info"></div>
 
-    <div class="modal-row">
-<label for="casSelect">Čas:</label>
-<select id="casSelect">
-  <option value="0">cely-den</option>
-  <option value="6">6:00</option>
-  <option value="7">7:00</option>
-  <option value="8">8:00</option>
-  <option value="9">9:00</option>
-  <option value="10">10:00</option>
-  <option value="11">11:00</option>
-  <option value="12">12:00</option>
-  <option value="13">13:00</option>
-  <option value="14">14:00</option>
-  <option value="15">15:00</option>
-  <option value="16">16:00</option>
-  <option value="17">17:00</option>
-  <option value="18">18:00</option>
-</select>
-      </div>
-    
+  <div class="modal-row">
+    <label for="casSelect">Čas:</label>
+    <select id="casSelect">
+      <option value="0">celý den</option>
+      <option value="6">6:00</option>
+      <option value="7">7:00</option>
+      <option value="8">8:00</option>
+      <option value="9">9:00</option>
+      <option value="10">10:00</option>
+      <option value="11">11:00</option>
+      <option value="12">12:00</option>
+      <option value="13">13:00</option>
+      <option value="14">14:00</option>
+      <option value="15">15:00</option>
+      <option value="16">16:00</option>
+      <option value="17">17:00</option>
+      <option value="18">18:00</option>
+    </select>
+  </div>
+
+  <div class="modal-row">
     <label for="partySelect">Parta:</label>
     <select id="partySelect"></select>
-    <button id="saveParty" class="button-save">💾 Uložit</button>
-    
-     <div class="modal-row">
-    <button id="detailButton" class="button-detail" style="display: none;">🔍 Detail</button>
-        </div>
-    
   </div>
-  <div id="modalOverlay" class="modal-overlay"></div>
+
+  <div class="modal-row">
+    <button id="saveParty" class="button-save">💾 Uložit</button>
+    <button id="detailButton" class="button-detail" style="display: none;">🔍 Detail</button>
+  </div>
+
+</div>
+<div id="modalOverlay" class="modal-overlay"></div>
+
 
 <!-- Firebase kompatibilní verze -->
 <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
