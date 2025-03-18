@@ -56,10 +56,9 @@ const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
         color: data.color,
         party: data.party,
         stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-        allDay: true,
-        cas: data.cas !== undefined ? Number(data.cas) : 0,  // cas přímo v hlavních datech
         extendedProps: {
-            ...data.extendedProps
+            ...data.extendedProps,
+            cas: data.extendedProps?.cas ? Number(data.extendedProps.cas) : 0
         }
     };
 });
@@ -148,7 +147,6 @@ eventDrop: function(info) {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
                 party: info.event.extendedProps.party
-                // ✅ odstraněn řádek s hodnotou "cas"
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -157,7 +155,6 @@ eventDrop: function(info) {
                     eventId: eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party
-                    // ✅ také odstraněn "cas" zde
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -273,7 +270,7 @@ eventContent: function (arg) {
           text-overflow:ellipsis;
           white-space:nowrap;">
             <div style="font-weight:bold; white-space:nowrap;">
-                ${icon} ${displayTime(cas)}${title}
+                ${icon} ${cas ? cas + ':00 ' : ''}${title}
             </div>
             <div style="font-size:9px; opacity:0.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                 ${partyName}
