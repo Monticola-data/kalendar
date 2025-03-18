@@ -84,6 +84,7 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
+    let currentViewDate;
 
 calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
@@ -113,9 +114,10 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         ],
 
-    eventDragStart: function() {
-        currentViewDate = calendar.getDate();
-    },
+        eventDragStart: function() {
+            currentViewDate = calendar.getDate();
+        },
+
 
     eventDrop: function(info) {
         const eventId = info.event.id;
@@ -147,7 +149,12 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         };
 
         processQueue();
+        calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum ihned po dropu
     },
+
+    eventDragStop: function(info) {
+            calendar.gotoDate(currentViewDate); // ✅ Vždy vrátit zpět po ukončení přetahování
+        },
 
     dateClick: function(info) {
         info.jsEvent.preventDefault();
