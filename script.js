@@ -91,6 +91,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'cs',
         height: 'auto',
         firstDay: 1,
+        selectable: false, // Zajistí, že se nebude automaticky označovat datum
+        unselectAuto: true,
+        navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
         
         eventSources: [
             {
