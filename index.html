@@ -70,6 +70,11 @@
     <option value="all">Všechny party</option>
   </select>
 
+     <!-- ✅ Tlačítka pohledů -->
+    <button id="monthView">Měsíc</button>
+    <button id="weekView">Týden</button>
+    <button id="listView">Seznam</button>
+
     </div>
   </div>
 
@@ -113,6 +118,15 @@
 
 <script type="module" src="script.js"></script>
 <script type="module" src="firebase-auth.js"></script>
+
+  <!-- ✅ Inicializace tlačítek -->
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('monthView').onclick = () => calendar.changeView('dayGridMonth');
+    document.getElementById('weekView').onclick = () => calendar.changeView('timeGridWeek');
+    document.getElementById('listView').onclick = () => calendar.changeView('listMonth');
+  });
+</script>
   
 </body>
 
