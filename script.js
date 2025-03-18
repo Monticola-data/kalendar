@@ -91,29 +91,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'cs',
         height: 'auto',
         firstDay: 1,
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'customMonth,customWeek,list14Days'
-        },
-        views: {
-            customMonth: {
-                type: 'dayGridMonth',
-                buttonText: 'Měsíc',
-            },
-            customWeek: {
-                type: 'dayGridWeek',
-                buttonText: 'Týden',
-                allDaySlot: true,
-                slotDuration: { days: 1 },
-                displayEventTime: false,
-            },
-            list14Days: {
-                type: 'list',
-                duration: { days: 14 },
-                buttonText: '14 dní',
-            }
-        },
+        
         eventSources: [
             {
                 id: 'firestore', // ✅ zde přidáno správné id
@@ -131,20 +109,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         ],
         eventOrder: "cas,title",
-
-eventMouseEnter: function(info) {
-  tippy(info.el, {
-    content: `
-      <strong>${info.event.title}</strong><br>
-      Parta: ${getPartyName(info.event.extendedProps.party)}<br>
-      Datum: ${info.event.startStr}
-    `,
-    allowHTML: true,
-    placement: 'top',
-    theme: 'light-border',
-    animation: 'shift-away',
-  });
-},
 
 
 eventDrop: function(info) {
@@ -285,58 +249,7 @@ eventContent: function (arg) {
         };
     }
 });
-// ✅ CSS kód pro odlišení tlačítek barevně
-const style = document.createElement('style');
-style.innerHTML = `
-.fc-button {
-  background-color: #f0f0f0 !important;
-  color: #555 !important;
-  border: none !important;
-  border-radius: 8px !important;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
-  transition: all 0.3s ease !important;
-}
 
-.fc-button:hover {
-  background-color: #e0e0e0 !important;
-  color: #000 !important;
-}
-
-.fc-button.fc-button-active {
-  background-color: #d0d0d0 !important;
-  color: #000 !important;
-}
-
-.fc-customMonth-button {
-  background-color: #a3c9a8 !important;
-  color: #fff !important;
-}
-
-.fc-customWeek-button {
-  background-color: #9cb9d9 !important;
-  color: #fff !important;
-}
-
-.fc-list14Days-button {
-  background-color: #f0b49e !important;
-  color: #fff !important;
-}
-
-.fc-customMonth-button:hover {
-  background-color: #92b894 !important;
-}
-
-.fc-customWeek-button:hover {
-  background-color: #89aacd !important;
-}
-
-.fc-list14Days-button:hover {
-  background-color: #dfa08a !important;
-}
-`;
-document.head.appendChild(style);
-
-    
 calendar.render();
 
 // Swipe navigace pro mobilní telefony pomocí Hammer.js
