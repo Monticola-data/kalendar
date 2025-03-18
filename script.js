@@ -250,8 +250,7 @@ eventContent: function (arg) {
 
     const partyName = getPartyName(arg.event.extendedProps.party);
 
-    // ✅ Nyní správně načte hodnotu cas z hlavních dat eventu
-    const cas = arg.event.cas ? arg.event.cas : "";
+    const cas = arg.event.extendedProps.cas || "";
 
     return {
         html: `
