@@ -148,7 +148,7 @@ eventDrop: function(info) {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
                 party: info.event.extendedProps.party,
-                cas: info.event.extendedProps.cas || 0,  // přidej tento řádek!
+                cas: info.event.extendedProps.cas || 0
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
@@ -156,8 +156,7 @@ eventDrop: function(info) {
                 body: JSON.stringify({
                     eventId: eventId,
                     start: info.event.startStr,
-                    party: info.event.extendedProps.party,
-                    cas: info.event.extendedProps.cas || 0  // přidej i zde!
+                    party: info.event.extendedProps.party
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -171,6 +170,7 @@ eventDrop: function(info) {
 
     processQueue();
 },
+
 
 
 
@@ -382,17 +382,18 @@ function filterAndRenderEvents() {
     });
 
     const firestoreSource = calendar.getEventSourceById('firestore');
-
     if (firestoreSource) {
-        firestoreSource.refetch(); // Toto aktualizuje zdroj
-        firestoreSource.remove();  // Pokud refetch nezabere, ponech remove a add
+        firestoreSource.remove();  
     }
 
     calendar.addEventSource({
         id: 'firestore',
-        events: filteredEvents
+        events: [...filteredEvents] // Kopie pole, aby se kalendář správně aktualizoval
     });
+
+    calendar.render(); // explicitně přerenderovat kalendář
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
