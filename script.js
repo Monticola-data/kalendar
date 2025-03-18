@@ -158,7 +158,7 @@ eventDrop: function(info) {
 
             console.log("✅ Změna poslána do AppSheet!");
 
-            // ✅ Toto je klíčové: NEVOLÁME znovu celý render kalendáře, pouze aktualizujeme jeden event!
+            // ✅ Tady ihned nastavíme správné datum ve frontendu:
             info.event.setStart(newDate);
 
         } catch (err) {
@@ -169,6 +169,7 @@ eventDrop: function(info) {
 
     processQueue();
 },
+
 
 
 
