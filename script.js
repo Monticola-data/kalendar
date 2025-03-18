@@ -255,22 +255,31 @@ eventContent: function (arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
-
-    // ✅ Zobrazení času pouze pokud není 99
-    const displayCas = arg.event.extendedProps.cas !== 99 ? arg.event.extendedProps.cas + ":00" : "";
+    const displayCas = arg.event.extendedProps.cas !== 99 ? arg.event.extendedProps.cas + ":00 " : "";
 
     return {
         html: `
-        <div style="text-align:left; font-size:11px; color:#ffffff; line-height:1;">
-            <div style="font-weight:bold;">
-              ${icon} ${displayCas ? displayCas + ' ' : ''}${title}
-          </div>
-          <div style="font-size:9px; color:#ffffff; opacity:0.85;">
-            ${partyName}
-          </div>
-      </div>`
-  };
+        <div style="
+          width:100%; 
+          font-size:11px; 
+          color:#ffffff; 
+          line-height:1.1; 
+          overflow:hidden; 
+          text-overflow:ellipsis;
+          white-space:nowrap;">
+            <div style="font-weight:bold; white-space:nowrap;">
+                ${icon} ${displayTime(arg.event.extendedProps.cas)}${title}
+            </div>
+            <div style="font-size:9px; opacity:0.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                ${partyName}
+            </div>
+        </div>`,
+};
+
+function displayTime(cas) {
+    return cas && cas !== 99 ? cas + ':00 ' : '';
 }
+
 
 
 });
