@@ -208,7 +208,9 @@ savePartyButton.onclick = async () => {
                     body: JSON.stringify({
                         eventId: selectedEvent.id,
                         party: newParty,
-                        cas: newCas
+                        cas: newCas,
+                        color: selectedParty.color
+                        
                     }),
                     headers: { 'Content-Type': 'application/json' }
                 });
