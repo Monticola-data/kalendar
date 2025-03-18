@@ -52,17 +52,18 @@ const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
     return {
         id: doc.id,
         title: data.title,
-        start: new Date(data.start).toISOString().split('T')[0], // bez konkrétního času
+        start: new Date(data.start).toISOString().split('T')[0],
         color: data.color,
         party: data.party,
         stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-        allDay: true, // všechny eventy jsou celodenní
+        allDay: true,
+        cas: data.extendedProps.cas ? Number(data.extendedProps.cas) : 99,  // ✅ cas mimo extendedProps
         extendedProps: {
-            ...data.extendedProps,
-            cas: Number(data.extendedProps.cas) || 0 // ✅ cas jako číslo pro řazení
+            ...data.extendedProps
         }
     };
 });
+
 
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
@@ -134,7 +135,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 extendedProps: { isHoliday: true }
             }
         ],
-    eventOrder: "extendedProps.cas",
+    eventOrder: "cas,title",
 
 eventDrop: function(info) {
     const eventId = info.event.id;
