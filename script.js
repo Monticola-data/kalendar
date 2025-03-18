@@ -141,23 +141,26 @@ function renderCalendar(view = null) {
 
 eventDrop: function(info) {
     const eventId = info.event.id;
+    const newDate = info.event.startStr;
 
     eventQueue[eventId] = async () => {
         try {
-            await db.collection("events").doc(eventId).update({
-                start: info.event.startStr
-            });
+            await db.collection("events").doc(eventId).update({ start: newDate });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({
                     eventId: eventId,
-                    start: info.event.startStr
+                    start: newDate
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
             console.log("✅ Změna poslána do AppSheet!");
+
+            // ✅ Toto je klíčové: NEVOLÁME znovu celý render kalendáře, pouze aktualizujeme jeden event!
+            info.event.setStart(newDate);
+
         } catch (err) {
             console.error("❌ Chyba při odeslání do AppSheet:", err);
             info.revert();
@@ -166,6 +169,7 @@ eventDrop: function(info) {
 
     processQueue();
 },
+
 
 
 eventClick: async function (info) {
