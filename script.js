@@ -272,7 +272,7 @@ eventContent: function (arg) {
           text-overflow:ellipsis;
           white-space:nowrap;">
             <div style="font-weight:bold; white-space:nowrap;">
-                ${icon} ${displayTime(arg.event.cas)}${title}
+                ${icon} ${displayTime(arg.event.extendedProps.cas)}${title}
             </div>
             <div style="font-size:9px; opacity:0.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                 ${partyName}
