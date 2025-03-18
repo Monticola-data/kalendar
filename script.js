@@ -130,6 +130,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 extendedProps: { isHoliday: true }
             }
         ],
+    eventOrder: 'extendedProps.cas,title',
 
 eventDrop: function(info) {
     const eventId = info.event.id;
