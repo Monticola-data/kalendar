@@ -94,7 +94,8 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         selectable: false, // Zajistí, že se nebude automaticky označovat datum
         unselectAuto: true,
         navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
-        
+        eventOrder: "cas,title",
+    
         eventSources: [
             {
                 id: 'firestore', // ✅ zde přidáno správné id
@@ -111,40 +112,46 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 extendedProps: { isHoliday: true }
             }
         ],
-        eventOrder: "cas,title",
 
+    eventDragStart: function() {
+        currentViewDate = calendar.getDate();
+    },
 
-eventDrop: function(info) {
-    const eventId = info.event.id;
+    eventDrop: function(info) {
+        const eventId = info.event.id;
 
-    eventQueue[eventId] = async () => {
-        try {
-            await db.collection("events").doc(eventId).update({
-                start: info.event.startStr,
-                party: info.event.extendedProps.party
-            });
-
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                body: JSON.stringify({
-                    eventId: eventId,
+        eventQueue[eventId] = async () => {
+            try {
+                await db.collection("events").doc(eventId).update({
                     start: info.event.startStr,
                     party: info.event.extendedProps.party
-                }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+                });
 
-            console.log("✅ Změna poslána do AppSheet!");
-        } catch (err) {
-            console.error("❌ Chyba při odeslání do AppSheet:", err);
-            info.revert();
-        }
-    };
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        eventId: eventId,
+                        start: info.event.startStr,
+                        party: info.event.extendedProps.party
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-    processQueue();
-},
+                console.log("✅ Změna poslána do AppSheet!");
+            } catch (err) {
+                console.error("❌ Chyba při odeslání do AppSheet:", err);
+                info.revert();
+            }
 
+            calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum
+        };
 
+        processQueue();
+    },
+
+    dateClick: function(info) {
+        info.jsEvent.preventDefault();
+    },
 
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
