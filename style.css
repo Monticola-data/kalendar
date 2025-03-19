@@ -62,6 +62,12 @@ body {
 .view-btn:hover {
   background-color: #3b5778;
 }
+//oddělení měsíců
+.month-calendar {
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #ccc;
+}
 
 
 #calendar-wrapper {
