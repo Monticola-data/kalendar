@@ -158,11 +158,13 @@ eventClick: function(info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
 
-        const casSelect = document.getElementById('casSelect');
-        const partySelect = document.getElementById('partySelect');
+        const selectedStredisko = strediskoFilter.value;
+
         const modalEventInfo = document.getElementById('modalEventInfo');
         const detailButton = document.getElementById('detailButton');
+        const casSelect = document.getElementById('casSelect');
 
+        // Zobraz info
         modalEventInfo.innerHTML = `${selectedEvent.title} - ${selectedEvent.startStr} (${getPartyName(selectedEvent.extendedProps.party)})`;
 
         // Detail button
@@ -173,49 +175,46 @@ eventClick: function(info) {
             detailButton.style.display = "none";
         }
 
-        // naplnění partySelect
-        partySelect.innerHTML = "";
-        Object.entries(partyMap).forEach(([id, party]) => {
-            const option = document.createElement("option");
-            option.value = id;
-            option.textContent = party.name;
-            option.selected = id === selectedEvent.extendedProps.party;
-            partySelect.appendChild(option);
-        });
+        // ✅ Následující úprava - filtrace party podle střediska:
+        const selectedStredisko = strediskoFilter.value || 'vše';
+        partySelect.innerHTML = '';
 
-        // nastavení času
+        Object.entries(partyMap)
+            .filter(([_, party]) => selectedStredisko === "vše" || party.stredisko === selectedStredisko)
+            .forEach(([id, party]) => {
+                const option = document.createElement('option');
+                option.value = id;
+                option.textContent = party.name;
+                option.selected = id === selectedEvent.extendedProps.party;
+                partySelect.appendChild(option);
+            });
+
+        // Nastavení času
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
-        modalEventInfo.parentElement.style.display = "block";
-        modalOverlay.style.display = "block";
+        document.getElementById('saveCas').onclick = async () => {
+            const newCas = (casSelect.value !== "" && !isNaN(casSelect.value)) 
+                ? Number(casSelect.value) 
+                : selectedEvent.extendedProps.cas;
 
-document.getElementById('saveCas').onclick = async () => {
-    const selectedValue = casSelect.value;
-    const newCas = selectedEvent.extendedProps.cas; // Původní hodnota cas
-    const updatedCas = (casSelect.value !== "" && !isNaN(casSelect.value)) 
-        ? Number(casSelect.value) 
-        : newCas; // Zachová původní cas, když uživatel nevybral nic nového
+            try {
+                await db.collection("events").doc(selectedEvent.id).update({
+                    'extendedProps.cas': newCas
+                });
 
-    try {
-        await db.collection("events").doc(selectedEvent.id).update({
-            'extendedProps.cas': updatedCas
-        });
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({ eventId: selectedEvent.id, cas: newCas }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-            method: "POST",
-            body: JSON.stringify({ eventId: selectedEvent.id, cas: updatedCas }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        console.log("✅ Čas uložen:", updatedCas);
-    } catch (error) {
-        console.error("❌ Chyba při ukládání času:", error);
-    }
-
-    modal.style.display = "none";
-    modalOverlay.style.display = "none";
-};
-
+                modal.style.display = "none";
+                modalOverlay.style.display = "none";
+                console.log("✅ Čas úspěšně uložen.");
+            } catch (error) {
+                console.error("❌ Chyba při ukládání času:", error);
+            }
+        };
 
         document.getElementById('saveParty').onclick = async () => {
             const newParty = partySelect.value;
@@ -233,15 +232,16 @@ document.getElementById('saveCas').onclick = async () => {
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                console.log("✅ Parta uložena.");
-
+                modal.style.display = "none";
+                modalOverlay.style.display = "none";
+                console.log("✅ Parta úspěšně uložena.");
             } catch (error) {
                 console.error("❌ Chyba při ukládání party:", error);
             }
-
-            modalEventInfo.parentElement.style.display = "none";
-            modalOverlay.style.display = "none";
         };
+
+        modal.style.display = "block";
+        modalOverlay.style.display = "block";
     }
 },
 
