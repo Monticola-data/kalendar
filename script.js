@@ -123,7 +123,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 
 eventDragStart: function(info) {
     info.el.style.opacity = '0.6';
+    currentViewDate = calendar.getDate(); // ✅ přidej tento řádek!
 },
+
 
 
     eventDrop: function(info) {
