@@ -199,7 +199,7 @@ partySelect.onchange = () => {
 
     modal.style.display = modalOverlay.style.display = "none";
 
-    // ✅ Okamžité spuštění asynchronní operace na pozadí pomocí šipkové funkce
+    // ✅ bezpečná a rychlá async operace bez čekání uživatele
     (async () => {
         try {
             await db.collection("events").doc(selectedEvent.id).update({
@@ -228,6 +228,7 @@ casSelect.onchange = () => {
 
     modal.style.display = modalOverlay.style.display = "none";
 
+    // ✅ OKAMŽITÁ OPRAVA
     (async () => {
         try {
             await db.collection("events").doc(selectedEvent.id).update({
@@ -244,9 +245,8 @@ casSelect.onchange = () => {
         } catch (error) {
             console.error("❌ Chyba při ukládání času:", error);
         }
-    })();
+    })();  // ⬅️ Tato forma je správná a bezpečná
 };
-
 
 
 eventContent: function (arg) {
