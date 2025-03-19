@@ -8,6 +8,43 @@ function renderAllCalendars() {
   calendars.forEach(cal => cal.render());
 }
 
+async function handleEventDrop(info) {
+  const eventId = info.event.id;
+  const cas = Number(info.event.extendedProps.cas) || 0;
+
+  info.event.setExtendedProp('isSaving', true);
+  renderAllCalendars();
+
+  if (!debouncedUpdates[eventId]) {
+    debouncedUpdates[eventId] = debounce(async (updates, event) => {
+      try {
+        await db.collection("events").doc(eventId).update(updates);
+        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+          method: "POST",
+          body: JSON.stringify({ eventId, ...updates }),
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        event.setExtendedProp('isSaving', false);
+        await fetchFirestoreEvents(currentUserEmail);  // reload a re-filter events
+
+      } catch (error) {
+        console.error("❌ Chyba při aktualizaci:", error);
+        event.setExtendedProp('isSaving', false);
+        renderAllCalendars();
+        info.revert();
+      }
+    }, 1500);
+  }
+
+  debouncedUpdates[eventId]({
+    start: info.event.startStr,
+    party: info.event.extendedProps.party,
+    "extendedProps.cas": cas
+  }, info.event);
+}
+
+
 
 
 const debouncedUpdates = {};
@@ -96,52 +133,62 @@ async function updateFirestoreEvent(eventId, updates = {}) {
     console.log("✅ Data uložena do Firestore:", updates);
 }
 
-function renderCalendar(view = null) {
-    const calendarDivs = document.querySelectorAll('.month-calendar');
+function renderCalendars() {
+  const calendarDivs = document.querySelectorAll('.month-calendar');
 
-    calendars = [];
+  calendars = [];
 
-    calendarDivs.forEach(div => {
-        const monthOffset = Number(div.dataset.month);
-        const initialDate = new Date(new Date().getFullYear(), new Date().getMonth() + monthOffset, 1);
+  calendarDivs.forEach(div => {
+    const monthOffset = Number(div.dataset.month);
+    const initialDate = new Date(new Date().getFullYear(), new Date().getMonth() + monthOffset, 1);
 
-        const calendarInstance = new FullCalendar.Calendar(div, {
-            initialView: 'dayGridMonth',
-            initialDate,
-            editable: true,
-            locale: 'cs',
-            height: 'auto',
-            firstDay: 1,
-            selectable: false,
-            unselectAuto: true,
-            navLinks: false,
-            dragScroll: false,
-            longPressDelay: 0,
-            eventOrder: "cas,title",
+    const calendar = new FullCalendar.Calendar(div, {
+      initialView: 'dayGridMonth',
+      initialDate,
+      editable: true,
+      locale: 'cs',
+      height: 'auto',
+      firstDay: 1,
+      selectable: false,
+      unselectAuto: true,
+      navLinks: false,
+      dragScroll: false,
+      longPressDelay: 0,
+      eventOrder: "cas,title",
 
-            eventSources: [
-                { id: 'firestore', events: allEvents },
-                {
-                    id: 'holidays',
-                    googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-                    googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-                    display: 'background',
-                    color: '#854646',
-                    className: 'holiday-event',
-                    extendedProps: { isHoliday: true }
-                }
-            ],
+      eventSources: [
+        {
+          id: 'firestore',
+          events: allEvents
+        },
+        {
+          id: 'holidays',
+          googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+          googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+          display: 'background',
+          color: '#854646',
+          textColor: '#000',
+          className: 'holiday-event',
+          extendedProps: { isHoliday: true }
+        }
+      ],
 
-            eventDrop: function(info) { handleEventDrop(info); },
-            eventContent: renderEventContent,
-            dragScroll: false,
-            longPressDelay: 0,
-        });
-
-        calendars.push(calendarInstance);
-        calendarInstance.render();
+      eventDrop: handleEventDrop,
+      eventClick: calendarEventClick,
+      eventContent: renderEventContent,
     });
-},
+
+    calendars.push(calendar);
+    calendar.render();
+  });
+
+  // Zachovej swipe pouze pro první kalendář
+  if (calendarDivs[0]) {
+    const hammer = new Hammer(calendarDivs[0]);
+    hammer.on('swiperight', () => calendars.forEach(c => c.prev()));
+    hammer.on('swipeleft', () => calendars.forEach(c => c.next()));
+  }
+}
 
 eventDrop: function(info) {
     const eventId = info.event.id;
@@ -394,37 +441,27 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // ✅ Zde zachovej aktuální datum
-    const currentViewDate = calendar.getDate();
+    calendars.forEach(calendar => {
+        const source = calendar.getEventSourceById('firestore');
+        if (source) source.remove();
 
-    const firestoreSource = calendar.getEventSourceById('firestore');
-    if (firestoreSource) firestoreSource.remove();
-
-    calendar.addEventSource({
-        id: 'firestore',
-        events: filteredEvents
+        calendar.addEventSource({
+            id: 'firestore',
+            events: filteredEvents
+        });
+        calendar.render();
     });
-
-    // ✅ Zde se vrať zpět na aktuální datum
-    calendar.gotoDate(currentViewDate);
 }
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
+    modalOverlay = document.getElementById('modalOverlay');
     partySelect = document.getElementById('partySelect');
-    savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
 
-    const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
-    strediskoFilter.value = savedStredisko;
-
-    // ✅ Přidáno - tlačítka pro změnu pohledu
-  const monthViewBtn = document.getElementById('monthView');
-  const weekViewBtn = document.getElementById('weekView');
-  const listViewBtn = document.getElementById('listView');
+    currentUserEmail = 'user@example.com'; // nebo načti dynamicky dle přihlášení
 
     strediskoFilter.onchange = () => {
         localStorage.setItem('selectedStredisko', strediskoFilter.value);
@@ -434,19 +471,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     partyFilter.onchange = filterAndRenderEvents;
 
-    renderCalendar();
+    fetchFirestoreEvents(currentUserEmail).then(() => {
+        renderCalendars(); // render všechny kalendáře najednou po načtení eventů
+    });
 
-    monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
-    weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
-    listViewBtn.onclick = () => calendar.changeView('listWeek');
+    document.getElementById('monthView').onclick = () => calendars.forEach(c => c.changeView('dayGridMonth'));
+    document.getElementById('weekView').onclick = () => calendars.forEach(c => c.changeView('timeGridWeek'));
+    document.getElementById('listView').onclick = () => calendars.forEach(c => c.changeView('listMonth'));
+});
 
-    savePartyButton.onclick = async () => {
-        if (selectedEvent) {
-            await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
-            modal.style.display = "none";
-            modalOverlay.style.display = "none"; // ✅ schovej overlay
-        }
-    };
 
     // ✅ Zavření modalu kliknutím mimo modal přes overlay
     modalOverlay.onclick = function() {
