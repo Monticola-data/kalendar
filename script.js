@@ -121,58 +121,35 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         ],
 
-eventDragStart: function(info) {
-    info.el.style.opacity = '0.6';
-    currentViewDate = calendar.getDate(); // ✅ přidej tento řádek!
-},
-
-
-
- eventDrop: function(info) {
+eventDrop: async function(info) {
     const eventId = info.event.id;
+    const newDate = info.event.startStr;
+
+    // ✅ Načíst původní čas eventu
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    eventQueue[eventId] = async () => {
-        try {
-            await db.collection("events").doc(eventId).update({
-                start: info.event.startStr,
-                party: info.event.extendedProps.party,
-                "extendedProps.cas": cas
-            });
+    try {
+        // aktualizuj Firestore
+        await db.collection("events").doc(eventId).update({
+            start: newDate,
+            "extendedProps.cas": cas
+        });
 
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                body: JSON.stringify({
-                    eventId,
-                    start: info.event.startStr,
-                    party: info.event.extendedProps.party,
-                    cas: cas
-                }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+        // aktualizuj AppSheet
+        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            method: "POST",
+            body: JSON.stringify({ eventId, start: newDate, cas }),
+            headers: { 'Content-Type': 'application/json' }
+        });
 
-            console.log("✅ Změna poslána do AppSheet!");
+        console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány do AppSheet!`);
 
-            filterAndRenderEvents();
-
-        } catch (err) {
-            console.error("❌ Chyba při odeslání do AppSheet:", err);
-            info.revert();
-        }
-
-        calendar.gotoDate(currentViewDate);
-    };
-
-    processQueue();
-    calendar.gotoDate(currentViewDate);
+    } catch (err) {
+        console.error("❌ Chyba při odesílání dat do AppSheet:", err);
+        info.revert();
+    }
 },
-
-
-eventDragStop: function(info) {
-    info.el.style.opacity = '';
-},
-
     dateClick: function(info) {
         info.jsEvent.preventDefault();
     },
