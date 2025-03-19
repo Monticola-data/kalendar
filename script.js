@@ -165,9 +165,14 @@ eventClick: async function (info) {
         const casSelect = document.getElementById('casSelect');
         const partySelect = document.getElementById('partySelect');
 
-        modalEventInfo.innerHTML = `
-            ${info.event.title} - ${info.event.startStr} (${getPartyName(selectedEvent.extendedProps.party)})
-        `;
+       modalEventInfo.innerHTML = `
+      <div style="padding-bottom:5px; margin-bottom:5px; border-bottom:1px solid #ddd;">
+        🚩 ${info.event.extendedProps.zakaznik || ''} - 
+        ${info.event.extendedProps.cinnost || ''} - 
+        ${getPartyName(info.event.extendedProps.party)}
+      </div>
+    `;
+
 
         if (selectedEvent.extendedProps.detail) {
             detailButton.style.display = "inline-block";
