@@ -296,16 +296,24 @@ eventClick: async function (info) {
 
 eventContent: function (arg) {
     let icon = "";
-    const isSaving = arg.event.extendedProps.isSaving;  // ✅ nová vlastnost indikující ukládání
-    
-    if (isSaving) icon = "⏳";
-    else if (arg.event.extendedProps.predane) icon = "✍️";
-    else if (arg.event.extendedProps.hotove) icon = "✅";
-    else if (arg.event.extendedProps.odeslane) icon = "📩";
+    const isSaving = arg.event.extendedProps.isSaving;  // ✅ nový indikátor ukládání
 
-    const title = arg.event.title;
-    const cas = arg.event.extendedProps.cas ? arg.event.extendedProps.cas + ':00 ' : '';
+    if (isSaving) {
+        icon = "⏳";
+    } else if (arg.event.extendedProps.predane) {
+        icon = "✍️";
+    } else if (arg.event.extendedProps.hotove) {
+        icon = "✅";
+    } else if (arg.event.extendedProps.odeslane) {
+        icon = "📩";
+    }
+
+    const title = (arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane)
+        ? arg.event.title.toUpperCase()
+        : arg.event.title;
+
     const partyName = getPartyName(arg.event.extendedProps.party);
+    const cas = arg.event.extendedProps.cas;
 
     return { 
         html: `
@@ -317,11 +325,16 @@ eventContent: function (arg) {
           overflow:hidden; 
           text-overflow:ellipsis;
           white-space:nowrap;">
-            <div style="font-weight:bold;">${icon} ${cas}${title}</div>
-            <div style="font-size:9px;">${partyName}</div>
+            <div style="font-weight:bold;">
+              ${icon} ${cas ? cas + ':00 ' : ''}${title}
+            </div>
+            <div style="font-size:9px; color:#ffffff;">
+              ${partyName}
+            </div>
         </div>`
     };
 }
+
 
 });
 
