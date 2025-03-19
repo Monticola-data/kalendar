@@ -377,10 +377,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // ✅ Zavření modalu kliknutím mimo modal přes overlay
-    modalOverlay.onclick = function() {
-        modal.style.display = "none";
-        modalOverlay.style.display = "none";
-    };
+    const modalOverlay = document.getElementById('modalOverlay');
+    modalOverlay.onclick = () => {
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+};
+
 });
 
 
