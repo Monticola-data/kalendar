@@ -108,6 +108,11 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         unselectAuto: true,
         navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
         eventOrder: "cas,title",
+
+        longPressDelay: 0,
+        droppable: false,
+        dragScroll: false,
+
     
         eventSources: [
             {
