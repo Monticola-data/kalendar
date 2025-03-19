@@ -154,25 +154,22 @@ eventDrop: async function(info) {
         info.jsEvent.preventDefault();
     },
 
-eventClick: async function (info) {
+eventClick: function(info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
 
         const currentStredisko = strediskoFilter.value;
-
         const modalEventInfo = document.getElementById('modalEventInfo');
         const detailButton = document.getElementById('detailButton');
         const casSelect = document.getElementById('casSelect');
         const partySelect = document.getElementById('partySelect');
 
-       modalEventInfo.innerHTML = `
-      <div style="padding-bottom:5px; margin-bottom:5px; border-bottom:1px solid #ddd;">
-        🚩 ${info.event.extendedProps.zakaznik || ''} - 
-        ${info.event.extendedProps.cinnost || ''} - 
-        ${getPartyName(info.event.extendedProps.party)}
-      </div>
-    `;
-
+        modalEventInfo.innerHTML = `
+          <div style="padding-bottom:5px; margin-bottom:5px; border-bottom:1px solid #ddd;">
+            🚧 ${selectedEvent.extendedProps.zakaznik || ''} - 
+            ${selectedEvent.extendedProps.cinnost || ''} - 
+            ${getPartyName(selectedEvent.extendedProps.party)}
+        </div>`;
 
         if (selectedEvent.extendedProps.detail) {
             detailButton.style.display = "inline-block";
@@ -181,6 +178,7 @@ eventClick: async function (info) {
             detailButton.style.display = "none";
         }
 
+        // naplnění výběru party
         partySelect.innerHTML = "";
         Object.entries(partyMap).forEach(([id, party]) => {
             if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
@@ -194,11 +192,35 @@ eventClick: async function (info) {
 
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
-        document.getElementById('saveCas').onclick = async () => {
-            const originalCas = selectedEvent.extendedProps.cas;
-            const newCas = (casSelect.value !== "" && !isNaN(casSelect.value)) 
-                ? Number(casSelect.value) 
-                : originalCas;
+        // ✅ Okamžité uložení při změně party
+        partySelect.onchange = async () => {
+            const newParty = partySelect.value;
+            const selectedParty = partyMap[newParty];
+
+            try {
+                await db.collection("events").doc(selectedEvent.id).update({
+                    party: newParty,
+                    color: selectedParty.color
+                });
+
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({ eventId: selectedEvent.id, party: newParty }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                console.log("✅ Parta úspěšně uložena.");
+            } catch (error) {
+                console.error("❌ Chyba při ukládání party:", error);
+            }
+
+            modal.style.display = modalOverlay.style.display = "none";
+        };
+
+        casSelect.onchange = async () => {
+            const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
+                ? Number(casSelect.value)
+                : selectedEvent.extendedProps.cas;
 
             try {
                 await db.collection("events").doc(selectedEvent.id).update({
@@ -217,29 +239,6 @@ eventClick: async function (info) {
             }
 
             modal.style.display = modalOverlay.style.display = "none";
-        };
-
-        document.getElementById('saveParty').onclick = async () => {
-            const newParty = partySelect.value;
-            const selectedParty = partyMap[newParty];
-
-            try {
-                await db.collection("events").doc(selectedEvent.id).update({
-                    party: newParty,
-                    color: selectedParty.color
-                });
-
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId: selectedEvent.id, party: newParty }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                modal.style.display = modalOverlay.style.display = "none";
-                console.log("✅ Parta úspěšně uložena.");
-            } catch (error) {
-                console.error("❌ Chyba při ukládání party:", error);
-            }
         };
 
         modal.style.display = modalOverlay.style.display = "block";
