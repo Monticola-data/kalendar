@@ -245,7 +245,6 @@ eventClick: function(info) {
     }
 },
 
-
 eventContent: function (arg) {
     let icon = "";
     if (arg.event.extendedProps.predane) icon = "✍️";
