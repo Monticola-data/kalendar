@@ -154,120 +154,94 @@ eventDrop: async function(info) {
         info.jsEvent.preventDefault();
     },
 
-eventClick: async function (info) {
+eventClick: function(info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
 
-        const selectedStredisko = strediskoFilter.value;
-
-        // ✅ Naplnění výběru party
-        partySelect.innerHTML = "";
-        Object.entries(partyMap).forEach(([id, party]) => {
-            if (selectedStredisko === "vše" || party.stredisko === selectedStredisko) {
-                const option = document.createElement("option");
-                option.value = id;
-                option.textContent = party.name;
-                option.selected = id === selectedEvent.extendedProps.party;
-                partySelect.appendChild(option);
-            }
-        });
-
-        // ✅ Inicializace výběru času
         const casSelect = document.getElementById('casSelect');
-        casSelect.value = selectedEvent.extendedProps.cas || 0;
-
-        // ✅ Zobraz informace v modalu
+        const partySelect = document.getElementById('partySelect');
         const modalEventInfo = document.getElementById('modalEventInfo');
-        modalEventInfo.innerHTML = `
-            ${info.event.title} - ${info.event.startStr} (${getPartyName(selectedEvent.extendedProps.party)})
-        `;
-
-        // ✅ Zobrazení tlačítka detail, pokud existuje detail URL
         const detailButton = document.getElementById('detailButton');
-        if (selectedEvent.extendedProps.detail && selectedEvent.extendedProps.detail.trim() !== "") {
+
+        modalEventInfo.innerHTML = `${selectedEvent.title} - ${selectedEvent.startStr} (${getPartyName(selectedEvent.extendedProps.party)})`;
+
+        // Detail button
+        if (selectedEvent.extendedProps.detail) {
             detailButton.style.display = "inline-block";
-            detailButton.onclick = () => {
-                window.open(selectedEvent.extendedProps.detail, '_blank');
-            };
+            detailButton.onclick = () => window.open(selectedEvent.extendedProps.detail, '_blank');
         } else {
             detailButton.style.display = "none";
         }
 
-        // ✅ Uložit změnu ČASU
+        // naplnění partySelect
+        partySelect.innerHTML = "";
+        Object.entries(partyMap).forEach(([id, party]) => {
+            const option = document.createElement("option");
+            option.value = id;
+            option.textContent = party.name;
+            option.selected = id === selectedEvent.extendedProps.party;
+            partySelect.appendChild(option);
+        });
+
+        // nastavení času
+        casSelect.value = selectedEvent.extendedProps.cas || 0;
+
+        modalEventInfo.parentElement.style.display = "block";
+        modalOverlay.style.display = "block";
+
+        // ✅ Jednoduché a přímé ukládání bez fronty
         document.getElementById('saveCas').onclick = async () => {
             const newCas = Number(casSelect.value) || 0;
 
-            eventQueue[selectedEvent.id + '_cas'] = async () => {
-                try {
-                    await db.collection("events").doc(selectedEvent.id).update({
-                        'extendedProps.cas': newCas
-                    });
+            try {
+                await db.collection("events").doc(selectedEvent.id).update({
+                    'extendedProps.cas': newCas
+                });
 
-                    await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            eventId: selectedEvent.id,
-                            cas: newCas
-                        }),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({ eventId: selectedEvent.id, cas: newCas }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-                    console.log("✅ Čas úspěšně uložen.");
-                } catch (error) {
-                    console.error("❌ Chyba při ukládání času:", error);
-                }
-            };
+                console.log("✅ Čas uložen.");
 
-            selectedEvent.setExtendedProp('cas', newCas);
-            calendar.render();
+            } catch (error) {
+                console.error("❌ Chyba při ukládání času:", error);
+            }
 
-            processQueue();
-
-            modal.style.display = "none";
+            modalEventInfo.parentElement.style.display = "none";
             modalOverlay.style.display = "none";
         };
 
-        // ✅ Uložit změnu PARTY
         document.getElementById('saveParty').onclick = async () => {
             const newParty = partySelect.value;
             const selectedParty = partyMap[newParty];
 
-            eventQueue[selectedEvent.id + '_party'] = async () => {
-                try {
-                    await db.collection("events").doc(selectedEvent.id).update({
-                        party: newParty,
-                        color: selectedParty.color
-                    });
+            try {
+                await db.collection("events").doc(selectedEvent.id).update({
+                    party: newParty,
+                    color: selectedParty.color
+                });
 
-                    await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                        method: "POST",
-                        body: JSON.stringify({
-                            eventId: selectedEvent.id,
-                            party: newParty
-                        }),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({ eventId: selectedEvent.id, party: newParty }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-                    console.log("✅ Parta úspěšně uložena.");
-                } catch (error) {
-                    console.error("❌ Chyba při ukládání party:", error);
-                }
-            };
+                console.log("✅ Parta uložena.");
 
-            selectedEvent.setExtendedProp('party', newParty);
-            selectedEvent.setProp('backgroundColor', selectedParty.color);
-            calendar.render();
+            } catch (error) {
+                console.error("❌ Chyba při ukládání party:", error);
+            }
 
-            processQueue();
-
-            modal.style.display = "none";
+            modalEventInfo.parentElement.style.display = "none";
             modalOverlay.style.display = "none";
         };
-
-        modal.style.display = "block";
-        modalOverlay.style.display = "block";
     }
 },
+
 
 eventContent: function (arg) {
     let icon = "";
