@@ -193,57 +193,62 @@ eventClick: function(info) {
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
         // ✅ Okamžité uložení při změně party
-        partySelect.onchange = async () => {
-            const newParty = partySelect.value;
-            const selectedParty = partyMap[newParty];
+partySelect.onchange = () => {
+    const newParty = partySelect.value;
+    const selectedParty = partyMap[newParty];
 
-            try {
-                await db.collection("events").doc(selectedEvent.id).update({
-                    party: newParty,
-                    color: selectedParty.color
-                });
+    // ✅ Okamžitě zavři modal
+    modal.style.display = modalOverlay.style.display = "none";
 
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId: selectedEvent.id, party: newParty }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
+    // ✅ Odesílání dat proběhne asynchronně na pozadí
+    (async () => {
+        try {
+            await db.collection("events").doc(selectedEvent.id).update({
+                party: newParty,
+                color: selectedParty.color
+            });
 
-                console.log("✅ Parta úspěšně uložena.");
-            } catch (error) {
-                console.error("❌ Chyba při ukládání party:", error);
-            }
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({ eventId: selectedEvent.id, party: newParty }),
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-            modal.style.display = modalOverlay.style.display = "none";
-        };
+            console.log("✅ Parta uložena.");
+        } catch (error) {
+            console.error("❌ Chyba při ukládání party:", error);
+        }
+    })();
+};
 
-        casSelect.onchange = async () => {
-            const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
-                ? Number(casSelect.value)
-                : selectedEvent.extendedProps.cas;
+casSelect.onchange = () => {
+    const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
+        ? Number(casSelect.value)
+        : selectedEvent.extendedProps.cas;
 
-            try {
-                await db.collection("events").doc(selectedEvent.id).update({
-                    'extendedProps.cas': newCas
-                });
+    // ✅ Okamžité zavření modalu
+    modal.style.display = modalOverlay.style.display = "none";
 
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId: selectedEvent.id, cas: newCas }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
+    // ✅ Asynchronní uložení dat
+    (async () => {
+        try {
+            await db.collection("events").doc(selectedEvent.id).update({
+                'extendedProps.cas': newCas
+            });
 
-                console.log("✅ Čas uložen:", newCas);
-            } catch (error) {
-                console.error("❌ Chyba při ukládání času:", error);
-            }
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({ eventId: selectedEvent.id, cas: newCas }),
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-            modal.style.display = modalOverlay.style.display = "none";
-        };
+            console.log("✅ Čas uložen:", newCas);
+        } catch (error) {
+            console.error("❌ Chyba při ukládání času:", error);
+        }
+    })();
+};
 
-        modal.style.display = modalOverlay.style.display = "block";
-    }
-},
 
 
 eventContent: function (arg) {
