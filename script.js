@@ -2,23 +2,6 @@ import { db } from './firebase.js';
 
 let eventQueue = {};
 let isProcessing = false;
-let calendars = [];
-
-function renderAllCalendars() {
-  calendars.forEach(cal => cal.render());
-}
-
-
-
-const debouncedUpdates = {};
-//fronta, proti prehlceni
-function debounce(func, wait = 1000) {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
 
 async function processQueue() {
     if (isProcessing) return;
@@ -42,6 +25,7 @@ async function processQueue() {
     processQueue();
 }
 
+// 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
@@ -57,6 +41,7 @@ async function fetchFirestoreParties() {
     }, {});
     populateFilter();
 }
+
 
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
@@ -91,105 +76,93 @@ export async function fetchFirestoreEvents(userEmail) {
 }
 
 
+
 async function updateFirestoreEvent(eventId, updates = {}) {
     await firebase.firestore().collection("events").doc(eventId).set(updates, { merge: true });
     console.log("✅ Data uložena do Firestore:", updates);
 }
 
 function renderCalendar(view = null) {
-    const calendarDivs = document.querySelectorAll('.month-calendar');
+    const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
+    let currentViewDate;
 
-    calendars = [];
-
-    calendarDivs.forEach(div => {
-        const monthOffset = Number(div.dataset.month);
-        const initialDate = new Date(new Date().getFullYear(), new Date().getMonth() + monthOffset, 1);
-
-        const calendarInstance = new FullCalendar.Calendar(div, {
-            initialView: 'dayGridMonth',
-            initialDate,
-            editable: true,
-            locale: 'cs',
-            height: 'auto',
-            firstDay: 1,
-            selectable: false,
-            unselectAuto: true,
-            navLinks: false,
-            dragScroll: false,
-            longPressDelay: 0,
-            eventOrder: "cas,title",
-
-            eventSources: [
-                { id: 'firestore', events: allEvents },
-                {
-                    id: 'holidays',
-                    googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-                    googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-                    display: 'background',
-                    color: '#854646',
-                    className: 'holiday-event',
-                    extendedProps: { isHoliday: true }
-                }
-            ],
-
-            eventDrop: function(info) { handleEventDrop(info); },
-            eventContent: renderEventContent,
-            dragScroll: false,
-            longPressDelay: 0,
-        });
-
-        calendars.push(calendarInstance);
-        calendarInstance.render();
-    });
-},
-
-eventDrop: function(info) {
-    const eventId = info.event.id;
-    const cas = Number(info.event.extendedProps.cas) || 0;
-    const newStart = info.event.startStr;
-    const newParty = info.event.extendedProps.party;
-
-    // ✅ Nastav indikátor "ukládání"
-    info.event.setExtendedProp('isSaving', true);
-    calendar.render();
-
-    if (!debouncedUpdates[eventId]) {
-        debouncedUpdates[eventId] = debounce(async (updates, event) => {
-            try {
-                // aktualizuj Firestore
-                await db.collection("events").doc(eventId).update(updates);
-
-                // aktualizuj AppSheet
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId, ...updates }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-
-                console.log("✅ Data úspěšně aktualizována!");
-
-                // ✅ Odstraň indikátor "ukládání" po úspěchu
-                event.setExtendedProp('isSaving', false);
-                calendar.render();
-
-                filterAndRenderEvents(); // Znovu aplikuj filtry
-
-            } catch (error) {
-                console.error("❌ Chyba při aktualizaci:", error);
-                event.setExtendedProp('isSaving', false);
-                calendar.render();
-                info.revert();  // v případě chyby vrátit změnu zpět
+calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        editable: true,
+        locale: 'cs',
+        height: 'auto',
+        firstDay: 1,
+        selectable: false, // Zajistí, že se nebude automaticky označovat datum
+        unselectAuto: true,
+        navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
+        eventOrder: "cas,title",
+    
+        eventSources: [
+            {
+                id: 'firestore', // ✅ zde přidáno správné id
+                events: allEvents
+            },
+            {
+                id: 'holidays',
+                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+                display: 'background',
+                color: '#854646',
+                textColor: '#000',
+                className: 'holiday-event',
+                extendedProps: { isHoliday: true }
             }
-        }, 1500);
-    }
+        ],
 
-    debouncedUpdates[eventId]({
-        start: newStart,
-        party: newParty,
-        "extendedProps.cas": cas
-    }, info.event);
-},
+        eventDragStart: function() {
+            currentViewDate = calendar.getDate();
+        },
 
+
+    eventDrop: function(info) {
+        const eventId = info.event.id;
+        const cas = Number(info.event.extendedProps.cas) || 0;
+
+        eventQueue[eventId] = async () => {
+        try {
+            await db.collection("events").doc(eventId).update({
+                start: info.event.startStr,
+                party: info.event.extendedProps.party,
+                "extendedProps.cas": cas // ✅ tady je důležitá změna
+            });
+
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({
+                    eventId: eventId,
+                    start: info.event.startStr,
+                    party: info.event.extendedProps.party,
+                    cas: cas // ✅ přidat i do AppSheet
+                }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+
+                console.log("✅ Změna poslána do AppSheet!");
+            } catch (err) {
+                console.error("❌ Chyba při odeslání do AppSheet:", err);
+                info.revert();
+            }
+
+            calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum
+        };
+
+        processQueue();
+        calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum ihned po dropu
+    },
+
+    eventDragStop: function(info) {
+            calendar.gotoDate(currentViewDate); // ✅ Vždy vrátit zpět po ukončení přetahování
+        },
+
+    dateClick: function(info) {
+        info.jsEvent.preventDefault();
+    },
 
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
@@ -308,17 +281,9 @@ eventClick: async function (info) {
 
 eventContent: function (arg) {
     let icon = "";
-    const isSaving = arg.event.extendedProps.isSaving;  // ✅ nový indikátor ukládání
-
-    if (isSaving) {
-        icon = "⏳";
-    } else if (arg.event.extendedProps.predane) {
-        icon = "✍️";
-    } else if (arg.event.extendedProps.hotove) {
-        icon = "✅";
-    } else if (arg.event.extendedProps.odeslane) {
-        icon = "📩";
-    }
+    if (arg.event.extendedProps.predane) icon = "✍️";
+    else if (arg.event.extendedProps.hotove) icon = "✅";
+    else if (arg.event.extendedProps.odeslane) icon = "📩";
 
     const title = (arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane)
         ? arg.event.title.toUpperCase()
@@ -337,17 +302,13 @@ eventContent: function (arg) {
           overflow:hidden; 
           text-overflow:ellipsis;
           white-space:nowrap;">
-            <div style="font-weight:bold;">
-              ${icon} ${cas ? cas + ':00 ' : ''}${title}
-            </div>
-            <div style="font-size:9px; color:#ffffff;">
-              ${partyName}
-            </div>
+          
+            <div style="font-weight:bold;">${icon} ${cas ? cas + ':00 ' : ''}${title}</div>
+            <div style="font-size:9px; color:#ffffff;">${partyName}</div>
+            
         </div>`
-    };
-}
-
-
+        };
+    }
 });
 
 calendar.render();
