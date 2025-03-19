@@ -189,30 +189,33 @@ eventClick: function(info) {
         modalEventInfo.parentElement.style.display = "block";
         modalOverlay.style.display = "block";
 
-        // ✅ Jednoduché a přímé ukládání bez fronty
-        document.getElementById('saveCas').onclick = async () => {
-            const newCas = Number(casSelect.value) || 0;
+document.getElementById('saveCas').onclick = async () => {
+    const selectedValue = casSelect.value;
+    const newCas = selectedEvent.extendedProps.cas; // Původní hodnota cas
+    const updatedCas = (casSelect.value !== "" && !isNaN(casSelect.value)) 
+        ? Number(casSelect.value) 
+        : newCas; // Zachová původní cas, když uživatel nevybral nic nového
 
-            try {
-                await db.collection("events").doc(selectedEvent.id).update({
-                    'extendedProps.cas': newCas
-                });
+    try {
+        await db.collection("events").doc(selectedEvent.id).update({
+            'extendedProps.cas': updatedCas
+        });
 
-                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId: selectedEvent.id, cas: newCas }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
+        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            method: "POST",
+            body: JSON.stringify({ eventId: selectedEvent.id, cas: updatedCas }),
+            headers: { 'Content-Type': 'application/json' }
+        });
 
-                console.log("✅ Čas uložen.");
+        console.log("✅ Čas uložen:", updatedCas);
+    } catch (error) {
+        console.error("❌ Chyba při ukládání času:", error);
+    }
 
-            } catch (error) {
-                console.error("❌ Chyba při ukládání času:", error);
-            }
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+};
 
-            modalEventInfo.parentElement.style.display = "none";
-            modalOverlay.style.display = "none";
-        };
 
         document.getElementById('saveParty').onclick = async () => {
             const newParty = partySelect.value;
