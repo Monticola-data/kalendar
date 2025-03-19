@@ -2,6 +2,13 @@ import { db } from './firebase.js';
 
 let eventQueue = {};
 let isProcessing = false;
+let calendars = [];
+
+function renderAllCalendars() {
+  calendars.forEach(cal => cal.render());
+}
+
+
 
 const debouncedUpdates = {};
 //fronta, proti prehlceni
@@ -12,8 +19,6 @@ function debounce(func, wait = 1000) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     };
 }
-
-
 
 async function processQueue() {
     if (isProcessing) return;
@@ -37,7 +42,6 @@ async function processQueue() {
     processQueue();
 }
 
-// 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
 let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
@@ -53,7 +57,6 @@ async function fetchFirestoreParties() {
     }, {});
     populateFilter();
 }
-
 
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
@@ -88,53 +91,57 @@ export async function fetchFirestoreEvents(userEmail) {
 }
 
 
-
 async function updateFirestoreEvent(eventId, updates = {}) {
     await firebase.firestore().collection("events").doc(eventId).set(updates, { merge: true });
     console.log("✅ Data uložena do Firestore:", updates);
 }
 
 function renderCalendar(view = null) {
-    const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
-    let currentViewDate;
+    const calendarDivs = document.querySelectorAll('.month-calendar');
 
-calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        editable: true,
-        locale: 'cs',
-        height: 'auto',
-        firstDay: 1,
-        selectable: false, // Zajistí, že se nebude automaticky označovat datum
-        unselectAuto: true,
-        navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
-        eventOrder: "cas,title",
+    calendars = [];
 
-        longPressDelay: 0,
-        droppable: false,
-        dragScroll: false,
+    calendarDivs.forEach(div => {
+        const monthOffset = Number(div.dataset.month);
+        const initialDate = new Date(new Date().getFullYear(), new Date().getMonth() + monthOffset, 1);
 
-    
-        eventSources: [
-            {
-                id: 'firestore', // ✅ zde přidáno správné id
-                events: allEvents
-            },
-            {
-                id: 'holidays',
-                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-                display: 'background',
-                color: '#854646',
-                textColor: '#000',
-                className: 'holiday-event',
-                extendedProps: { isHoliday: true }
-            }
-        ],
+        const calendarInstance = new FullCalendar.Calendar(div, {
+            initialView: 'dayGridMonth',
+            initialDate,
+            editable: true,
+            locale: 'cs',
+            height: 'auto',
+            firstDay: 1,
+            selectable: false,
+            unselectAuto: true,
+            navLinks: false,
+            dragScroll: false,
+            longPressDelay: 0,
+            eventOrder: "cas,title",
 
-        eventDragStart: function() {
-            currentViewDate = calendar.getDate();
-        },
+            eventSources: [
+                { id: 'firestore', events: allEvents },
+                {
+                    id: 'holidays',
+                    googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+                    googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+                    display: 'background',
+                    color: '#854646',
+                    className: 'holiday-event',
+                    extendedProps: { isHoliday: true }
+                }
+            ],
 
+            eventDrop: function(info) { handleEventDrop(info); },
+            eventContent: renderEventContent,
+            dragScroll: false,
+            longPressDelay: 0,
+        });
+
+        calendars.push(calendarInstance);
+        calendarInstance.render();
+    });
+},
 
 eventDrop: function(info) {
     const eventId = info.event.id;
