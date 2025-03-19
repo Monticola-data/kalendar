@@ -92,32 +92,28 @@
 <div id="eventModal" class="modal">
   <div id="modalEventInfo" class="modal-event-info"></div>
 
-  <div class="modal-row">
-    <label for="casSelect">Čas:</label>
-    <select id="casSelect">
-      <option value="0">celý den</option>
-      <option value="6">6:00</option>
-      <option value="7">7:00</option>
-      <option value="8">8:00</option>
-      <option value="9">9:00</option>
-      <option value="10">10:00</option>
-      <option value="11">11:00</option>
-      <option value="12">12:00</option>
-      <option value="13">13:00</option>
-      <option value="14">14:00</option>
-      <option value="15">15:00</option>
-      <option value="16">16:00</option>
-      <option value="17">17:00</option>
-      <option value="18">18:00</option>
-    </select>
-    <button id="saveCas" class="button-save">🕒 Uložit čas</button>
-  </div>
+<div class="modal-row" style="display:flex; align-items:center; gap:15px;">
+  <label for="casSelect">Čas:</label>
+  <select id="casSelect">
+    <option value="0">celý den</option>
+    <option value="6">6:00</option>
+    <option value="7">7:00</option>
+    <option value="8">8:00</option>
+    <option value="9">9:00</option>
+    <option value="10">10:00</option>
+    <option value="11">11:00</option>
+    <option value="12">12:00</option>
+    <option value="13">13:00</option>
+    <option value="14">14:00</option>
+    <option value="15">15:00</option>
+    <option value="16">16:00</option>
+    <option value="17">17:00</option>
+    <option value="18">18:00</option>
+  </select>
 
-  <div class="modal-row">
-    <label for="partySelect">Parta:</label>
-    <select id="partySelect"></select>
-    <button id="saveParty" class="button-save">👥 Uložit partu</button>
-  </div>
+  <label for="partySelect">Parta:</label>
+  <select id="partySelect"></select>
+</div>
 
   <div class="modal-row">
     <button id="detailButton" class="button-detail" style="display: none;">🔍 Detail</button>
