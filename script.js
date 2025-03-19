@@ -128,25 +128,26 @@ eventDragStart: function(info) {
 
 
 
-    eventDrop: function(info) {
-        const eventId = info.event.id;
-        const cas = Number(info.event.extendedProps.cas) || 0;
+ eventDrop: function(info) {
+    const eventId = info.event.id;
+    const originalCas = info.oldEvent.extendedProps.cas;
+    const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-        eventQueue[eventId] = async () => {
+    eventQueue[eventId] = async () => {
         try {
             await db.collection("events").doc(eventId).update({
                 start: info.event.startStr,
                 party: info.event.extendedProps.party,
-                "extendedProps.cas": cas // ✅ tady je důležitá změna
+                "extendedProps.cas": cas
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({
-                    eventId: eventId,
+                    eventId,
                     start: info.event.startStr,
                     party: info.event.extendedProps.party,
-                    cas: cas // ✅ přidat i do AppSheet
+                    cas: cas
                 }),
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -154,18 +155,19 @@ eventDragStart: function(info) {
             console.log("✅ Změna poslána do AppSheet!");
 
             filterAndRenderEvents();
-       
-            } catch (err) {
-                console.error("❌ Chyba při odeslání do AppSheet:", err);
-                info.revert();
-            }
 
-            calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum
-        };
+        } catch (err) {
+            console.error("❌ Chyba při odeslání do AppSheet:", err);
+            info.revert();
+        }
 
-        processQueue();
-        calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum ihned po dropu
-    },
+        calendar.gotoDate(currentViewDate);
+    };
+
+    processQueue();
+    calendar.gotoDate(currentViewDate);
+},
+
 
 eventDragStop: function(info) {
     info.el.style.opacity = '';
