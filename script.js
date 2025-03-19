@@ -3,6 +3,7 @@ import { db } from './firebase.js';
 let eventQueue = {};
 let isProcessing = false;
 
+const debouncedUpdates = {};
 //fronta, proti prehlceni
 function debounce(func, wait = 1000) {
     let timeout;
@@ -129,9 +130,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             currentViewDate = calendar.getDate();
         },
 
-
-    // Vytvoř objekt pro ukládání debouncovaných funkcí (globálně)
-const debouncedUpdates = {};
 
 eventDrop: function(info) {
     const eventId = info.event.id;
