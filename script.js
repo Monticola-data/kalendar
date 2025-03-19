@@ -174,12 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
   partyFilter = document.getElementById('partyFilter');
   strediskoFilter = document.getElementById('strediskoFilter');
 
-  // Authentication
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       currentUserEmail = user.email;
-      fetchFirestoreEvents(currentUserEmail);
-      listenForUpdates(currentUserEmail);
+      fetchFirestoreEvents(currentUserEmail).then(() => {
+        renderCalendar(); // ✅ správně až zde po přihlášení!
+        listenForUpdates(currentUserEmail);
+      });
+    } else {
+      console.warn("🟠 Uživatelský email nebyl nalezen, uživatel není přihlášen.");
     }
   });
 
@@ -191,5 +194,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   partyFilter.onchange = filterAndRenderEvents;
 
-  modalOverlay.onclick = () => modal.style.display = modalOverlay.style.display = "none";
+  modalOverlay.onclick = () => {
+    modal.style.display = modalOverlay.style.display = "none";
+  };
 });
+
