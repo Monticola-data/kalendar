@@ -144,6 +144,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 
 
                 console.log("✅ Změna poslána do AppSheet!");
+
+            filterAndRenderEvents();
+
             } catch (err) {
                 console.error("❌ Chyba při odeslání do AppSheet:", err);
                 info.revert();
