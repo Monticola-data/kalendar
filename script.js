@@ -154,20 +154,21 @@ eventDrop: async function(info) {
         info.jsEvent.preventDefault();
     },
 
-eventClick: function(info) {
+eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
 
-        const selectedStredisko = strediskoFilter.value;
+        const currentStredisko = strediskoFilter.value;
 
         const modalEventInfo = document.getElementById('modalEventInfo');
         const detailButton = document.getElementById('detailButton');
         const casSelect = document.getElementById('casSelect');
+        const partySelect = document.getElementById('partySelect');
 
-        // Zobraz info
-        modalEventInfo.innerHTML = `${selectedEvent.title} - ${selectedEvent.startStr} (${getPartyName(selectedEvent.extendedProps.party)})`;
+        modalEventInfo.innerHTML = `
+            ${info.event.title} - ${info.event.startStr} (${getPartyName(selectedEvent.extendedProps.party)})
+        `;
 
-        // Detail button
         if (selectedEvent.extendedProps.detail) {
             detailButton.style.display = "inline-block";
             detailButton.onclick = () => window.open(selectedEvent.extendedProps.detail, '_blank');
@@ -175,27 +176,24 @@ eventClick: function(info) {
             detailButton.style.display = "none";
         }
 
-        // ✅ Následující úprava - filtrace party podle střediska:
-        const selectedStredisko = strediskoFilter.value || 'vše';
-        partySelect.innerHTML = '';
-
-        Object.entries(partyMap)
-            .filter(([_, party]) => selectedStredisko === "vše" || party.stredisko === selectedStredisko)
-            .forEach(([id, party]) => {
-                const option = document.createElement('option');
+        partySelect.innerHTML = "";
+        Object.entries(partyMap).forEach(([id, party]) => {
+            if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
+                const option = document.createElement("option");
                 option.value = id;
                 option.textContent = party.name;
                 option.selected = id === selectedEvent.extendedProps.party;
                 partySelect.appendChild(option);
-            });
+            }
+        });
 
-        // Nastavení času
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
         document.getElementById('saveCas').onclick = async () => {
+            const originalCas = selectedEvent.extendedProps.cas;
             const newCas = (casSelect.value !== "" && !isNaN(casSelect.value)) 
                 ? Number(casSelect.value) 
-                : selectedEvent.extendedProps.cas;
+                : originalCas;
 
             try {
                 await db.collection("events").doc(selectedEvent.id).update({
@@ -208,12 +206,12 @@ eventClick: function(info) {
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                modal.style.display = "none";
-                modalOverlay.style.display = "none";
-                console.log("✅ Čas úspěšně uložen.");
+                console.log("✅ Čas uložen:", newCas);
             } catch (error) {
                 console.error("❌ Chyba při ukládání času:", error);
             }
+
+            modal.style.display = modalOverlay.style.display = "none";
         };
 
         document.getElementById('saveParty').onclick = async () => {
@@ -232,18 +230,17 @@ eventClick: function(info) {
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                modal.style.display = "none";
-                modalOverlay.style.display = "none";
+                modal.style.display = modalOverlay.style.display = "none";
                 console.log("✅ Parta úspěšně uložena.");
             } catch (error) {
                 console.error("❌ Chyba při ukládání party:", error);
             }
         };
 
-        modal.style.display = "block";
-        modalOverlay.style.display = "block";
+        modal.style.display = modalOverlay.style.display = "block";
     }
 },
+
 
 eventContent: function (arg) {
     let icon = "";
