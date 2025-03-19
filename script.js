@@ -137,40 +137,45 @@ eventDrop: function(info) {
     const newStart = info.event.startStr;
     const newParty = info.event.extendedProps.party;
 
+    // ✅ Nastav indikátor "ukládání"
+    info.event.setExtendedProp('isSaving', true);
+    calendar.render();
+
     if (!debouncedUpdates[eventId]) {
-        debouncedUpdates[eventId] = debounce(async (updates) => {
+        debouncedUpdates[eventId] = debounce(async (updates, event) => {
             try {
-                // ✅ Aktualizace Firestore
+                // aktualizuj Firestore
                 await db.collection("events").doc(eventId).update(updates);
 
-                // ✅ Aktualizace AppSheet
+                // aktualizuj AppSheet
                 await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                     method: "POST",
-                    body: JSON.stringify({
-                        eventId,
-                        ...updates
-                    }),
+                    body: JSON.stringify({ eventId, ...updates }),
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                console.log("✅ Data úspěšně aktualizována (Firestore i AppSheet)");
+                console.log("✅ Data úspěšně aktualizována!");
 
-                // ✅ Opětovně aplikuj filtr po aktualizaci
-                filterAndRenderEvents();
+                // ✅ Odstraň indikátor "ukládání" po úspěchu
+                event.setExtendedProp('isSaving', false);
+                calendar.render();
+
+                filterAndRenderEvents(); // Znovu aplikuj filtry
 
             } catch (error) {
                 console.error("❌ Chyba při aktualizaci:", error);
-                info.revert(); // Pokud chyba, vrátí zpět vizuální změnu
+                event.setExtendedProp('isSaving', false);
+                calendar.render();
+                info.revert();  // v případě chyby vrátit změnu zpět
             }
-        }, 1500); // 1,5 vteřiny debounce
+        }, 1500);
     }
 
-    // Volání debounced funkce s aktuálními daty
     debouncedUpdates[eventId]({
         start: newStart,
         party: newParty,
         "extendedProps.cas": cas
-    });
+    }, info.event);
 },
 
 
