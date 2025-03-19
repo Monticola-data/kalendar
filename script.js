@@ -197,10 +197,9 @@ partySelect.onchange = () => {
     const newParty = partySelect.value;
     const selectedParty = partyMap[newParty];
 
-    // ✅ Okamžitě zavři modal
     modal.style.display = modalOverlay.style.display = "none";
 
-    // ✅ Odesílání dat proběhne asynchronně na pozadí
+    // ✅ Okamžité spuštění asynchronní operace na pozadí pomocí šipkové funkce
     (async () => {
         try {
             await db.collection("events").doc(selectedEvent.id).update({
@@ -214,22 +213,21 @@ partySelect.onchange = () => {
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log("✅ Parta uložena.");
+            console.log("✅ Parta úspěšně uložena.");
         } catch (error) {
             console.error("❌ Chyba při ukládání party:", error);
         }
     })();
 };
 
+
 casSelect.onchange = () => {
     const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
         ? Number(casSelect.value)
         : selectedEvent.extendedProps.cas;
 
-    // ✅ Okamžité zavření modalu
     modal.style.display = modalOverlay.style.display = "none";
 
-    // ✅ Asynchronní uložení dat
     (async () => {
         try {
             await db.collection("events").doc(selectedEvent.id).update({
@@ -242,7 +240,7 @@ casSelect.onchange = () => {
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log("✅ Čas uložen:", newCas);
+            console.log("✅ Čas úspěšně uložen:", newCas);
         } catch (error) {
             console.error("❌ Chyba při ukládání času:", error);
         }
