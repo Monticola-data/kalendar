@@ -3,6 +3,17 @@ import { db } from './firebase.js';
 let eventQueue = {};
 let isProcessing = false;
 
+//fronta, proti prehlceni
+function debounce(func, wait = 1000) {
+    let timeout;
+
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+
 async function processQueue() {
     if (isProcessing) return;
 
@@ -119,53 +130,51 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         },
 
 
-    eventDrop: function(info) {
-        const eventId = info.event.id;
-        const cas = Number(info.event.extendedProps.cas) || 0;
+    // Vytvoř objekt pro ukládání debouncovaných funkcí (globálně)
+const debouncedUpdates = {};
 
-        eventQueue[eventId] = async () => {
-        try {
-            await db.collection("events").doc(eventId).update({
-                start: info.event.startStr,
-                party: info.event.extendedProps.party,
-                "extendedProps.cas": cas // ✅ tady je důležitá změna
-            });
+eventDrop: function(info) {
+    const eventId = info.event.id;
+    const cas = Number(info.event.extendedProps.cas) || 0;
+    const newStart = info.event.startStr;
+    const newParty = info.event.extendedProps.party;
 
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                body: JSON.stringify({
-                    eventId: eventId,
-                    start: info.event.startStr,
-                    party: info.event.extendedProps.party,
-                    cas: cas // ✅ přidat i do AppSheet
-                }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+    if (!debouncedUpdates[eventId]) {
+        debouncedUpdates[eventId] = debounce(async (updates) => {
+            try {
+                // ✅ Aktualizace Firestore
+                await db.collection("events").doc(eventId).update(updates);
 
+                // ✅ Aktualizace AppSheet
+                await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        eventId,
+                        ...updates
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-                console.log("✅ Změna poslána do AppSheet!");
+                console.log("✅ Data úspěšně aktualizována (Firestore i AppSheet)");
 
-            filterAndRenderEvents();
+                // ✅ Opětovně aplikuj filtr po aktualizaci
+                filterAndRenderEvents();
 
-            } catch (err) {
-                console.error("❌ Chyba při odeslání do AppSheet:", err);
-                info.revert();
+            } catch (error) {
+                console.error("❌ Chyba při aktualizaci:", error);
+                info.revert(); // Pokud chyba, vrátí zpět vizuální změnu
             }
+        }, 1500); // 1,5 vteřiny debounce
+    }
 
-            calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum
-        };
+    // Volání debounced funkce s aktuálními daty
+    debouncedUpdates[eventId]({
+        start: newStart,
+        party: newParty,
+        "extendedProps.cas": cas
+    });
+},
 
-        processQueue();
-        calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum ihned po dropu
-    },
-
-    eventDragStop: function(info) {
-            calendar.gotoDate(currentViewDate); // ✅ Vždy vrátit zpět po ukončení přetahování
-        },
-
-    dateClick: function(info) {
-        info.jsEvent.preventDefault();
-    },
 
 eventClick: async function (info) {
     if (info.event.extendedProps?.SECURITY_filter) {
