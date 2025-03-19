@@ -1,10 +1,12 @@
 import { db } from './firebase.js';
 
+let currentUserEmail = "";
 let calendars = [];
 let allEvents = [], partyMap = {}, selectedEvent = null;
 let modal, modalOverlay, partySelect, partyFilter, strediskoFilter, currentUserEmail;
 
 const debouncedUpdates = {};
+
 
 // Helper debounce funkce
 function debounce(func, wait = 1000) {
@@ -146,19 +148,62 @@ function filterAndRenderEvents() {
 }
 
 // DOMContentLoaded
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+  
   modal = document.getElementById('eventModal');
   modalOverlay = document.getElementById('modalOverlay');
   partySelect = document.getElementById('partySelect');
   partyFilter = document.getElementById('partyFilter');
   strediskoFilter = document.getElementById('strediskoFilter');
 
-  currentUserEmail = firebase.auth().currentUser.email;
-  fetchFirestoreEvents(currentUserEmail).then(renderCalendar);
+  // Iniciální nastavení emailu přihlášeného uživatele
+  firebase.auth().onAuthStateChanged((user) => {
+    if (user) {
+      currentUserEmail = user.email;
+      fetchFirestoreEvents(currentUserEmail);
+      listenForUpdates(currentUserEmail);
+    } else {
+      console.warn("⚠️ Uživatel není přihlášen.");
+    }
+  });
+
+  // zachovej stávající inicializaci kalendáře
+  fetchFirestoreEvents(currentUserEmail).then(() => {
+    renderCalendar();
+  });
+
+  // zajištění správného chování filtrů
+  strediskoFilter.onchange = () => {
+    localStorage.setItem('selectedStredisko', strediskoFilter.value);
+    populateFilter();
+    filterAndRenderEvents();
+  };
 
   partyFilter.onchange = filterAndRenderEvents;
 
-  modalOverlay.onclick = () => {
-    modal.style.display = modalOverlay.style.display = "none";
-  };
 });
+
+
+export function listenForUpdates(userEmail) {
+  currentUserEmail = userEmail;
+
+  db.collection('events').onSnapshot((snapshot) => {
+    allEvents = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title,
+        start: new Date(data.start).toISOString().split('T')[0],
+        color: data.color,
+        party: data.party,
+        stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
+        extendedProps: data.extendedProps || {}
+      };
+    }).filter(event => {
+      const security = event.extendedProps?.SECURITY_filter || [];
+      return security.map(e => e.toLowerCase()).includes(currentUserEmail.trim().toLowerCase());
+    });
+
+  filterAndRenderEvents();
+}
+
