@@ -96,6 +96,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         unselectAuto: true,
         navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
         eventOrder: "cas,title",
+        dragScroll: false,
+        longPressDelay: 0,
+
     
         eventSources: [
             {
@@ -114,9 +117,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         ],
 
-        eventDragStart: function() {
-            currentViewDate = calendar.getDate();
-        },
+eventDragStart: function(info) {
+    info.el.style.opacity = '0.6';
+},
 
 
     eventDrop: function(info) {
@@ -158,9 +161,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         calendar.gotoDate(currentViewDate); // ✅ návrat na původní datum ihned po dropu
     },
 
-    eventDragStop: function(info) {
-            calendar.gotoDate(currentViewDate); // ✅ Vždy vrátit zpět po ukončení přetahování
-        },
+eventDragStop: function(info) {
+    info.el.style.opacity = '';
+},
 
     dateClick: function(info) {
         info.jsEvent.preventDefault();
