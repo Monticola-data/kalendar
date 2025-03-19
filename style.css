@@ -146,9 +146,9 @@ body {
 .modal-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 10px;
+  gap: 15px;
 }
+
 
 .modal-row label {
   width: 60px;
