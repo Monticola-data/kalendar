@@ -46,36 +46,40 @@ async function fetchFirestoreParties() {
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
     const eventsSnapshot = await db.collection('events').get();
-    
-    const allFirestoreEvents = eventsSnapshot.docs.map(doc => {
+
+    const normalizedUserEmail = userEmail.trim().toLowerCase();
+
+    allEvents = eventsSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
             id: doc.id,
             title: data.title,
-            start: new Date(data.start).toISOString().split('T')[0],
+            start: data.start ? new Date(data.start).toISOString().split('T')[0] : null, // zabezpečeno proti chybě
             color: data.color,
             party: data.party,
             stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
             extendedProps: data.extendedProps || {}
         };
-    });
+    }).filter(event => {
+        // vyřadit události s chybným datem
+        if (!event.start) {
+            console.warn(`Událost ${event.id} nemá platné datum a nebude zobrazena.`);
+            return false;
+        }
 
-    const normalizedUserEmail = userEmail.trim().toLowerCase();
-
-    allEvents = allFirestoreEvents.filter(event => {
         const security = event.extendedProps?.SECURITY_filter || [];
         return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
     });
 
     // ✅ Načtení uloženého filtru a správné zobrazení
-    const savedStredisko = localStorage.getItem('selectedStrediskoFilter') || 'vše';
-    strediskoFilter.value = savedStredisko;
+    const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
+    if (strediskoFilter) {
+        strediskoFilter.value = savedStredisko;
+    }
 
-    populateFilter(); // Aktualizuje možnosti filtru podle střediska
-    filterAndRenderEvents(); // Ihned filtruje a vykreslí kalendář
+    populateFilter();
+    filterAndRenderEvents();
 }
-
-
 
 async function updateFirestoreEvent(eventId, updates = {}) {
     await firebase.firestore().collection("events").doc(eventId).set(updates, { merge: true });
