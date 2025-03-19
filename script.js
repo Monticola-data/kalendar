@@ -3,12 +3,11 @@ import { db } from './firebase.js';
 let currentUserEmail = "";
 let calendars = [];
 let allEvents = [], partyMap = {}, selectedEvent = null;
-let modal, modalOverlay, partySelect, partyFilter, strediskoFilter, currentUserEmail;
+let modal, modalOverlay, partySelect, partyFilter, strediskoFilter;
 
 const debouncedUpdates = {};
 
-
-// Helper debounce funkce
+// Debounce helper
 function debounce(func, wait = 1000) {
   let timeout;
   return (...args) => {
@@ -17,13 +16,14 @@ function debounce(func, wait = 1000) {
   };
 }
 
-// Načtení dat z Firestore
+// Fetch party data from Firestore
 async function fetchFirestoreParties() {
   const snapshot = await db.collection("parties").get();
   partyMap = snapshot.docs.reduce((map, doc) => ({ ...map, [doc.id]: doc.data() }), {});
   populateFilter();
 }
 
+// Fetch events from Firestore
 export async function fetchFirestoreEvents(userEmail) {
   currentUserEmail = userEmail;
   await fetchFirestoreParties();
@@ -33,19 +33,17 @@ export async function fetchFirestoreEvents(userEmail) {
     .map(doc => ({ id: doc.id, ...doc.data() }))
     .filter(event => {
       const security = event.extendedProps?.SECURITY_filter || [];
-      return security.map(e => e.toLowerCase()).includes(userEmail.trim().toLowerCase());
+      return security.map(e => e.toLowerCase()).includes(currentUserEmail.trim().toLowerCase());
     });
 
   populateFilter();
   filterAndRenderEvents();
 }
 
-// Vykreslení kalendářů pod sebou
+// Calendar renderer
 function renderCalendar() {
-  const calendarDivs = document.querySelectorAll('.month-calendar');
   calendars = [];
-
-  calendarDivs.forEach(div => {
+  document.querySelectorAll('.month-calendar').forEach(div => {
     const monthOffset = Number(div.dataset.month);
     const initialDate = new Date(new Date().getFullYear(), new Date().getMonth() + monthOffset, 1);
 
@@ -58,7 +56,6 @@ function renderCalendar() {
       firstDay: 1,
       dragScroll: false,
       longPressDelay: 0,
-      eventOrder: "cas,title",
       eventSources: [{ id: 'firestore', events: allEvents }],
       eventDrop: handleEventDrop,
       eventClick: calendarEventClick,
@@ -70,11 +67,12 @@ function renderCalendar() {
   });
 }
 
+// Render all calendars
 function renderAllCalendars() {
   calendars.forEach(cal => cal.render());
 }
 
-// Drag & Drop handler
+// Event drop handler
 async function handleEventDrop(info) {
   const eventId = info.event.id;
   const updates = {
@@ -97,7 +95,8 @@ async function handleEventDrop(info) {
         });
 
         event.setExtendedProp('isSaving', false);
-        await fetchFirestoreEvents(currentUserEmail);
+        await fetchFirestoreEvents(currentUserEmail);  // reload events after update
+
       } catch (error) {
         console.error("❌", error);
         event.setExtendedProp('isSaving', false);
@@ -106,25 +105,29 @@ async function handleEventDrop(info) {
     }, 1500);
   }
 
-  debouncedUpdates[eventId](updates, info.event);
+  debouncedUpdates[eventId]({
+    start: info.event.startStr,
+    party: info.event.extendedProps.party,
+    "extendedProps.cas": info.event.extendedProps.cas || 0
+  }, info.event);
 }
 
 // Event click handler
 async function calendarEventClick(info) {
   selectedEvent = info.event;
+  modal.style.display = modalOverlay.style.display = "block";
   const modalEventInfo = document.getElementById('modalEventInfo');
   modalEventInfo.textContent = `${info.event.title} - ${info.event.startStr}`;
-
-  modal.style.display = modalOverlay.style.display = "block";
 }
 
-// Event content renderer
+// Custom event rendering
 function renderEventContent(arg) {
   const isSaving = arg.event.extendedProps.isSaving;
   const icon = isSaving ? "⏳" : arg.event.extendedProps.hotove ? "✅" : "";
   return { html: `<div>${icon} ${arg.event.title}</div>` };
 }
 
+// Populate party filter
 function populateFilter() {
   partyFilter.innerHTML = '<option value="all">Všechny party</option>';
   Object.entries(partyMap).forEach(([id, party]) => {
@@ -135,6 +138,7 @@ function populateFilter() {
   });
 }
 
+// Filtering and rendering events
 function filterAndRenderEvents() {
   const selectedParty = partyFilter.value;
   const filteredEvents = allEvents.filter(event => selectedParty === "all" || event.party === selectedParty);
@@ -147,32 +151,38 @@ function filterAndRenderEvents() {
   });
 }
 
-// DOMContentLoaded
+// Realtime Firestore updates listener
+export function listenForUpdates(userEmail) {
+  currentUserEmail = userEmail;
+
+  db.collection('events').onSnapshot((snapshot) => {
+    allEvents = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(event => {
+        const security = event.extendedProps?.SECURITY_filter || [];
+        return security.map(e => e.toLowerCase()).includes(currentUserEmail.trim().toLowerCase());
+    });
+
+    filterAndRenderEvents();
+  });
+}
+
+// DOM loaded event
 document.addEventListener('DOMContentLoaded', () => {
-  
   modal = document.getElementById('eventModal');
   modalOverlay = document.getElementById('modalOverlay');
   partySelect = document.getElementById('partySelect');
   partyFilter = document.getElementById('partyFilter');
   strediskoFilter = document.getElementById('strediskoFilter');
 
-  // Iniciální nastavení emailu přihlášeného uživatele
+  // Authentication
   firebase.auth().onAuthStateChanged((user) => {
     if (user) {
       currentUserEmail = user.email;
       fetchFirestoreEvents(currentUserEmail);
       listenForUpdates(currentUserEmail);
-    } else {
-      console.warn("⚠️ Uživatel není přihlášen.");
     }
   });
 
-  // zachovej stávající inicializaci kalendáře
-  fetchFirestoreEvents(currentUserEmail).then(() => {
-    renderCalendar();
-  });
-
-  // zajištění správného chování filtrů
   strediskoFilter.onchange = () => {
     localStorage.setItem('selectedStredisko', strediskoFilter.value);
     populateFilter();
@@ -181,29 +191,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   partyFilter.onchange = filterAndRenderEvents;
 
+  modalOverlay.onclick = () => modal.style.display = modalOverlay.style.display = "none";
 });
-
-
-export function listenForUpdates(userEmail) {
-  currentUserEmail = userEmail;
-
-  db.collection('events').onSnapshot((snapshot) => {
-    allEvents = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        title: data.title,
-        start: new Date(data.start).toISOString().split('T')[0],
-        color: data.color,
-        party: data.party,
-        stredisko: data.stredisko || (partyMap[data.party]?.stredisko) || "",
-        extendedProps: data.extendedProps || {}
-      };
-    }).filter(event => {
-      const security = event.extendedProps?.SECURITY_filter || [];
-      return security.map(e => e.toLowerCase()).includes(currentUserEmail.trim().toLowerCase());
-    });
-
-  filterAndRenderEvents();
-}
-
