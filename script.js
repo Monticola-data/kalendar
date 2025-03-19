@@ -26,7 +26,7 @@ async function processQueue() {
 }
 
 // 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
-let calendarEl, modal, partySelect, partyFilter, strediskoFilter;
+let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 function getPartyName(partyId) {
@@ -342,6 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
     partySelect = document.getElementById('partySelect');
+    savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
 
@@ -367,6 +368,13 @@ document.addEventListener('DOMContentLoaded', () => {
     weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
     listViewBtn.onclick = () => calendar.changeView('listWeek');
 
+    savePartyButton.onclick = async () => {
+        if (selectedEvent) {
+            await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
+            modal.style.display = "none";
+            modalOverlay.style.display = "none"; // ✅ schovej overlay
+        }
+    };
 
     // ✅ Zavření modalu kliknutím mimo modal přes overlay
     modalOverlay.onclick = function() {
