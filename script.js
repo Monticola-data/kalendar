@@ -290,7 +290,10 @@ eventContent: function(arg) {
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
   const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
 
-  const cas = event.extendedProps.cas ? `${event.extendedProps.cas}:00` : "–";
+    const cas = event.extendedProps.cas && event.extendedProps.cas !== 0 
+      ? `${event.extendedProps.cas}:00` 
+      : "";
+
   const partyName = getPartyName(event.extendedProps.party);
   const partyColor = event.backgroundColor || "#666";
 
