@@ -195,12 +195,14 @@ Object.entries(partyMap).forEach(([id, party]) => {
     if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
         const option = document.createElement("option");
         option.value = id;
-        option.innerHTML = `&#9679; ${party.name}`; // kulatá tečka + název
-        option.style.color = party.color;           // barva dle party
+        option.innerHTML = `&#11044; ${party.name}`;  // větší kulaté kolečko ⬤
+        option.style.color = party.color;
+        option.style.fontWeight = "bold";             // tučné písmo
         option.selected = id === selectedEvent.extendedProps.party;
         partySelect.appendChild(option);
     }
 });
+
 
 
         casSelect.value = selectedEvent.extendedProps.cas || 0;
