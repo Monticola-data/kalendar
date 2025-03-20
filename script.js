@@ -94,6 +94,13 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         editable: true,
         locale: 'cs',
+        views: {
+            listFourWeeks: {
+              type: 'list',
+              duration: { weeks: 4 },
+              buttonText: 'Seznam'
+            }
+          },
         height: 'auto',
         firstDay: 1,
         selectable: false, // Zajistí, že se nebude automaticky označovat datum
@@ -352,6 +359,8 @@ eventContent: function(arg) {
 });
 
 calendar.render();
+document.getElementById('listView').onclick = () => calendar.changeView('listFourWeeks');
+
 
 modalOverlay.onclick = () => {
     modal.style.display = "none";
