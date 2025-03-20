@@ -94,13 +94,21 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         editable: true,
         locale: 'cs',
-        views: {
-            listFourWeeks: {
-              type: 'list',
-              duration: { weeks: 4 },
-              buttonText: 'Seznam'
+    views: {
+        listFourWeeks: {
+            type: 'list',
+            duration: { weeks: 4 },
+            buttonText: '4 týdny',
+            visibleRange: function(currentDate) {
+                // Začíná od aktuálního pondělí
+                let start = FullCalendar.startOfWeek(currentDate);
+                // konec za 4 týdny
+                let end = new Date(start);
+                end.setDate(start.getDate() + 28);
+                return { start, end };
             }
-          },
+        }
+    },
         height: 'auto',
         firstDay: 1,
         selectable: false, // Zajistí, že se nebude automaticky označovat datum
