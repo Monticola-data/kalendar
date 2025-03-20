@@ -58,25 +58,27 @@
 <body>  
 
 <div id="header">
-  <div class="header-controls">
-
-  <select id="strediskoFilter">
-    <option value="vše">Všechna střediska</option>
-    <option value="SPÁRY">SPÁRY</option>
-    <option value="POSTŘIKY">POSTŘIKY</option>
-  </select>
-
-  <select id="partyFilter">
-    <option value="all">Všechny party</option>
-  </select>
-
-     <!-- ✅ Tlačítka pohledů -->
+  <!-- První řádek: Tlačítka pro přepínání měsíců -->
+  <div class="header-controls" style="margin-bottom:10px;">
     <button id="monthView">Měsíc</button>
     <button id="weekView">Týden</button>
     <button id="listView">Seznam</button>
-
-    </div>
   </div>
+
+  <!-- Druhý řádek: Filtry -->
+  <div class="filter-controls">
+    <select id="strediskoFilter">
+      <option value="vše">Všechna střediska</option>
+      <option value="SPÁRY">SPÁRY</option>
+      <option value="POSTŘIKY">POSTŘIKY</option>
+    </select>
+
+    <select id="partyFilter">
+      <option value="all">Všechny party</option>
+    </select>
+  </div>
+</div>
+
 
   <div id="calendar-wrapper">
     <div id="calendar"></div>
