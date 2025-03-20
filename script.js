@@ -121,16 +121,16 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         ],
 
+    eventAllow: function(dropInfo, draggedEvent) {
+        const { hotove, predane } = draggedEvent.extendedProps;
+        if (hotove === true || predane === true) {
+            return false;  // 🚫 vůbec nepovolí přesunutí eventu
+        }
+        return true;  // ✅ přesunutí povoleno
+    },
+
 eventDrop: async function(info) {
 
-    const { hotove, predane } = info.event.extendedProps;
-
-    if (hotove === true || predane === true) {
-        alert("⛔ už nelze měnit");
-        info.revert(); // vrátí event zpět na původní místo
-        return;
-    }
-   
     const eventId = info.event.id;
     const newDate = info.event.startStr;
 
