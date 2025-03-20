@@ -232,17 +232,15 @@ eventClick: function(info) {
                 console.error("❌ Chyba při ukládání času:", error);
             });
         };
-
-            modal.style.display = modalOverlay.style.display = "block";
-});
+    modal.style.display = modalOverlay.style.display = "block";
+    }
+},
 
 // Zavření modalu pouze kliknutím mimo něj (nezavírá se automaticky po uložení)
 modalOverlay.onclick = () => {
     modal.style.display = "none";
     modalOverlay.style.display = "none";
 };
-
-
 
 eventContent: function (arg) {
     let icon = "";
