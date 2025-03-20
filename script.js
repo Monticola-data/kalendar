@@ -126,7 +126,7 @@ eventDrop: async function(info) {
     const { hotove, predane } = info.event.extendedProps;
 
     if (hotove === true || predane === true) {
-        alert("⛔ Tento event nelze měnit, protože je označen jako hotový nebo předaný.");
+        alert("⛔ už nelze měnit");
         info.revert(); // vrátí event zpět na původní místo
         return;
     }
@@ -168,7 +168,7 @@ eventClick: function(info) {
 
     const { hotove, predane } = info.event.extendedProps;
     if (hotove === true || predane === true) {
-        alert("⛔ Tento event nelze upravovat, protože je označen jako hotový nebo předaný.");
+        alert("⛔ už nelze měnit");
         return; // modal se vůbec neotevře
     }      
         selectedEvent = info.event;
@@ -204,6 +204,14 @@ eventClick: function(info) {
                 partySelect.appendChild(option);
             }
         });
+
+        if (selectedEvent.extendedProps.odeslane === true) {
+            partySelect.disabled = true; // Zakázat změnu party
+            partySelect.title = "⛔ Už odeslané";
+        } else {
+            partySelect.disabled = false; // Jinak umožnit
+            partySelect.title = ""; 
+        }
 
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
