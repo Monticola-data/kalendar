@@ -313,7 +313,7 @@ eventContent: function(arg) {
   const partyColor = event.backgroundColor || "#666";
 
   // Rozlišení pohledu seznam vs ostatní
-  if (view.type === 'listWeek' || view.type === 'listMonth') {
+ if (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks') {
     return {
       html: `
         <div style="
