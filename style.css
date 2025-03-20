@@ -402,5 +402,46 @@ select, button {
   }
 }
 
+/* ✅ Upravený styl pro partySelect s barevnými kulickami, větším symbolem a šedým pozadím */
+#partySelect {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;  /* ✅ tučné písmo ve filtru */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f2f2f2; /* ✅ světlé šedé pozadí */
+  cursor: pointer;
+  color: #333;
+  appearance: none;
+}
+
+/* ✅ Vlastní stylování položek výběru */
+#partySelect option {
+  font-weight: bold;
+  background-color: #f2f2f2; /* ✅ světlé šedé pozadí */
+  padding-left: 22px; /* místo pro větší kuličku */
+  position: relative;
+  color: #333;
+}
+
+/* ✅ Stylování "kuličky" barvy před názvem */
+#partySelect option::before {
+  content: '●';
+  position: absolute;
+  left: 5px;  
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px; /* ✅ větší kulicka */
+  color: var(--option-color, #000); /* dynamická barva nastavena v JS */
+}
+
+/* ✅ Vlastní styl pro vybranou položku */
+#partySelect option:checked,
+#partySelect option:hover {
+  background-color: #dcdcdc; /* ✅ tmavší šedá při výběru a hoveru */
+  color: inherit;
+}
+
+
 
 </style>
