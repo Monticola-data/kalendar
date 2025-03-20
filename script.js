@@ -189,19 +189,20 @@ eventClick: function(info) {
             detailButton.style.display = "none";
         }
 
-        // naplnění výběru party
+// naplnění výběru party
 partySelect.innerHTML = "";
 Object.entries(partyMap).forEach(([id, party]) => {
-    if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
-        const option = document.createElement("option");
-        option.value = id;
-        option.innerHTML = `&#11044; ${party.name}`;  // větší kulaté kolečko ⬤
-        option.style.color = party.color;
-        option.style.fontWeight = "bold";             // tučné písmo
-        option.selected = id === selectedEvent.extendedProps.party;
-        partySelect.appendChild(option);
-    }
+  if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
+    const option = document.createElement("option");
+    option.value = id;
+    option.textContent = party.name;
+    option.selected = id === selectedEvent.extendedProps.party;
+    option.style.setProperty("--option-color", party.color); // ✅ ZDE nastavíš barvu kuličky
+    partySelect.appendChild(option);
+  }
 });
+
+
 
 
 
