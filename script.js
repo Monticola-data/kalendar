@@ -271,6 +271,23 @@ Object.entries(partyMap).forEach(([id, party]) => {
 },
 
 eventContent: function (arg) {
+    const viewType = arg.view.type;
+    const cas = arg.event.extendedProps.cas;
+
+  if (viewType === 'listMonth' || viewType === 'listWeek' || viewType === 'listDay') {
+    // Nastav custom atribut pro CSS stylování
+    const timeEl = document.createElement('div');
+    timeEl.innerHTML = cas ? `${cas}:00` : '';
+    const titleEl = document.createElement('div');
+    titleEl.textContent = arg.event.title;
+
+    return {
+      domNodes: [timeEl, titleEl]
+    };
+  }
+
+
+    
     let icon = "";
     if (arg.event.extendedProps.predane) icon = "✍️";
     else if (arg.event.extendedProps.hotove) icon = "✅";
