@@ -236,12 +236,6 @@ eventClick: function(info) {
     }
 },
 
-// Zavření modalu pouze kliknutím mimo něj (nezavírá se automaticky po uložení)
-modalOverlay.onclick = () => {
-    modal.style.display = "none";
-    modalOverlay.style.display = "none";
-};
-
 eventContent: function (arg) {
     let icon = "";
     if (arg.event.extendedProps.predane) icon = "✍️";
@@ -275,6 +269,11 @@ eventContent: function (arg) {
 });
 
 calendar.render();
+
+modalOverlay.onclick = () => {
+    modal.style.display = "none";
+    modalOverlay.style.display = "none";
+};
 
 // Swipe navigace pro mobilní telefony pomocí Hammer.js
 const hammer = new Hammer(calendarEl);
