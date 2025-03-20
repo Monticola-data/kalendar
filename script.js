@@ -271,11 +271,10 @@ Object.entries(partyMap).forEach(([id, party]) => {
 },
 
 eventContent: function (arg) {
-    const viewType = arg.view.type;
-    const cas = arg.event.extendedProps.cas;
+  const viewType = arg.view.type;
+  const cas = arg.event.extendedProps.cas; // ✅ deklaruj pouze jednou!
 
   if (viewType === 'listMonth' || viewType === 'listWeek' || viewType === 'listDay') {
-    // Nastav custom atribut pro CSS stylování
     const timeEl = document.createElement('div');
     timeEl.innerHTML = cas ? `${cas}:00` : '';
     const titleEl = document.createElement('div');
@@ -298,7 +297,6 @@ eventContent: function (arg) {
         : arg.event.title;
 
     const partyName = getPartyName(arg.event.extendedProps.party);
-    const cas = arg.event.extendedProps.cas;
 
     return { 
         html: `
