@@ -234,7 +234,6 @@ eventClick: function(info) {
         };
 
             modal.style.display = modalOverlay.style.display = "block";
-    }
 });
 
 // Zavření modalu pouze kliknutím mimo něj (nezavírá se automaticky po uložení)
