@@ -488,5 +488,27 @@ select, button {
   color: #333;
 }
 
+/* Stylování událostí v List view – černý text místo bílého */
+.fc-list-event-title a,
+.fc-list-event-time {
+  color: #333 !important; /* tmavá barva pro lepší čitelnost */
+}
+
+/* Odstranění "all-day" textu */
+.fc-list-event-time {
+  visibility: hidden; /* Skrýt původní all-day text */
+  position: relative;
+}
+
+/* Zobrazí vlastní obsah přes původní all-day text */
+.fc-list-event-time::after {
+  content: attr(data-cas); /* Zobrazí vlastní informaci o čase */
+  visibility: visible;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+
 
 </style>
