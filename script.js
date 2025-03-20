@@ -202,10 +202,6 @@ Object.entries(partyMap).forEach(([id, party]) => {
   }
 });
 
-
-
-
-
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
     // ✅ Nová logika pro zakázání změn podle stavu:
