@@ -165,13 +165,9 @@ eventDrop: async function(info) {
 
 eventClick: function(info) {
     if (info.event.extendedProps?.SECURITY_filter) {
-
-    const { hotove, predane } = info.event.extendedProps;
-    if (hotove === true || predane === true) {
-        alert("⛔ už nelze měnit");
-        return; // modal se vůbec neotevře
-    }      
         selectedEvent = info.event;
+
+        const { hotove, predane, odeslane } = selectedEvent.extendedProps;
 
         const currentStredisko = strediskoFilter.value;
         const modalEventInfo = document.getElementById('modalEventInfo');
@@ -205,15 +201,29 @@ eventClick: function(info) {
             }
         });
 
-        if (selectedEvent.extendedProps.odeslane === true) {
-            partySelect.disabled = true; // Zakázat změnu party
-            partySelect.title = "⛔ Už odeslané";
+        casSelect.value = selectedEvent.extendedProps.cas || 0;
+
+    // ✅ Nová logika pro zakázání změn podle stavu:
+    if (hotove === true || predane === true) {
+        // Nelze měnit ani partu ani čas
+        partySelect.disabled = true;
+        partySelect.title = "Partu nelze změnit, protože event je označen jako hotový nebo předaný.";
+
+        casSelect.disabled = true;
+        casSelect.title = "Čas nelze změnit, protože event je označen jako hotový nebo předaný.";
+    } else {
+        // Pokud není hotovo/předáno, nastaví se podle 'odeslane'
+        if (odeslane === true) {
+            partySelect.disabled = true;
+            partySelect.title = "Partu nelze změnit, protože event je označen jako odeslaný.";
         } else {
-            partySelect.disabled = false; // Jinak umožnit
-            partySelect.title = ""; 
+            partySelect.disabled = false;
+            partySelect.title = "";
         }
 
-        casSelect.value = selectedEvent.extendedProps.cas || 0;
+        casSelect.disabled = false;
+        casSelect.title = "";
+    }
 
         // Asynchronní ukládání při změně party
         partySelect.onchange = async () => {
