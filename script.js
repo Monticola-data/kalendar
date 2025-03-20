@@ -270,36 +270,67 @@ Object.entries(partyMap).forEach(([id, party]) => {
     }
 },
 
-eventContent: function (arg) {
-  const viewType = arg.view.type;
-  const cas = arg.event.extendedProps.cas; // ✅ deklaruj pouze jednou!
+eventContent: function(arg) {
+  const { event, view } = arg;
 
-  if (viewType === 'listMonth' || viewType === 'listWeek' || viewType === 'listDay') {
-    const timeEl = document.createElement('div');
-    timeEl.innerHTML = cas ? `${cas}:00` : '';
-    const titleEl = document.createElement('div');
-    titleEl.textContent = arg.event.title;
-
-    return {
-      domNodes: [timeEl, titleEl]
-    };
+  let icon = "";
+  let statusColor = "#bbb";
+  if (event.extendedProps.predane) {
+    icon = "✍️";
+    statusColor = "#f5a623"; // oranžová
+  } else if (event.extendedProps.hotove) {
+    icon = "✅";
+    statusColor = "#4caf50"; // zelená
+  } else if (event.extendedProps.odeslane) {
+    icon = "📩";
+    statusColor = "#42a5f5"; // modrá
   }
 
+  // Přehledný datum
+  const options = { weekday: 'short', day: 'numeric', month: 'short' };
+  const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
 
-    
-    let icon = "";
-    if (arg.event.extendedProps.predane) icon = "✍️";
-    else if (arg.event.extendedProps.hotove) icon = "✅";
-    else if (arg.event.extendedProps.odeslane) icon = "📩";
+  const cas = event.extendedProps.cas ? `${event.extendedProps.cas}:00` : "–";
+  const partyName = getPartyName(event.extendedProps.party);
+  const partyColor = event.backgroundColor || "#666";
 
-    const title = (arg.event.extendedProps.predane || arg.event.extendedProps.hotove || arg.event.extendedProps.odeslane)
-        ? arg.event.title.toUpperCase()
-        : arg.event.title;
+  // Rozlišení pohledu seznam vs ostatní
+  if (view.type === 'listWeek' || view.type === 'listMonth') {
+    return {
+      html: `
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          border-left: 6px solid ${partyColor};
+          padding-left: 10px;
+          background-color: #fff;
+          color: #333;
+          border-radius: 4px;
+          box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+          overflow: hidden;">
+          
+          <div style="
+            width:30px;
+            height:30px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            border-radius:50%;
+            background-color:${statusColor};
+            color:#fff;
+            font-size:16px;">${icon}</div>
 
-    const partyName = getPartyName(arg.event.extendedProps.party);
-
+          <div style="flex-grow:1; overflow:hidden;">
+            <div style="font-size:13px; font-weight:bold;">${formattedDate}, ${cas}</div>
+            <div style="font-size:12px; opacity:0.8;">${event.title} (${partyName})</div>
+          </div>
+        </div>`
+    };
+  } else {
+    // zachováš původní obsah pro ostatní pohledy
     return { 
-        html: `
+      html: `
         <div style="
           width:100%; 
           font-size:11px; 
@@ -308,13 +339,13 @@ eventContent: function (arg) {
           overflow:hidden; 
           text-overflow:ellipsis;
           white-space:nowrap;">
-          
-            <div style="font-weight:bold;">${icon} ${cas ? cas + ':00 ' : ''}${title}</div>
+            <div style="font-weight:bold;">${icon} ${cas ? cas + ':00 ' : ''}${event.title}</div>
             <div style="font-size:9px; color:#ffffff;">${partyName}</div>
-            
         </div>`
-        };
-    }
+    };
+  }
+}
+
 });
 
 calendar.render();
