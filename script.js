@@ -192,14 +192,14 @@ eventClick: function(info) {
 // naplnění výběru party
 partySelect.innerHTML = "";
 Object.entries(partyMap).forEach(([id, party]) => {
-  if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
-    const option = document.createElement("option");
-    option.value = id;
-    option.textContent = party.name;
-    option.selected = id === selectedEvent.extendedProps.party;
-    option.style.setProperty("--option-color", party.color); // ✅ ZDE nastavíš barvu kuličky
-    partySelect.appendChild(option);
-  }
+    if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
+        const option = document.createElement("option");
+        option.value = id;
+        option.innerHTML = `&#9679; ${party.name}`; // kulatá tečka + název
+        option.style.color = party.color;           // barva dle party
+        option.selected = id === selectedEvent.extendedProps.party;
+        partySelect.appendChild(option);
+    }
 });
 
         casSelect.value = selectedEvent.extendedProps.cas || 0;
