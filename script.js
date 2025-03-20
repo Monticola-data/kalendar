@@ -459,9 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderCalendar();
 
-    monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
-    weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
-    listViewBtn.onclick = () => calendar.changeView('listWeek');
+monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
+weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
+listViewBtn.onclick = () => calendar.changeView('listFourWeeks');  // ✅ Opraveno
+
 
     savePartyButton.onclick = async () => {
         if (selectedEvent) {
