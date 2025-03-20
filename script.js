@@ -164,6 +164,13 @@ eventDrop: async function(info) {
     },
 
 eventClick: function(info) {
+
+    const { hotove, predane } = info.event.extendedProps;
+    if (hotove === true || predane === true) {
+        alert("⛔ Tento event nelze upravovat, protože je označen jako hotový nebo předaný.");
+        return; // modal se vůbec neotevře
+    }
+    
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
 
