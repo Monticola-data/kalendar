@@ -122,6 +122,15 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         ],
 
 eventDrop: async function(info) {
+
+    const { hotove, predane } = info.event.extendedProps;
+
+    if (hotove === true || predane === true) {
+        alert("⛔ Tento event nelze měnit, protože je označen jako hotový nebo předaný.");
+        info.revert(); // vrátí event zpět na původní místo
+        return;
+    }
+   
     const eventId = info.event.id;
     const newDate = info.event.startStr;
 
