@@ -442,6 +442,34 @@ select, button {
   color: inherit;
 }
 
+/* ✅ Styl pro casSelect, aby vypadal stejně jako partySelect (bez barev) */
+#casSelect {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;            /* ✅ tučné písmo */
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f2f2f2;    /* ✅ světlé šedé pozadí */
+  cursor: pointer;
+  color: #333;
+  appearance: none;
+}
+
+/* ✅ Stylování položek výběru casSelect */
+#casSelect option {
+  font-weight: bold;
+  background-color: #f2f2f2;    /* ✅ světlé šedé pozadí položek */
+  padding-left: 10px;
+}
+
+/* ✅ Styl pro vybranou položku a hover */
+#casSelect option:checked,
+#casSelect option:hover {
+  background-color: #dcdcdc;    /* ✅ tmavší šedá při výběru a hoveru */
+  color: inherit;
+}
+
+
 
 
 </style>
