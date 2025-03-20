@@ -233,16 +233,16 @@ eventClick: function(info) {
             });
         };
 
-        modal.style.display = modalOverlay.style.display = "block";
+            modal.style.display = modalOverlay.style.display = "block";
     }
-}
+};
 
 // Zavření modalu pouze kliknutím mimo něj (nezavírá se automaticky po uložení)
-
 modalOverlay.onclick = () => {
     modal.style.display = "none";
     modalOverlay.style.display = "none";
 };
+
 
 
 eventContent: function (arg) {
