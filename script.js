@@ -362,17 +362,21 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
 
     return {
       html: `
-        <div style="
-          width:100%; 
-          font-size:11px; 
-          color:${textColor};
-          line-height:1.1; 
-          overflow:hidden; 
-          text-overflow:ellipsis;
-          white-space:nowrap;">
-          <div style="font-weight:bold;">❌👤 ${titleText.trim()}</div>
-          <div style="font-size:9px; opacity:0.8;">${typ.trim()}</div>
-        </div>`
+    <div style="
+    width:100%; 
+    font-size:11px; 
+    color:${textColor};
+    line-height:1.1; 
+    overflow:hidden; 
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;">
+    
+    <span style="font-weight:bold;">❌👤 ${titleText.trim()}</span>
+    <span style="font-size:9px; opacity:0.8;">(${typ.trim()})</span>
+    </div>`
     };
   }
 
