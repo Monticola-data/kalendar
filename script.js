@@ -351,7 +351,7 @@ eventContent: function(arg) {
   if (view.type === 'listFourWeeks') {
     if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extendedProps.odeslane && !isOmluvenka) {
       iconHtml = '<i class="fa-solid fa-person-digging"></i>';
-      statusColor = "#717375";
+      statusColor = event.backgroundColor";
     }
 
     // Speciální formátování omluvenek pro seznam
