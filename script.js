@@ -169,28 +169,11 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 className: 'holiday-event',
                 extendedProps: { isHoliday: true }
             },
-    {
-        id: 'omluvenky',
-        events: function(fetchInfo, successCallback) {
-            // ✅ Pokud jsme v list pohledu, nevracíme omluvenky
-            if (calendar.view.type.startsWith('list')) {
-                successCallback([]);  // žádné omluvenky v seznamu
-            } else {
-                // jinak vracíme všechny omluvenky podle filtrů
-                const selectedParty = partyFilter.value;
-                const selectedStredisko = strediskoFilter.value;
-
-                const omluvenkyFiltered = omluvenkyEvents.filter(event => {
-                    const partyMatch = selectedParty === "all" || event.parta === selectedParty;
-                    const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
-                    return partyMatch && strediskoMatch;
-                });
-
-                successCallback(omluvenkyFiltered);
-            }
-        },
-        editable: false
-    } 
+{
+    id: 'omluvenky',
+    events: []
+}
+ 
         ],
 
     eventAllow: function(dropInfo, draggedEvent) {
