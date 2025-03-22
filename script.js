@@ -52,11 +52,12 @@ async function fetchFirestoreOmluvenky() {
 
         return {
             id: doc.id,
-            title: `❌👤 ${data.popis} (${data.typ})`,
+            title: `❌👤 ${data.title} (${data.typ})`,
             start: data.start,
             end: data.end,
             color: rgbaColor,
             stredisko: data.stredisko,
+            parta: data.parta
             editable: false
         };
     });
