@@ -43,17 +43,22 @@ async function fetchFirestoreParties() {
 }
 
 async function fetchFirestoreOmluvenky() {
-    const selectedStredisko = strediskoFilter.value; // aktuálně zvolené středisko
+    const selectedStredisko = strediskoFilter.value;
     const snapshot = await db.collection('omluvenky').get();
 
     return snapshot.docs.map(doc => {
         const data = doc.data();
+
+        // Převod HEX barvy na RGBA s průhledností (50 %)
+        const hex = data.hex || "#999";
+        const rgbaColor = hexToRgba(hex, 0.5);
+
         return {
             id: doc.id,
-            title: `❌👤 ${data.title} (${data.typ})`,
+            title: `❌👤 ${data.popis} (${data.typ})`,
             start: data.start,
             end: data.end,
-            color: data.hex || "#999",
+            color: rgbaColor, // ✅ použití průhledné barvy
             stredisko: data.stredisko,
             editable: false
         };
@@ -61,6 +66,17 @@ async function fetchFirestoreOmluvenky() {
         return selectedStredisko === 'vše' || event.stredisko === selectedStredisko;
     });
 }
+
+// ✅ Pomocná funkce pro převod HEX na RGBA
+function hexToRgba(hex, opacity) {
+    hex = hex.replace('#', '');
+    let r = parseInt(hex.substring(0,2), 16);
+    let g = parseInt(hex.substring(2,4), 16);
+    let b = parseInt(hex.substring(4,6), 16);
+  
+    return `rgba(${r},${g},${b},${opacity})`;
+}
+
 
 
 export async function fetchFirestoreEvents(userEmail) {
