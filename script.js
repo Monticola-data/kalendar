@@ -496,7 +496,7 @@ function populateFilter() {
 }
 
 async function filterAndRenderEvents() {
-    if (!calendar) return;
+    if (!calendar || !calendar.view) return;
 
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
@@ -533,8 +533,6 @@ async function filterAndRenderEvents() {
 
     calendar.gotoDate(currentViewDate);
 }
-
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
