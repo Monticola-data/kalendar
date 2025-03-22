@@ -348,10 +348,10 @@ eventContent: function(arg) {
   }
 
   // Speciální ikonka pro nehotové eventy v seznamu
-  if (view.type === 'listFourWeeks') {
+if (view.type === 'listFourWeeks') {
     if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extendedProps.odeslane && !isOmluvenka) {
       iconHtml = '<i class="fa-solid fa-person-digging"></i>';
-      statusColor = event.backgroundColor";
+      statusColor = partyColor; // ✅ použito pozadí eventu z měsíčního zobrazení
     }
 
     // Speciální formátování omluvenek pro seznam
