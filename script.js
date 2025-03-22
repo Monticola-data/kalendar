@@ -57,7 +57,6 @@ async function fetchFirestoreOmluvenky() {
             start: data.start,
             end: data.end,
             color: rgbaColor,
-            textColor: "#000000",  // ✅ Černá barva písma
             stredisko: data.stredisko,
             editable: false
         };
@@ -351,6 +350,10 @@ eventContent: function(arg) {
   const partyName = getPartyName(event.extendedProps.party);
   const partyColor = event.backgroundColor || "#666";
 
+  // ✅ Přidáno: explicitně černá barva pro omluvenky
+  const isOmluvenka = event.source && event.source.id === 'omluvenky';
+  const textColor = isOmluvenka ? "#000000" : "#ffffff";
+
   // Rozlišení pohledu seznam vs ostatní
  if (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks') {
     return {
@@ -391,7 +394,7 @@ eventContent: function(arg) {
         <div style="
           width:100%; 
           font-size:11px; 
-          color:#ffffff; 
+          color:${textColor}; /* ✅ upraveno na dynamickou barvu */
           line-height:1.1; 
           overflow:hidden; 
           text-overflow:ellipsis;
