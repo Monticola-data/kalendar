@@ -2,6 +2,7 @@ import { db } from './firebase.js';
 
 let eventQueue = {};
 let isProcessing = false;
+let omluvenkyEventsRealtime = [];
 
 async function processQueue() {
     if (isProcessing) return;
@@ -123,7 +124,7 @@ function renderCalendar(view = null) {
     let currentViewDate;
 
 calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
+        initialView: savedView,
         editable: true,
         locale: 'cs',
     views: {
@@ -457,8 +458,6 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // ✅ načtení omluvenek z Firestore
-    const omluvenkyEvents = await fetchFirestoreOmluvenky();
     
     // ✅ přidána filtrace dle party i střediska pro omluvenky
     const omluvenkyFiltered = omluvenkyEvents.filter(event => {
