@@ -50,7 +50,7 @@ async function fetchFirestoreOmluvenky() {
         const data = doc.data();
         return {
             id: doc.id,
-            title: `🚫 ${data.popis}`,
+            title: `❌👤 ${data.title} (${data.typ})`,
             start: data.start,
             end: data.end,
             color: data.hex || "#999",
@@ -58,10 +58,10 @@ async function fetchFirestoreOmluvenky() {
             editable: false
         };
     }).filter(event => {
-        // ✅ Filtrace omluvenek podle aktuálního střediska
         return selectedStredisko === 'vše' || event.stredisko === selectedStredisko;
     });
 }
+
 
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
