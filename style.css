@@ -274,7 +274,7 @@ select, button {
 
 /* Zvýraznění víkendových dnů */
 .fc-day-sat, .fc-day-sun {
-  background-color: #f0f0f0 !important;
+  background-color: #f0f0f0;
 }
 
 /* Barva nadpisu a čísel v kalendáři */
