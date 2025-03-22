@@ -315,10 +315,9 @@ Object.entries(partyMap).forEach(([id, party]) => {
 eventContent: function(arg) {
   const { event, view } = arg;
   let iconHtml = "";
-  let statusColor = "#bbb";
-
   let icon = "";
   let statusColor = "#bbb";
+    
   if (event.extendedProps.predane) {
     icon = '<i class="fa-solid fa-file-signature"></i>';
     statusColor = "#f5a623";
