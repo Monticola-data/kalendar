@@ -324,14 +324,17 @@ Object.entries(partyMap).forEach(([id, party]) => {
     }
 },
 
+eventDidMount: function(info) {
+    const isOmluvenka = info.event.source && info.event.source.id === 'omluvenky';
+    const viewType = info.view.type;
+
+    if (isOmluvenka && (viewType === 'listWeek' || viewType === 'listMonth' || viewType === 'listFourWeeks')) {
+        info.el.style.display = 'none'; // ✅ Kompletně skryje omluvenky v seznamu
+    }
+},
+
 eventContent: function(arg) {
     const { event, view } = arg;
-    const isOmluvenka = event.source && event.source.id === 'omluvenky';
-
-    // skrytí omluvenek v seznamových pohledech
-    if (isOmluvenka && (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks')) {
-        return { domNodes: [] }; // událost se nezobrazí vůbec
-    }
 
   let icon = "";
   let statusColor = "#bbb";
@@ -358,7 +361,8 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
   const partyColor = event.backgroundColor || "#666";
 
   // ✅ Přidáno: explicitně černá barva pro omluvenky
-  const textColor = isOmluvenka ? "#000000" : "#ffffff";
+    const isOmluvenka = event.source && event.source.id === 'omluvenky'; 
+    const textColor = isOmluvenka ? "#000000" : "#ffffff";
 
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
