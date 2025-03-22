@@ -172,12 +172,16 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 {
     id: 'omluvenky',
     events: function(fetchInfo, successCallback, failureCallback) {
+        if (!calendar || !calendar.view) {
+            successCallback([]);
+            return;
+        }
+
         const viewType = calendar.view.type;
-        
+
         if (viewType === 'listWeek' || viewType === 'listMonth' || viewType === 'listFourWeeks') {
             successCallback([]); // ✅ žádné omluvenky v seznamu
         } else {
-            // ✅ načíst omluvenky normálně s filtrací
             const selectedParty = partyFilter.value;
             const selectedStredisko = strediskoFilter.value;
 
@@ -192,6 +196,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     },
     editable: false
 }
+
  
         ],
 
