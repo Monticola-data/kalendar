@@ -444,7 +444,7 @@ eventContent: function(arg) {
     }
   }
 }
-
+});
 
 calendar.render();
 document.getElementById('listView').onclick = () => calendar.changeView('listFourWeeks');
