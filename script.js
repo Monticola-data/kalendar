@@ -48,18 +48,16 @@ async function fetchFirestoreOmluvenky() {
 
     return snapshot.docs.map(doc => {
         const data = doc.data();
-
-        // Převod HEX barvy na RGBA s průhledností (50 %)
         const hex = data.hex || "#999";
         const rgbaColor = hexToRgba(hex, 0.5);
 
         return {
             id: doc.id,
-            title: `❌👤 ${data.title} (${data.popis})`,
+            title: `❌👤 ${data.popis} (${data.typ})`,
             start: data.start,
             end: data.end,
-            color: rgbaColor, // ✅ použití průhledné barvy
-            textColor: "#000000",
+            color: rgbaColor,
+            textColor: "#000000",  // ✅ Černá barva písma
             stredisko: data.stredisko,
             editable: false
         };
@@ -77,7 +75,6 @@ function hexToRgba(hex, opacity) {
   
     return `rgba(${r},${g},${b},${opacity})`;
 }
-
 
 
 export async function fetchFirestoreEvents(userEmail) {
