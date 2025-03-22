@@ -375,7 +375,7 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     align-items: center;
     gap: 4px;">
     
-    <span style="font-weight:bold;">❌👤 ${titleText.trim()}</span>
+    <span style="font-weight:bold;">👤✘ ${titleText.trim()}</span>
     <span style="font-size:9px; opacity:0.8;">(${typ.trim()})</span>
     </div>`
     };
