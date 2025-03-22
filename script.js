@@ -314,18 +314,20 @@ Object.entries(partyMap).forEach(([id, party]) => {
 
 eventContent: function(arg) {
   const { event, view } = arg;
+  let iconHtml = "";
+  let statusColor = "#bbb";
 
   let icon = "";
   let statusColor = "#bbb";
   if (event.extendedProps.predane) {
     icon = '<i class="fa-solid fa-file-signature"></i>';
-    statusColor = "";
+    statusColor = "#f5a623";
   } else if (event.extendedProps.hotove) {
     icon = '<i class="fa-solid fa-check"></i>';
-    statusColor = "";
+    statusColor = "#4caf50";
 } else if (event.extendedProps.odeslane) {
     icon = '<i class="fa-solid fa-envelope-circle-check"></i>';
-    statusColor = "";
+    statusColor = "#42a5f5";
 }
 
   // Přehledný datum
