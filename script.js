@@ -323,10 +323,10 @@ eventContent: function(arg) {
   } else if (event.extendedProps.hotove) {
     icon = "✅";
     statusColor = "#4caf50"; // zelená
-  } else if (event.extendedProps.odeslane) {
-    icon = "📩";
-    statusColor = "#42a5f5"; // modrá
-  }
+} else if (event.extendedProps.odeslane) {
+    icon = '<i class="fa-solid fa-circle-check"></i>';
+    statusColor = ""; // bez barvy, případně odstranit celý řádek
+}
 
   // Přehledný datum
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
