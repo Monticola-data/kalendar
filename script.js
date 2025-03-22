@@ -494,6 +494,8 @@ function populateFilter() {
 }
 
 async function filterAndRenderEvents() {
+    if (!calendar) return;
+    
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
 
