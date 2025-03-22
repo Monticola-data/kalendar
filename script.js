@@ -43,18 +43,23 @@ async function fetchFirestoreParties() {
 }
 
 async function fetchFirestoreOmluvenky() {
+    const selectedStredisko = strediskoFilter.value; // aktuálně zvolené středisko
     const snapshot = await db.collection('omluvenky').get();
 
     return snapshot.docs.map(doc => {
         const data = doc.data();
         return {
             id: doc.id,
-            title: `🚫 ${data.popis}`, // Přidán emotikon pro omluvenky
+            title: `🚫 ${data.popis}`,
             start: data.start,
             end: data.end,
             color: data.hex || "#999",
-            editable: false // ✅ Omluvenky nelze upravovat
+            stredisko: data.stredisko,
+            editable: false
         };
+    }).filter(event => {
+        // ✅ Filtrace omluvenek podle aktuálního střediska
+        return selectedStredisko === 'vše' || event.stredisko === selectedStredisko;
     });
 }
 
