@@ -48,34 +48,21 @@ async function fetchFirestoreOmluvenky() {
 
     return snapshot.docs.map(doc => {
         const data = doc.data();
-        const hex = data.hex || "#999";
-        const rgbaColor = hexToRgba(hex, 0.5);
+        const hex = data.hex || "#999"; // ✅ přímo HEX barva bez průhlednosti
 
-    return {
-    id: doc.id,
-    title: `${data.title} (${data.typ})`,
-    start: data.start,
-    end: data.end,
-    color: rgbaColor,
-    stredisko: data.stredisko,
-    parta: data.parta,
-    editable: false
-};
+        return {
+            id: doc.id,
+            title: `${data.title} (${data.typ})`,
+            start: data.start,
+            end: data.end,
+            color: hex, // ✅ použij HEX přímo
+            stredisko: data.stredisko,
+            parta: data.parta,
+            editable: false
+        };
     });
 }
 
-
-
-
-// ✅ Pomocná funkce pro převod HEX na RGBA
-function hexToRgba(hex, opacity) {
-    hex = hex.replace('#', '');
-    let r = parseInt(hex.substring(0,2), 16);
-    let g = parseInt(hex.substring(2,4), 16);
-    let b = parseInt(hex.substring(4,6), 16);
-  
-    return `rgba(${r},${g},${b},${opacity})`;
-}
 
 
 export async function fetchFirestoreEvents(userEmail) {
@@ -608,15 +595,15 @@ export function listenForUpdates(userEmail) {
     // ✅ NOVÝ Listener pro omluvenky
     db.collection('omluvenky').onSnapshot(async (snapshot) => {
         omluvenkyEvents = snapshot.docs.map(doc => {
-            const data = doc.data();
-            const rgbaColor = hexToRgba(data.hex || "#999", 0.5);
+        const data = doc.data();
+        const hex = data.hex || "#999";
 
             return {
                 id: doc.id,
                 title: `${data.title} (${data.typ})`,
                 start: data.start,
                 end: data.end,
-                color: rgbaColor,
+                color: hex,
                 stredisko: data.stredisko,
                 parta: data.parta,
                 editable: false
