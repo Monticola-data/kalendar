@@ -324,15 +324,6 @@ Object.entries(partyMap).forEach(([id, party]) => {
     }
 },
 
-eventDidMount: function(info) {
-    const isOmluvenka = info.event.source && info.event.source.id === 'omluvenky';
-    const viewType = info.view.type;
-
-    if (isOmluvenka && (viewType === 'listWeek' || viewType === 'listMonth' || viewType === 'listFourWeeks')) {
-        info.el.style.display = 'none'; // ✅ Kompletně skryje omluvenky v seznamu
-    }
-},
-
 eventContent: function(arg) {
     const { event, view } = arg;
 
@@ -484,7 +475,7 @@ function populateFilter() {
     filterAndRenderEvents();
 }
 
-async function filterAndRenderEvents() {
+function filterAndRenderEvents() {
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
 
@@ -494,8 +485,6 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    
-    // ✅ přidána filtrace dle party i střediska pro omluvenky
     const omluvenkyFiltered = omluvenkyEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.parta === selectedParty;
         const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
@@ -503,17 +492,21 @@ async function filterAndRenderEvents() {
     });
 
     const currentViewDate = calendar.getDate();
+    const currentViewType = calendar.view.type;
 
-    // odebrání původních event sources
     const firestoreSource = calendar.getEventSourceById('firestore');
     if (firestoreSource) firestoreSource.remove();
 
     const omluvenkySource = calendar.getEventSourceById('omluvenky');
     if (omluvenkySource) omluvenkySource.remove();
 
-    // přidání filtrovanych events
     calendar.addEventSource({ id: 'firestore', events: filteredEvents });
-    calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
+
+    // ✅ Zde je hlavní změna:
+    // Přidat omluvenky jen když nejde o seznamový pohled
+    if (currentViewType !== 'listWeek' && currentViewType !== 'listMonth' && currentViewType !== 'listFourWeeks') {
+        calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
+    }
 
     calendar.gotoDate(currentViewDate);
 }
