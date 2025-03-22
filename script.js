@@ -353,7 +353,7 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
 
   // ✅ Přidáno: explicitně černá barva pro omluvenky
   const isOmluvenka = event.source && event.source.id === 'omluvenky';
-  const textColor = isOmluvenka ? "#ffffff" : "#ffffff";
+  const textColor = isOmluvenka ? "#00000" : "#ffffff";
 
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
@@ -374,7 +374,7 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     align-items: center;
     gap: 4px;">
     
-<span style="font-weight:bold; color:#ffffff;">👤✘ ${titleText.trim()}</span>
+<span style="font-weight:bold;">👤✘ ${titleText.trim()}</span>
 <span style="font-size:9px; opacity:0.8; color:#ffffff;">(${typ.trim()})</span>
     </div>`
     };
