@@ -55,10 +55,11 @@ async function fetchFirestoreOmluvenky() {
 
         return {
             id: doc.id,
-            title: `❌👤 ${data.popis} (${data.typ})`,
+            title: `❌👤 ${data.title} (${data.popis})`,
             start: data.start,
             end: data.end,
             color: rgbaColor, // ✅ použití průhledné barvy
+            textColor: "#000000",
             stredisko: data.stredisko,
             editable: false
         };
