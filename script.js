@@ -169,35 +169,10 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 className: 'holiday-event',
                 extendedProps: { isHoliday: true }
             },
-{
-    id: 'omluvenky',
-    events: function(fetchInfo, successCallback, failureCallback) {
-        if (!calendar || !calendar.view) {
-            successCallback([]);
-            return;
-        }
-
-        const viewType = calendar.view.type;
-
-        if (viewType === 'listWeek' || viewType === 'listMonth' || viewType === 'listFourWeeks') {
-            successCallback([]); // ✅ žádné omluvenky v seznamu
-        } else {
-            const selectedParty = partyFilter.value;
-            const selectedStredisko = strediskoFilter.value;
-
-            const omluvenkyFiltered = omluvenkyEvents.filter(event => {
-                const partyMatch = selectedParty === "all" || event.parta === selectedParty;
-                const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
-                return partyMatch && strediskoMatch;
-            });
-
-            successCallback(omluvenkyFiltered);
-        }
-    },
-    editable: false
-}
-
- 
+            {
+                id: 'omluvenky',
+                events: []
+            } 
         ],
 
     eventAllow: function(dropInfo, draggedEvent) {
@@ -350,7 +325,7 @@ Object.entries(partyMap).forEach(([id, party]) => {
 },
 
 eventContent: function(arg) {
-    const { event, view } = arg;
+  const { event, view } = arg;
 
   let icon = "";
   let statusColor = "#bbb";
@@ -377,8 +352,8 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
   const partyColor = event.backgroundColor || "#666";
 
   // ✅ Přidáno: explicitně černá barva pro omluvenky
-    const isOmluvenka = event.source && event.source.id === 'omluvenky'; 
-    const textColor = isOmluvenka ? "#000000" : "#ffffff";
+  const isOmluvenka = event.source && event.source.id === 'omluvenky';
+  const textColor = isOmluvenka ? "#000000" : "#ffffff";
 
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
@@ -501,11 +476,8 @@ function populateFilter() {
 }
 
 async function filterAndRenderEvents() {
-    if (!calendar || !calendar.view) return;
-
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
-    const currentViewType = calendar.view.type;
 
     const filteredEvents = allEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.party === selectedParty;
@@ -513,31 +485,31 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    let omluvenkyFiltered = [];
-
-    if (currentViewType !== 'listWeek' && currentViewType !== 'listMonth' && currentViewType !== 'listFourWeeks') {
-        omluvenkyFiltered = omluvenkyEvents.filter(event => {
-            const partyMatch = selectedParty === "all" || event.parta === selectedParty;
-            const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
-            return partyMatch && strediskoMatch;
-        });
-    }
+    
+    // ✅ přidána filtrace dle party i střediska pro omluvenky
+    const omluvenkyFiltered = omluvenkyEvents.filter(event => {
+        const partyMatch = selectedParty === "all" || event.parta === selectedParty;
+        const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
+        return partyMatch && strediskoMatch;
+    });
 
     const currentViewDate = calendar.getDate();
 
+    // odebrání původních event sources
     const firestoreSource = calendar.getEventSourceById('firestore');
     if (firestoreSource) firestoreSource.remove();
 
     const omluvenkySource = calendar.getEventSourceById('omluvenky');
     if (omluvenkySource) omluvenkySource.remove();
 
+    // přidání filtrovanych events
     calendar.addEventSource({ id: 'firestore', events: filteredEvents });
-    if (omluvenkyFiltered.length > 0) {
-        calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
-    }
+    calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
 
     calendar.gotoDate(currentViewDate);
 }
+
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -552,26 +524,17 @@ document.addEventListener('DOMContentLoaded', () => {
     strediskoFilter.value = savedStredisko;
 
     // ✅ Přidáno - tlačítka pro změnu pohledu
-const monthViewBtn = document.getElementById('monthView');
-const weekViewBtn = document.getElementById('weekView');
-const listViewBtn = document.getElementById('listView');
-
-if (monthViewBtn) monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
-if (weekViewBtn) weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
-if (listViewBtn) listViewBtn.onclick = () => calendar.changeView('listFourWeeks');
-
+  const monthViewBtn = document.getElementById('monthView');
+  const weekViewBtn = document.getElementById('weekView');
+  const listViewBtn = document.getElementById('listView');
 
     strediskoFilter.onchange = () => {
         localStorage.setItem('selectedStredisko', strediskoFilter.value);
         populateFilter();
         filterAndRenderEvents();
-        calendar.getEventSourceById('omluvenky').refetch();
     };
 
-    partyFilter.onchange = () => {
-    filterAndRenderEvents();
-    calendar.getEventSourceById('omluvenky').refetch(); // ✅ přidáno
-    };
+    partyFilter.onchange = filterAndRenderEvents;
 
     renderCalendar();
 
