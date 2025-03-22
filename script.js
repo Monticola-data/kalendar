@@ -314,73 +314,56 @@ Object.entries(partyMap).forEach(([id, party]) => {
 
 eventContent: function(arg) {
   const { event, view } = arg;
-  let iconHtml = "";
-  let icon = "";
-  let statusColor = "#bbb";
-    
-  if (event.extendedProps.predane) {
-    icon = '<i class="fa-solid fa-file-signature"></i>';
-    statusColor = "#f5a623";
-  } else if (event.extendedProps.hotove) {
-    icon = '<i class="fa-solid fa-check"></i>';
-    statusColor = "#4caf50";
-} else if (event.extendedProps.odeslane) {
-    icon = '<i class="fa-solid fa-envelope-circle-check"></i>';
-    statusColor = "#42a5f5";
-}
 
-  // Přehledný datum
+  // Přehledné datum
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
   const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
 
-const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
+  const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     ? (event.extendedProps.cas.toString().includes(':') ? event.extendedProps.cas : `${event.extendedProps.cas}:00`)
     : "";
 
   const partyName = getPartyName(event.extendedProps.party);
   const partyColor = event.backgroundColor || "#666";
 
-  // ✅ Přidáno: explicitně černá barva pro omluvenky
   const isOmluvenka = event.source && event.source.id === 'omluvenky';
   const textColor = isOmluvenka ? "#000000" : "#ffffff";
 
-  // ✅ Speciální zobrazení pro omluvenky
+  let iconHtml = "";
+  let statusColor = "#bbb";
+
+  // Speciální nastavení ikon a barev
   if (isOmluvenka) {
-const [titleText, typText] = event.title.split('(');
-const typ = typText ? typText.replace(')', '').trim() : '';
-
-    return {
-      html: `
-    <div style="
-    width:100%; 
-    font-size:11px; 
-    color:${textColor};
-    line-height:1.1; 
-    overflow:hidden; 
-    text-overflow:ellipsis;
-    white-space:nowrap;
-    display: flex;
-    align-items: center;
-    gap: 4px;">
-    
-    <span style="font-weight:bold; color:#ffffff;">
-        <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
-    </span>
-    <span style="font-size:9px; opacity:0.8; color:#ffffff;">
-        (${typ.trim()})
-    </span>
-    </div>`
-    };
+    iconHtml = '<i class="fa-solid fa-user-slash"></i>';
+    statusColor = event.backgroundColor || "#999";
+  } else if (event.extendedProps.predane) {
+    iconHtml = '<i class="fa-solid fa-file-signature"></i>';
+    statusColor = "#f5a623";
+  } else if (event.extendedProps.hotove) {
+    iconHtml = '<i class="fa-solid fa-check"></i>';
+    statusColor = "#4caf50";
+  } else if (event.extendedProps.odeslane) {
+    iconHtml = '<i class="fa-solid fa-envelope-circle-check"></i>';
+    statusColor = "#42a5f5";
   }
 
-  // Rozlišení pohledu seznam vs ostatní
-if (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks') {
+  // Speciální ikonka pro nehotové eventy v seznamu
+  if (view.type === 'listFourWeeks') {
+    if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extendedProps.odeslane && !isOmluvenka) {
+      iconHtml = '<i class="fa-solid fa-person-digging"></i>';
+      statusColor = "#bbb";
+    }
 
-if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extendedProps.odeslane) {
-    iconHtml = '<i class="fa-solid fa-person-digging"></i>';
-    statusColor = "#bbb";  // neutrální barva pro nehotové
-  }
-    
+    // Speciální formátování omluvenek pro seznam
+    let displayTitle = event.title;
+    if (isOmluvenka) {
+      const [titleText, typText] = event.title.split('(');
+      const typ = typText ? typText.replace(')', '').trim() : '';
+      displayTitle = `${titleText.trim()} (${typ})`;
+    } else {
+      displayTitle = `${event.title} (${partyName})`;
+    }
+
     return {
       html: `
         <div style="
@@ -404,34 +387,64 @@ if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extend
             border-radius:50%;
             background-color:${statusColor};
             color:#fff;
-            font-size:16px;">${icon}</div>
+            font-size:16px;">${iconHtml}</div>
 
           <div style="flex-grow:1; overflow:hidden;">
             <div style="font-size:13px; font-weight:bold;">${formattedDate}, ${cas}</div>
-            <div style="font-size:12px; opacity:0.8;">${event.title} (${partyName})</div>
+            <div style="font-size:12px; opacity:0.8;">${displayTitle}</div>
           </div>
         </div>`
     };
   } else {
-    // zachováš původní obsah pro ostatní pohledy
-    return { 
-      html: `
-        <div style="
-          width:100%; 
-          font-size:11px; 
-          color:${textColor}; /* ✅ upraveno na dynamickou barvu */
-          line-height:1.1; 
-          overflow:hidden; 
-          text-overflow:ellipsis;
-          white-space:nowrap;">
-            <div style="font-weight:bold;">${icon} ${cas} ${event.title}</div>
-            <div style="font-size:9px; color:#ffffff;">${partyName}</div>
-        </div>`
-    };
+    // Ostatní pohledy (mimo seznam)
+    if (isOmluvenka) {
+      const [titleText, typText] = event.title.split('(');
+      const typ = typText ? typText.replace(')', '').trim() : '';
+
+      return {
+        html: `
+          <div style="
+            width:100%; 
+            font-size:11px; 
+            color:${textColor};
+            line-height:1.1; 
+            overflow:hidden; 
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;">
+            
+            <span style="font-weight:bold; color:#ffffff;">
+              <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
+            </span>
+            <span style="font-size:9px; opacity:0.8; color:#ffffff;">
+              (${typ.trim()})
+            </span>
+          </div>`
+      };
+    } else {
+      // zachování původního formátu pro běžné eventy
+      return { 
+        html: `
+          <div style="
+            width:100%; 
+            font-size:11px; 
+            color:${textColor};
+            line-height:1.1; 
+            overflow:hidden; 
+            text-overflow:ellipsis;
+            white-space:nowrap;">
+              <div style="font-weight:bold;">
+                ${iconHtml} ${cas} ${event.title}
+              </div>
+              <div style="font-size:9px; color:#ffffff;">${partyName}</div>
+          </div>`
+      };
+    }
   }
 }
 
-});
 
 calendar.render();
 document.getElementById('listView').onclick = () => calendar.changeView('listFourWeeks');
