@@ -318,14 +318,14 @@ eventContent: function(arg) {
   let icon = "";
   let statusColor = "#bbb";
   if (event.extendedProps.predane) {
-    icon = "✍️";
-    statusColor = "#f5a623"; // oranžová
+    icon = '<i class="fa-solid fa-file-signature"></i>';
+    statusColor = "";
   } else if (event.extendedProps.hotove) {
-    icon = "✅";
-    statusColor = "#4caf50"; // zelená
+    icon = '<i class="fa-solid fa-square-check"></i>';
+    statusColor = "";
 } else if (event.extendedProps.odeslane) {
-    icon = '<i class="fa-solid fa-circle-check"></i>';
-    statusColor = ""; // bez barvy, případně odstranit celý řádek
+    icon = '<i class="fa-solid fa-envelope-circle-check"></i>';
+    statusColor = "";
 }
 
   // Přehledný datum
