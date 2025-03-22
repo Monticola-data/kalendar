@@ -321,7 +321,7 @@ eventContent: function(arg) {
     icon = '<i class="fa-solid fa-file-signature"></i>';
     statusColor = "";
   } else if (event.extendedProps.hotove) {
-    icon = '<i class="fa-solid fa-square-check"></i>';
+    icon = '<i class="fa-solid fa-check"></i>';
     statusColor = "";
 } else if (event.extendedProps.odeslane) {
     icon = '<i class="fa-solid fa-envelope-circle-check"></i>';
