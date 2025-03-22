@@ -338,13 +338,13 @@ eventContent: function(arg) {
     statusColor = event.backgroundColor || "#999";
   } else if (event.extendedProps.predane) {
     iconHtml = '<i class="fa-solid fa-file-signature"></i>';
-    statusColor = "#f5a623";
+    statusColor = partyColor;
   } else if (event.extendedProps.hotove) {
     iconHtml = '<i class="fa-solid fa-check"></i>';
-    statusColor = "#4caf50";
+    statusColor = partyColor;
   } else if (event.extendedProps.odeslane) {
     iconHtml = '<i class="fa-solid fa-envelope-circle-check"></i>';
-    statusColor = "#42a5f5";
+    statusColor = partyColor;
   }
 
   // Speciální ikonka pro nehotové eventy v seznamu
