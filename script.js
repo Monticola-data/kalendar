@@ -340,6 +340,10 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
   const partyName = getPartyName(event.extendedProps.party);
   const partyColor = event.backgroundColor || "#666";
 
+  // ✅ Přidáno: explicitně černá barva pro omluvenky
+  const isOmluvenka = event.source && event.source.id === 'omluvenky';
+  const textColor = isOmluvenka ? "#000000" : "#ffffff";
+
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
 const [titleText, typText] = event.title.split('(');
