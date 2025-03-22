@@ -374,7 +374,13 @@ const typ = typText ? typText.replace(')', '').trim() : '';
   }
 
   // Rozlišení pohledu seznam vs ostatní
- if (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks') {
+if (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks') {
+
+if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extendedProps.odeslane) {
+    iconHtml = '<i class="fa-solid fa-person-digging"></i>';
+    statusColor = "#bbb";  // neutrální barva pro nehotové
+  }
+    
     return {
       html: `
         <div style="
