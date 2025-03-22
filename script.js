@@ -57,7 +57,7 @@ async function fetchFirestoreOmluvenky() {
             end: data.end,
             color: rgbaColor,
             stredisko: data.stredisko,
-            parta: data.parta
+            parta: data.parta,
             editable: false
         };
     });
