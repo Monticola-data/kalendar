@@ -2,7 +2,7 @@ import { db } from './firebase.js';
 
 let eventQueue = {};
 let isProcessing = false;
-let omluvenkyEventsRealtime = [];
+let omluvenkyEvents = [];
 
 async function processQueue() {
     if (isProcessing) return;
@@ -561,7 +561,7 @@ export function listenForUpdates(userEmail) {
     
     // ✅ NOVÝ Listener pro omluvenky
     db.collection('omluvenky').onSnapshot(async (snapshot) => {
-        omluvenkyEventsRealtime = snapshot.docs.map(doc => {
+        omluvenkyEvents = snapshot.docs.map(doc => {
             const data = doc.data();
             const rgbaColor = hexToRgba(data.hex || "#999", 0.5);
 
