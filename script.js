@@ -56,27 +56,13 @@ async function fetchFirestoreOmluvenky() {
             title: `👤✘ ${data.title} (${data.typ})`,
             start: data.start,
             end: data.end,
-            color: rgbaColor,
+            color: data.hex,
             stredisko: data.stredisko,
             parta: data.parta,
             editable: false
         };
     });
 }
-
-
-
-
-// ✅ Pomocná funkce pro převod HEX na RGBA
-function hexToRgba(hex, opacity) {
-    hex = hex.replace('#', '');
-    let r = parseInt(hex.substring(0,2), 16);
-    let g = parseInt(hex.substring(2,4), 16);
-    let b = parseInt(hex.substring(4,6), 16);
-  
-    return `rgba(${r},${g},${b},${opacity})`;
-}
-
 
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
@@ -354,11 +340,11 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
 
   // ✅ Přidáno: explicitně černá barva pro omluvenky
   const isOmluvenka = event.source && event.source.id === 'omluvenky';
-  const textColor = isOmluvenka ? "#000000" : "#ffffff";
+  const textColor = isOmluvenka ? "#ffffff" : "#ffffff";
 
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
-    const [titleText, typText] = event.title.replace('❌👤 ', '').split('(');
+    const [titleText, typText] = event.title.replace('👤✘ ', '').split('(');
     const typ = typText ? typText.replace(')', '') : '';
 
     return {
@@ -375,8 +361,8 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     align-items: center;
     gap: 4px;">
     
-    <span style="font-weight:bold;">👤✘ ${titleText.trim()}</span>
-    <span style="font-size:9px; opacity:0.8;">(${typ.trim()})</span>
+<span style="font-weight:bold; color:#ffffff;">👤✘ ${titleText.trim()}</span>
+<span style="font-size:9px; opacity:0.8; color:#ffffff;">(${typ.trim()})</span>
     </div>`
     };
   }
