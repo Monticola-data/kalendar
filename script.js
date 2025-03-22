@@ -77,6 +77,7 @@ function hexToRgba(hex, opacity) {
     return `rgba(${r},${g},${b},${opacity})`;
 }
 
+
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
     const eventsSnapshot = await db.collection('events').get();
@@ -353,7 +354,7 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
 
   // ✅ Přidáno: explicitně černá barva pro omluvenky
   const isOmluvenka = event.source && event.source.id === 'omluvenky';
-  const textColor = isOmluvenka ? "#00000" : "#ffffff";
+  const textColor = isOmluvenka ? "#000000" : "#ffffff";
 
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
@@ -374,8 +375,8 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     align-items: center;
     gap: 4px;">
     
-<span style="font-weight:bold;">👤✘ ${titleText.trim()}</span>
-<span style="font-size:9px; opacity:0.8; color:#ffffff;">(${typ.trim()})</span>
+    <span style="font-weight:bold;">👤✘ ${titleText.trim()}</span>
+    <span style="font-size:9px; opacity:0.8;">(${typ.trim()})</span>
     </div>`
     };
   }
