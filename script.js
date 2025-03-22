@@ -43,7 +43,6 @@ async function fetchFirestoreParties() {
 }
 
 async function fetchFirestoreOmluvenky() {
-    const selectedStredisko = strediskoFilter.value;
     const snapshot = await db.collection('omluvenky').get();
 
     return snapshot.docs.map(doc => {
@@ -60,10 +59,9 @@ async function fetchFirestoreOmluvenky() {
             stredisko: data.stredisko,
             editable: false
         };
-    }).filter(event => {
-        return selectedStredisko === 'vše' || event.stredisko === selectedStredisko;
     });
 }
+
 
 // ✅ Pomocná funkce pro převod HEX na RGBA
 function hexToRgba(hex, opacity) {
@@ -169,9 +167,8 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             },
             {
                 id: 'omluvenky',
-                events: fetchFirestoreOmluvenky,
-                editable: false
-            }
+                events: []
+            } 
         ],
 
     eventAllow: function(dropInfo, draggedEvent) {
@@ -449,7 +446,7 @@ function populateFilter() {
     filterAndRenderEvents();
 }
 
-function filterAndRenderEvents() {
+async function filterAndRenderEvents() {
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
 
@@ -459,20 +456,29 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // ✅ Zde zachovej aktuální datum
+    // ✅ načtení a filtrování omluvenek podle střediska
+    const omluvenkyEvents = await fetchFirestoreOmluvenky();
+    
+    const omluvenkyFiltered = omluvenkyEvents.filter(event => 
+        selectedStredisko === "vše" || event.stredisko === selectedStredisko
+    );
+
     const currentViewDate = calendar.getDate();
 
+    // Odstranění původních sources
     const firestoreSource = calendar.getEventSourceById('firestore');
     if (firestoreSource) firestoreSource.remove();
 
-    calendar.addEventSource({
-        id: 'firestore',
-        events: filteredEvents
-    });
+    const omluvenkySource = calendar.getEventSourceById('omluvenky');
+    if (omluvenkySource) omluvenkySource.remove();
 
-    // ✅ Zde se vrať zpět na aktuální datum
+    // Přidání filtrovanych events
+    calendar.addEventSource({ id: 'firestore', events: filteredEvents });
+    calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
+
     calendar.gotoDate(currentViewDate);
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
