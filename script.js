@@ -169,10 +169,30 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 className: 'holiday-event',
                 extendedProps: { isHoliday: true }
             },
-            {
-                id: 'omluvenky',
-                events: []
-            } 
+{
+    id: 'omluvenky',
+    events: function(fetchInfo, successCallback, failureCallback) {
+        const viewType = calendar.view.type;
+        
+        if (viewType === 'listWeek' || viewType === 'listMonth' || viewType === 'listFourWeeks') {
+            successCallback([]); // ✅ žádné omluvenky v seznamu
+        } else {
+            // ✅ načíst omluvenky normálně s filtrací
+            const selectedParty = partyFilter.value;
+            const selectedStredisko = strediskoFilter.value;
+
+            const omluvenkyFiltered = omluvenkyEvents.filter(event => {
+                const partyMatch = selectedParty === "all" || event.parta === selectedParty;
+                const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
+                return partyMatch && strediskoMatch;
+            });
+
+            successCallback(omluvenkyFiltered);
+        }
+    },
+    editable: false
+}
+ 
         ],
 
     eventAllow: function(dropInfo, draggedEvent) {
@@ -475,7 +495,7 @@ function populateFilter() {
     filterAndRenderEvents();
 }
 
-function filterAndRenderEvents() {
+async function filterAndRenderEvents() {
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
 
@@ -485,6 +505,8 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
+    
+    // ✅ přidána filtrace dle party i střediska pro omluvenky
     const omluvenkyFiltered = omluvenkyEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.parta === selectedParty;
         const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
@@ -492,25 +514,20 @@ function filterAndRenderEvents() {
     });
 
     const currentViewDate = calendar.getDate();
-    const currentViewType = calendar.view.type;
 
+    // odebrání původních event sources
     const firestoreSource = calendar.getEventSourceById('firestore');
     if (firestoreSource) firestoreSource.remove();
 
     const omluvenkySource = calendar.getEventSourceById('omluvenky');
     if (omluvenkySource) omluvenkySource.remove();
 
+    // přidání filtrovanych events
     calendar.addEventSource({ id: 'firestore', events: filteredEvents });
-
-    // ✅ Zde je hlavní změna:
-    // Přidat omluvenky jen když nejde o seznamový pohled
-    if (currentViewType !== 'listWeek' && currentViewType !== 'listMonth' && currentViewType !== 'listFourWeeks') {
-        calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
-    }
+    calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
 
     calendar.gotoDate(currentViewDate);
 }
-
 
 
 
@@ -534,9 +551,13 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('selectedStredisko', strediskoFilter.value);
         populateFilter();
         filterAndRenderEvents();
+        calendar.getEventSourceById('omluvenky').refetch();
     };
 
-    partyFilter.onchange = filterAndRenderEvents;
+    partyFilter.onchange = () => {
+    filterAndRenderEvents();
+    calendar.getEventSourceById('omluvenky').refetch(); // ✅ přidáno
+    };
 
     renderCalendar();
 
