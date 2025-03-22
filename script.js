@@ -522,6 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
     savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
+    const modalOverlay = document.getElementById('modalOverlay');
 
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     strediskoFilter.value = savedStredisko;
@@ -529,38 +530,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // ✅ Přidáno - tlačítka pro změnu pohledu
   const monthViewBtn = document.getElementById('monthView');
   const weekViewBtn = document.getElementById('weekView');
-  const listViewBtn = document.getElementById('listView');
+  const listViewBtn = document.getElementById('listFourWeeks');
 
-    strediskoFilter.onchange = () => {
-        localStorage.setItem('selectedStredisko', strediskoFilter.value);
-        populateFilter();
-        filterAndRenderEvents();
-    };
+    if (strediskoFilter) {
+        strediskoFilter.onchange = () => {
+            localStorage.setItem('selectedStredisko', strediskoFilter.value);
+            populateFilter();
+            filterAndRenderEvents();
+        };
+    }
 
-    partyFilter.onchange = filterAndRenderEvents;
+    if (partyFilter) {
+        partyFilter.onchange = filterAndRenderEvents;
+    }
 
     renderCalendar();
 
-monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
-weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
-listViewBtn.onclick = () => calendar.changeView('listFourWeeks');  // ✅ Opraveno
+    if (monthViewBtn) {
+        monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
+    }
+    if (weekViewBtn) {
+        weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
+    }
+    if (listViewBtn) {
+        listViewBtn.onclick = () => calendar.changeView('listFourWeeks');
+    }
 
+    if (savePartyButton) {
+        savePartyButton.onclick = async () => {
+            if (selectedEvent) {
+                await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
+                if (modal) modal.style.display = "none";
+                if (modalOverlay) modalOverlay.style.display = "none";
+            }
+        };
+    }
 
-    savePartyButton.onclick = async () => {
-        if (selectedEvent) {
-            await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
-            modal.style.display = "none";
-            modalOverlay.style.display = "none"; // ✅ schovej overlay
-        }
-    };
-
-    // ✅ Zavření modalu kliknutím mimo modal přes overlay
-    const modalOverlay = document.getElementById('modalOverlay');
-    modalOverlay.onclick = () => {
-    modal.style.display = "none";
-    modalOverlay.style.display = "none";
-};
-
+    // Zavření modalu kliknutím mimo modal přes overlay
+    if (modalOverlay) {
+        modalOverlay.onclick = () => {
+            if (modal) modal.style.display = "none";
+            modalOverlay.style.display = "none";
+        };
+    }
 });
 
 
