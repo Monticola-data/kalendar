@@ -51,11 +51,15 @@ async function fetchFirestoreOmluvenky() {
         const hex = data.hex || "#999";
         const rgbaColor = hexToRgba(hex, 0.5);
 
+        // ✅ Přidat jeden den navíc k datu konce:
+        const endDate = new Date(data.end);
+        endDate.setDate(endDate.getDate() + 1); // přidá 1 den
+
         return {
             id: doc.id,
             title: `❌👤 ${data.title} (${data.typ})`,
             start: data.start,
-            end: data.end,
+            end: endDate.toISOString().split('T')[0], // ✅ nový formát data
             color: rgbaColor,
             stredisko: data.stredisko,
             parta: data.parta,
@@ -63,6 +67,7 @@ async function fetchFirestoreOmluvenky() {
         };
     });
 }
+
 
 
 // ✅ Pomocná funkce pro převod HEX na RGBA
