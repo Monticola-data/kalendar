@@ -559,4 +559,26 @@ export function listenForUpdates(userEmail) {
         // ✅ DŮLEŽITÁ ZMĚNA: Přidej tento řádek:
         filterAndRenderEvents();
     });
+    
+    // ✅ NOVÝ Listener pro omluvenky
+    db.collection('omluvenky').onSnapshot(async (snapshot) => {
+        omluvenkyEventsRealtime = snapshot.docs.map(doc => {
+            const data = doc.data();
+            const rgbaColor = hexToRgba(data.hex || "#999", 0.5);
+
+            return {
+                id: doc.id,
+                title: `❌👤 ${data.title} (${data.typ})`,
+                start: data.start,
+                end: data.end,
+                color: rgbaColor,
+                stredisko: data.stredisko,
+                parta: data.parta,
+                editable: false
+            };
+        });
+
+        filterAndRenderEvents();
+    });
+    
 }
