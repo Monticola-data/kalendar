@@ -355,6 +355,27 @@ eventContent: function(arg) {
   const isOmluvenka = event.source && event.source.id === 'omluvenky';
   const textColor = isOmluvenka ? "#000000" : "#ffffff";
 
+  // ✅ Speciální zobrazení pro omluvenky
+  if (isOmluvenka) {
+    const [titleText, typText] = event.title.replace('❌👤 ', '').split('(');
+    const typ = typText ? typText.replace(')', '') : '';
+
+    return {
+      html: `
+        <div style="
+          width:100%; 
+          font-size:11px; 
+          color:${textColor};
+          line-height:1.1; 
+          overflow:hidden; 
+          text-overflow:ellipsis;
+          white-space:nowrap;">
+          <div style="font-weight:bold;">❌👤 ${titleText.trim()}</div>
+          <div style="font-size:9px; opacity:0.8;">${typ.trim()}</div>
+        </div>`
+    };
+  }
+
   // Rozlišení pohledu seznam vs ostatní
  if (view.type === 'listWeek' || view.type === 'listMonth' || view.type === 'listFourWeeks') {
     return {
