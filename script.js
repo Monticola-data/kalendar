@@ -608,7 +608,7 @@ export function listenForUpdates(userEmail) {
 
             return {
                 id: doc.id,
-                title: `❌👤 ${data.title} (${data.typ})`,
+                title: `👤✘ ${data.title} (${data.typ})`,
                 start: data.start,
                 end: data.end,
                 color: rgbaColor,
