@@ -457,28 +457,32 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // ✅ načtení a filtrování omluvenek podle střediska
+    // ✅ načtení omluvenek z Firestore
     const omluvenkyEvents = await fetchFirestoreOmluvenky();
     
-    const omluvenkyFiltered = omluvenkyEvents.filter(event => 
-        selectedStredisko === "vše" || event.stredisko === selectedStredisko
-    );
+    // ✅ přidána filtrace dle party i střediska pro omluvenky
+    const omluvenkyFiltered = omluvenkyEvents.filter(event => {
+        const partyMatch = selectedParty === "all" || event.parta === selectedParty;
+        const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
+        return partyMatch && strediskoMatch;
+    });
 
     const currentViewDate = calendar.getDate();
 
-    // Odstranění původních sources
+    // odebrání původních event sources
     const firestoreSource = calendar.getEventSourceById('firestore');
     if (firestoreSource) firestoreSource.remove();
 
     const omluvenkySource = calendar.getEventSourceById('omluvenky');
     if (omluvenkySource) omluvenkySource.remove();
 
-    // Přidání filtrovanych events
+    // přidání filtrovanych events
     calendar.addEventSource({ id: 'firestore', events: filteredEvents });
     calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
 
     calendar.gotoDate(currentViewDate);
 }
+
 
 
 
