@@ -42,6 +42,21 @@ async function fetchFirestoreParties() {
     populateFilter();
 }
 
+async function fetchFirestoreOmluvenky() {
+    const snapshot = await db.collection('omluvenky').get();
+
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            title: `🚫 ${data.popis}`, // Přidán emotikon pro omluvenky
+            start: data.start,
+            end: data.end,
+            color: data.hex || "#999",
+            editable: false // ✅ Omluvenky nelze upravovat
+        };
+    });
+}
 
 export async function fetchFirestoreEvents(userEmail) {
     await fetchFirestoreParties();
@@ -121,7 +136,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     
         eventSources: [
             {
-                id: 'firestore', // ✅ zde přidáno správné id
+                id: 'firestore',
                 events: allEvents
             },
             {
@@ -133,6 +148,11 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 textColor: '#000',
                 className: 'holiday-event',
                 extendedProps: { isHoliday: true }
+            },
+            {
+                id: 'omluvenky',
+                events: fetchFirestoreOmluvenky,
+                editable: false
             }
         ],
 
