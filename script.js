@@ -51,16 +51,16 @@ async function fetchFirestoreOmluvenky() {
         const hex = data.hex || "#999";
         const rgbaColor = hexToRgba(hex, 0.5);
 
-        return {
-            id: doc.id,
-            title: `👤✘ ${data.title} (${data.typ})`,
-            start: data.start,
-            end: data.end,
-            color: rgbaColor,
-            stredisko: data.stredisko,
-            parta: data.parta,
-            editable: false
-        };
+    return {
+    id: doc.id,
+    title: `${data.title} (${data.typ})`,
+    start: data.start,
+    end: data.end,
+    color: rgbaColor,
+    stredisko: data.stredisko,
+    parta: data.parta,
+    editable: false
+};
     });
 }
 
@@ -358,8 +358,8 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
 
   // ✅ Speciální zobrazení pro omluvenky
   if (isOmluvenka) {
-    const [titleText, typText] = event.title.replace('👤✘ ', '').split('(');
-    const typ = typText ? typText.replace(')', '') : '';
+const [titleText, typText] = event.title.split('(');
+const typ = typText ? typText.replace(')', '').trim() : '';
 
     return {
       html: `
@@ -375,8 +375,12 @@ const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     align-items: center;
     gap: 4px;">
     
-    <span style="font-weight:bold;">👤✘ ${titleText.trim()}</span>
-    <span style="font-size:9px; opacity:0.8;">(${typ.trim()})</span>
+    <span style="font-weight:bold; color:#ffffff;">
+        <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
+    </span>
+    <span style="font-size:9px; opacity:0.8; color:#ffffff;">
+        (${typ.trim()})
+    </span>
     </div>`
     };
   }
