@@ -98,27 +98,34 @@ body {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background-color: #4CAF50;
+    background-color: #b2bdc3;
     color: white;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
     user-select: none;
-    padding: 2px;
+    padding: 1px;
 }
 
 .week-number-circle:hover {
-    background-color: #45a049;
+    background-color: #90999e;
 }
+
+.fc .fc-week-number {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Responzivní zmenšení na mobilních zařízeních */
 @media (max-width: 600px) {
     .week-number-circle {
-        width: 28px;            /* menší šířka */
-        height: 28px;           /* menší výška */
-        font-size: 10px;        /* menší písmo */
-        padding: 1px;           /* menší padding */
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+        padding: 1px;
     }
 }
 /* Události v kalendáři */
