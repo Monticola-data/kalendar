@@ -141,7 +141,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         longPressDelay: 0,
         weekNumbers: true, // zapnout čísla týdnů
         weekNumberContent: function(arg) {
-            return 'Týden ' + arg.num;
+            return 'T' + arg.num;
         },
 
         eventSources: [
