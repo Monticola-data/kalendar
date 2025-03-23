@@ -208,6 +208,11 @@ eventDrop: function(info) { // bez async, aby nezdržoval UI
     },
 
 eventClick: function(info) {
+    if (!info.event || !info.event.extendedProps) {
+        console.warn("⚠️ Kliknutí na neplatnou nebo odstraněnou událost.");
+        return;
+    }
+    
     if (info.event.extendedProps?.SECURITY_filter) {
         selectedEvent = info.event;
 
