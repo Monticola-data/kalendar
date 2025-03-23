@@ -93,6 +93,25 @@ body {
   padding: 15px;
   border-radius: 0px;
 }
+
+.week-number-circle {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #4CAF50; /* zelená barva, změň podle potřeby */
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+    user-select: none;
+}
+
+.week-number-circle:hover {
+    background-color: #45a049; /* tmavší odstín při hover */
+}
+
 /* Události v kalendáři */
 .fc-event {
   background: var(--primary-color);
