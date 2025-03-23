@@ -117,15 +117,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         editable: true,
         locale: 'cs',
 
-    selectable: true,
-    select: function(selectionInfo) {
-        modal.style.display = 'block';
-        modalOverlay.style.display = 'block';
-
-        document.getElementById('eventStart').value = selectionInfo.startStr;
-        document.getElementById('eventEnd').value = selectionInfo.endStr;
-    },
-    
     views: {
         listFourWeeks: {
             type: 'list',
@@ -143,15 +134,18 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     },
         height: 'auto',
         firstDay: 1,
-        //selectable: false,
+        selectable: false,
         unselectAuto: true,
         navLinks: true,
         eventOrder: "cas,title",
         dragScroll: true,
         longPressDelay: 0,
-        weekNumbers: true, // zapnout čísla týdnů
+    
+        weekNumbers: true,
         weekNumberContent: function(arg) {
-            return 'T' + arg.num;
+            return {
+                html: `<span class="week-number-circle" data-week="${arg.num}">${arg.num}</span>`
+            };
         },
 
         eventSources: [
