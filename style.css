@@ -98,8 +98,8 @@ body {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     background-color: #b2bdc3;
     color: white;
@@ -114,22 +114,24 @@ body {
     background-color: #90999e;
 }
 
-/* odstranění šedého pozadí čísla týdne */
+/* Kompletně odstraní šedé pozadí i rámeček z čísla týdne ve FullCalendar */
+.fc .fc-daygrid-week-number,
+.fc .fc-daygrid-week-number span,
 .fc .fc-week-number,
 .fc .fc-week-number span {
-    background-color: transparent !important;
+    background: transparent !important;
     border: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
     box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 /* Responzivní zmenšení na mobilních zařízeních */
 @media (max-width: 600px) {
     .week-number-circle {
-        width: 23px;
-        height: 23px;
-        font-size: 8px;
+        width: 15px;
+        height: 15px;
+        font-size: 6px;
         padding: 1px;
     }
 }
