@@ -118,8 +118,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         locale: 'cs',
 
     selectable: true,
-    unselectAuto: true, // sem přidáš (standardně už je true, takže nemusíš explicitně)
-
     select: function(selectionInfo) {
         modal.style.display = 'block';
         modalOverlay.style.display = 'block';
@@ -145,7 +143,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     },
         height: 'auto',
         firstDay: 1,
-        selectable: false, // Zajistí, že se nebude automaticky označovat datum
+        //selectable: false,
         unselectAuto: true,
         navLinks: true,
         eventOrder: "cas,title",
