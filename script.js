@@ -337,7 +337,7 @@ eventContent: function(arg) {
     iconHtml = '<i class="fa-solid fa-user-slash"></i>';
     statusColor = event.backgroundColor || "#999";
   } else if (event.extendedProps.predane) {
-    iconHtml = '<i class="fa-solid fa-file-contract"></i>';
+    iconHtml = '<i class="fa-solid fa-file-signature"></i>';
     statusColor = partyColor;
   } else if (event.extendedProps.hotove) {
     iconHtml = '<i class="fa-solid fa-check"></i>';
