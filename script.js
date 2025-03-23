@@ -317,6 +317,11 @@ Object.entries(partyMap).forEach(([id, party]) => {
 eventContent: function(arg) {
   const { event, view } = arg;
 
+    if (!event || !event.extendedProps) {
+        console.warn("⚠️ Událost neexistuje nebo nemá extendedProps.", event);
+        return { html: '<div>Chybějící událost</div>' };
+    }
+
   // Přehledné datum
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
   const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
