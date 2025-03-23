@@ -111,6 +111,7 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
     let currentViewDate;
+    let isDraggingEvent = false;
 
 calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
