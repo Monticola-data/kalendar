@@ -139,6 +139,25 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         eventOrder: "cas,title",
         dragScroll: false,
         longPressDelay: 0,
+
+    eventAllow: function(dropInfo) {
+        const view = calendar.view;
+        return dropInfo.start >= view.activeStart && dropInfo.start < view.activeEnd;
+    },
+
+    eventDragStart: function() {
+        isDraggingEvent = true;
+    },
+
+    eventDragStop: function() {
+        isDraggingEvent = false;
+    },
+
+    datesSet: function(dateInfo) {
+        if (isDraggingEvent) {
+            calendar.gotoDate(dateInfo.oldDate); // zabrání změně pohledu při přetahování
+        }
+    },
     
         eventSources: [
             {
