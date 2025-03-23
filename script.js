@@ -117,16 +117,16 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         editable: true,
         locale: 'cs',
 
-        selectable: true, // <-- přidáš sem
-        select: function(selectionInfo) { // <-- a sem celou tuto funkci
-            // Zobraz dialog/modální okno
-            modal.style.display = 'block';
-            modalOverlay.style.display = 'block';
+    selectable: true,
+    unselectAuto: true, // sem přidáš (standardně už je true, takže nemusíš explicitně)
 
-            // Předvyplň formulář v modálu
-            document.getElementById('eventStart').value = selectionInfo.startStr;
-            document.getElementById('eventEnd').value = selectionInfo.endStr;
-        },
+    select: function(selectionInfo) {
+        modal.style.display = 'block';
+        modalOverlay.style.display = 'block';
+
+        document.getElementById('eventStart').value = selectionInfo.startStr;
+        document.getElementById('eventEnd').value = selectionInfo.endStr;
+    },
     
     views: {
         listFourWeeks: {
