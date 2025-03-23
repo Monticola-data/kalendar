@@ -140,6 +140,17 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         dragScroll: false,
         longPressDelay: 0,
 
+        eventAllow: function(dropInfo, draggedEvent) {
+        const viewStart = calendar.view.activeStart;
+        const viewEnd = calendar.view.activeEnd;
+
+        // Tohle zabrání přesunutí eventu mimo aktuálně viditelný rozsah pohledu
+        if (dropInfo.start < viewStart || dropInfo.start >= viewEnd) {
+            return false;
+        }
+        return true;
+    },
+
     
         eventSources: [
             {
