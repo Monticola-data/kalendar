@@ -144,7 +144,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         weekNumbers: true,
         weekNumberContent: function(arg) {
             return {
-                html: `<span class="week-number-circle" data-week="${arg.num}">${arg.num}</span>`
+                html: `<span class="week-number-circle" data-week="${arg.num}">T${arg.num}</span>`
             };
         },
 
