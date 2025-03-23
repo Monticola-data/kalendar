@@ -139,6 +139,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         eventOrder: "cas,title",
         dragScroll: true,
         longPressDelay: 0,
+        weekNumbers: true,
 
         eventSources: [
             {
