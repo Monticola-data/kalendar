@@ -95,30 +95,29 @@ body {
 }
 
 .week-number-circle {
-    display: inline-flex;
+    display: inline-flex !important;
     justify-content: center;
     align-items: center;
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #b2bdc3;
-    color: white;
+    background-color: #b2bdc3 !important;
+    color: white !important;
     cursor: pointer;
     font-size: 10px;
     font-weight: bold;
     user-select: none;
-    padding: 1px;
+    padding: 1px !important;
+    box-shadow: none !important;
 }
 
 .week-number-circle:hover {
-    background-color: #90999e;
+    background-color: #90999e !important;
 }
 
-/* Kompletně odstraní šedé pozadí i rámeček z čísla týdne ve FullCalendar */
+/* Odstranění původního šedého pozadí čísla týdne ve FullCalendar */
 .fc .fc-daygrid-week-number,
-.fc .fc-daygrid-week-number span,
-.fc .fc-week-number,
-.fc .fc-week-number span {
+.fc .fc-week-number {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -129,10 +128,10 @@ body {
 /* Responzivní zmenšení na mobilních zařízeních */
 @media (max-width: 600px) {
     .week-number-circle {
-        width: 15px;
-        height: 15px;
-        font-size: 6px;
-        padding: 1px;
+        width: 15px !important;
+        height: 15px !important;
+        font-size: 6px !important;
+        padding: 1px !important;
     }
 }
 /* Události v kalendáři */
