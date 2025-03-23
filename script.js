@@ -111,7 +111,6 @@ async function updateFirestoreEvent(eventId, updates = {}) {
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
     let currentViewDate;
-    let isDraggingEvent = false;
 
 calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
@@ -136,30 +135,11 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         firstDay: 1,
         selectable: false, // Zajistí, že se nebude automaticky označovat datum
         unselectAuto: true,
-        navLinks: false,   // ✅ Zakáže klikatelné dny a přechody na jiný pohled
+        navLinks: true,
         eventOrder: "cas,title",
         dragScroll: false,
         longPressDelay: 0,
 
-    eventAllow: function(dropInfo) {
-        const view = calendar.view;
-        return dropInfo.start >= view.activeStart && dropInfo.start < view.activeEnd;
-    },
-
-    eventDragStart: function() {
-        isDraggingEvent = true;
-    },
-
-    eventDragStop: function() {
-        isDraggingEvent = false;
-    },
-
-    datesSet: function(dateInfo) {
-        if (isDraggingEvent) {
-            calendar.gotoDate(dateInfo.oldDate); // zabrání změně pohledu při přetahování
-        }
-    },
-    
         eventSources: [
             {
                 id: 'firestore',
