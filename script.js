@@ -496,7 +496,7 @@ function populateFilter() {
 
 async function filterAndRenderEvents() {
     if (!calendar) return;
-    
+
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
 
@@ -506,31 +506,20 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    
-    // ✅ přidána filtrace dle party i střediska pro omluvenky
     const omluvenkyFiltered = omluvenkyEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.parta === selectedParty;
         const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
         return partyMatch && strediskoMatch;
     });
 
-    const currentViewDate = calendar.getDate();
+    calendar.batchRendering(() => {
+        calendar.getEvents().forEach(evt => evt.remove()); // bezpečně odstraní jednotlivé eventy
 
-    // odebrání původních event sources
-    const firestoreSource = calendar.getEventSourceById('firestore');
-    if (firestoreSource) firestoreSource.remove();
-
-    const omluvenkySource = calendar.getEventSourceById('omluvenky');
-    if (omluvenkySource) omluvenkySource.remove();
-
-    // přidání filtrovanych events
-    calendar.addEventSource({ id: 'firestore', events: filteredEvents });
-    calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered, editable: false });
-
-    calendar.gotoDate(currentViewDate);
+        // přidá nové filtrovane eventy
+        filteredEvents.forEach(evt => calendar.addEvent(evt));
+        omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
+    });
 }
-
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
