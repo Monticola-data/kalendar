@@ -114,17 +114,22 @@ body {
     background-color: #90999e;
 }
 
-.fc .fc-week-number {
+/* odstranění šedého pozadí čísla týdne */
+.fc .fc-week-number,
+.fc .fc-week-number span {
     background-color: transparent !important;
     border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
 }
 
 /* Responzivní zmenšení na mobilních zařízeních */
 @media (max-width: 600px) {
     .week-number-circle {
-        width: 28px;
-        height: 28px;
-        font-size: 10px;
+        width: 23px;
+        height: 23px;
+        font-size: 8px;
         padding: 1px;
     }
 }
