@@ -171,36 +171,38 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         return true;  // ✅ přesunutí povoleno
     },
 
-eventDrop: async function(info) {
-
+eventDrop: function(info) { // bez async, aby nezdržoval UI
     const eventId = info.event.id;
     const newDate = info.event.startStr;
 
-    // ✅ Načíst původní čas eventu
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    try {
-        // aktualizuj Firestore
-        await db.collection("events").doc(eventId).update({
-            start: newDate,
-            "extendedProps.cas": cas
-        });
+    // okamžitě zahájíme asynchronní proces, ale nečekáme na něj
+    (async () => {
+        try {
+            // Aktualizuj Firestore (nečeká na dokončení)
+            db.collection("events").doc(eventId).update({
+                start: newDate,
+                "extendedProps.cas": cas
+            });
 
-        // aktualizuj AppSheet
-        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-            method: "POST",
-            body: JSON.stringify({ eventId, start: newDate, cas }),
-            headers: { 'Content-Type': 'application/json' }
-        });
+            // Aktualizuj AppSheet
+            fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({ eventId, start: newDate, cas }),
+                headers: { 'Content-Type': 'application/json' }
+            });
 
-        console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány do AppSheet!`);
+            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány!`);
 
-    } catch (err) {
-        console.error("❌ Chyba při odesílání dat do AppSheet:", err);
-        info.revert();
-    }
+        } catch (err) {
+            console.error("❌ Chyba při odesílání dat:", err);
+            info.revert(); // toto případně volat jen, pokud chceš vrátit změnu
+        }
+    })();
 },
+
     dateClick: function(info) {
         info.jsEvent.preventDefault();
     },
