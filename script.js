@@ -343,7 +343,7 @@ eventContent: function(arg) {
     iconHtml = '<i class="fa-solid fa-check"></i>';
     statusColor = partyColor;
   } else if (event.extendedProps.odeslane) {
-    iconHtml = '<i class="fa-solid fa-envelope-circle-check"></i>';
+    iconHtml = '<i class="fa-solid fa-paper-plane"></i>';
     statusColor = partyColor;
   }
 
