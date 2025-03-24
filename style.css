@@ -556,6 +556,14 @@ select, button {
   .modal button {
     font-size: 1rem;
   }
+  
+  .holiday-event,
+  .holiday-event *,
+  .holiday-event .fc-event-title,
+  .holiday-event .fc-event-title-container {
+    font-size: 0.7rem !important;
+    padding: 1px !important;
+  }
 }
 
 
