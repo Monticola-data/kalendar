@@ -117,6 +117,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
         locale: 'cs',
+        fixedWeekCount: true,
         buttonText: {
             today: 'dnes',
             month: 'měsíc'
