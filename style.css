@@ -508,6 +508,21 @@ select, button {
     margin: 5px;
   }
 
+  #header {
+    padding: 5px; /* Menší padding pro header */
+    gap: 6px;     /* Menší mezery mezi prvky v headeru */
+  }
+
+  .header-controls {
+    gap: 4px;     /* Menší mezery mezi tlačítky/selecty */
+  }
+
+  .header-controls button, 
+  .header-controls select {
+    padding: 6px 8px;  /* Menší vnitřní padding tlačítek/selectů */
+    font-size: 0.8rem; /* Trochu menší text, stále kliknutelný */
+  }
+
   #calendar-wrapper,
   #calendar {
     padding: 5px;
