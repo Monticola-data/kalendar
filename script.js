@@ -1,8 +1,10 @@
 import { db } from './firebase.js';
 
+let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
+let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
+
 let eventQueue = {};
 let isProcessing = false;
-let omluvenkyEvents = [];
 
 async function processQueue() {
     if (isProcessing) return;
@@ -26,9 +28,6 @@ async function processQueue() {
     processQueue();
 }
 
-// 🚀 COMPAT verze Firebase (není potřeba importovat moduly)
-let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
-let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
 
 function getPartyName(partyId) {
     return partyMap[partyId]?.name || '';
@@ -43,26 +42,28 @@ async function fetchFirestoreParties() {
     populateFilter();
 }
 
+
+let omluvenkyEvents = [];
 async function fetchFirestoreOmluvenky() {
     const snapshot = await db.collection('omluvenky').get();
 
     return snapshot.docs.map(doc => {
         const data = doc.data();
-        const hex = data.hex || "#999"; // ✅ přímo HEX barva bez průhlednosti
+        const hex = data.hex || "#999"; 
 
         return {
             id: doc.id,
             title: `${data.title} (${data.typ})`,
             start: data.start,
             end: data.end,
-            color: hex, // ✅ použij HEX přímo
+            color: hex,
             stredisko: data.stredisko,
             parta: data.parta,
-            editable: false
+            editable: false,
+            extendedProps: { isOmluvenka: true } // ✅ přidáno explicitní označení
         };
     });
 }
-
 
 
 export async function fetchFirestoreEvents(userEmail) {
@@ -329,12 +330,11 @@ Object.entries(partyMap).forEach(([id, party]) => {
 eventContent: function(arg) {
   const { event, view } = arg;
 
-    if (!event || !event.extendedProps) {
-        console.warn("⚠️ Událost neexistuje nebo nemá extendedProps.", event);
-        return { html: '<div>Chybějící událost</div>' };
-    }
+  if (!event || !event.extendedProps) {
+    console.warn("⚠️ Událost neexistuje nebo nemá extendedProps.", event);
+    return { html: '<div>Chybějící událost</div>' };
+  }
 
-  // Přehledné datum
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
   const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
 
@@ -345,13 +345,12 @@ eventContent: function(arg) {
   const partyName = getPartyName(event.extendedProps.party);
   const partyColor = event.backgroundColor || "#666";
 
-  const isOmluvenka = event.source && event.source.id === 'omluvenky';
-  const textColor = isOmluvenka ? "#000000" : "#ffffff";
+  // ✅ Jednoduchá a bezpečná detekce omluvenky
+  const isOmluvenka = event.extendedProps?.isOmluvenka === true;
 
   let iconHtml = "";
   let statusColor = "#bbb";
 
-  // Speciální nastavení ikon a barev
   if (isOmluvenka) {
     iconHtml = '<i class="fa-solid fa-user-slash"></i>';
     statusColor = event.backgroundColor || "#999";
@@ -366,14 +365,12 @@ eventContent: function(arg) {
     statusColor = partyColor;
   }
 
-  // Speciální ikonka pro nehotové eventy v seznamu
-if (view.type === 'listFourWeeks') {
+  if (view.type === 'listFourWeeks') {
     if (!event.extendedProps.predane && !event.extendedProps.hotove && !event.extendedProps.odeslane && !isOmluvenka) {
       iconHtml = '<i class="fa-solid fa-person-digging"></i>';
-      statusColor = partyColor; // ✅ použito pozadí eventu z měsíčního zobrazení
+      statusColor = partyColor;
     }
 
-    // Speciální formátování omluvenek pro seznam
     let displayTitle = event.title;
     if (isOmluvenka) {
       const [titleText, typText] = event.title.split('(');
@@ -415,41 +412,39 @@ if (view.type === 'listFourWeeks') {
         </div>`
     };
   } else {
-    // Ostatní pohledy (mimo seznam)
     if (isOmluvenka) {
       const [titleText, typText] = event.title.split('(');
       const typ = typText ? typText.replace(')', '').trim() : '';
 
-  return {
-    html: `
-      <div style="
-        width:100%; 
-        font-size:11px; 
-        color:${textColor};
-        line-height:1.1; 
-        overflow:hidden; 
-        text-overflow:ellipsis;
-        white-space:nowrap;
-        display: flex;
-        align-items: center;
-        gap: 4px;">
-        
-        <span style="font-weight:bold; color:${textColor};">
-          <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
-        </span>
-        <span style="font-size:9px; opacity:0.8; color:${textColor};">
-          (${typ.trim()})
-        </span>
-      </div>`
-  };
+      return {
+        html: `
+          <div style="
+            width:100%; 
+            font-size:11px; 
+            color:#fff;
+            line-height:1.1; 
+            overflow:hidden; 
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;">
+            
+            <span style="font-weight:bold;">
+              <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
+            </span>
+            <span style="font-size:9px; opacity:0.8;">
+              (${typ.trim()})
+            </span>
+          </div>`
+      };
     } else {
-      // zachování původního formátu pro běžné eventy
       return { 
         html: `
           <div style="
             width:100%; 
             font-size:11px; 
-            color:${textColor};
+            color:#fff;
             line-height:1.1; 
             overflow:hidden; 
             text-overflow:ellipsis;
@@ -457,12 +452,13 @@ if (view.type === 'listFourWeeks') {
               <div style="font-weight:bold;">
                 ${iconHtml} ${cas} ${event.title}
               </div>
-              <div style="font-size:9px; color:#ffffff;">${partyName}</div>
+              <div style="font-size:9px;">${partyName}</div>
           </div>`
       };
     }
   }
 }
+
 });
 
 calendar.render();
