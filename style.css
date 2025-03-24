@@ -420,7 +420,7 @@ html, body {
   }
 
   .fc-toolbar-title {
-    font-size: 1rem;
+    font-size: 0.9rem !important;
   }
 
   .legend-item {
@@ -456,6 +456,12 @@ html, body {
   padding: 6px 8px !important;
   font-size: 0.8rem !important;
 }
+
+  .fc-prev-button,
+  .fc-next-button,
+  .fc-today-button {
+    display: none !important;
+  }
 
 }
 
