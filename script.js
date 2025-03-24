@@ -133,8 +133,28 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 end.setDate(start.getDate() + 28);
                 return { start, end };
             }
-        }
+        },
+        aktualni: {
+          type: 'dayGrid',  // nebo timeGrid či list dle potřeby
+          duration: { weeks: 3 },  // celkem 3 týdny (1 týden před, 1 aktuální a 1 po)
+          buttonText: 'Aktuální',
+          visibleRange: function(currentDate) {
+            // Získání aktuálního týdne, začátek týden před a konec týden po aktuálním
+            let start = new Date(currentDate);
+            start.setDate(start.getDate() - 7); // týden před
+
+            let end = new Date(currentDate);
+            end.setDate(end.getDate() + 14); // týden po (celkem 3 týdny)
+
+            return { start, end };
+          }
+        }   
     },
+    headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,aktualni,listMonth'
+      },
         height: 'auto',
         firstDay: 1,
         selectable: false,
