@@ -451,22 +451,6 @@ html, body {
   gap: 8px;
 }
 
-/* Titulek měsíce nahoře */
-.fc-header-toolbar .fc-toolbar-title {
-  order: 0; /* měsíc úplně nahoře */
-  font-size: 1rem !important;
-  margin-bottom: 4px;
-}
-
-/* Všechny tlačítka až pod titulkem měsíce */
-.fc-header-toolbar .fc-toolbar-chunk {
-  order: 1;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
 /* Velikost tlačítek */
 .fc-header-toolbar button {
   padding: 6px 8px !important;
