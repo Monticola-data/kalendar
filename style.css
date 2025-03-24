@@ -84,7 +84,7 @@ html, body {
   margin: 20px auto;
   background-color: #ffffff; /* čistě bílé pozadí pro kalendář */
   padding: 15px;
-  border-radius: 8px;
+  border-radius: 0px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
@@ -130,15 +130,6 @@ html, body {
     margin: 0 !important;
 }
 
-/* Responzivní zmenšení na mobilních zařízeních */
-@media (max-width: 600px) {
-    .week-number-circle {
-        width: 18px !important;
-        height: 18px !important;
-        font-size: 7px !important;
-        padding: 1px !important;
-    }
-}
 /* Události v kalendáři */
 .fc-event {
   background: var(--primary-color);
@@ -436,6 +427,28 @@ select, button {
     font-size: 0.7rem !important;
     padding: 4px 8px !important;
   }
+
+  @media (max-width: 600px) {
+  .fc-event-title,
+  .fc-event-title-container,
+  .fc-daygrid-event-harness {
+    font-size: 0.7rem !important;
+  }
+
+  .fc-event {
+    padding: 1px !important;
+  }
+}
+  /* Responzivní zmenšení na mobilních zařízeních */
+@media (max-width: 600px) {
+    .week-number-circle {
+        width: 18px !important;
+        height: 18px !important;
+        font-size: 7px !important;
+        padding: 1px !important;
+    }
+}
+
 
   .modal {
     width: 80% !important;
