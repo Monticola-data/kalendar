@@ -166,8 +166,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         unselectAuto: true,
         navLinks: true,
         eventOrder: "cas,title",
-        dragScroll: false,
-        dragNavigation: false,
+        dragScroll: true,
         longPressDelay: 0,
     
         weekNumbers: true,
@@ -207,52 +206,34 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         return true;  // ✅ přesunutí povoleno
     },
 
-    eventDragStop: function(info) {
-    const view = calendar.view;
-    const newDate = info.event.start;
-
-    if (newDate < view.currentStart || newDate >= view.currentEnd) {
-        info.event.setStart(info.oldEvent.start); // okamžitě vrátí event zpět bez změny měsíce
-    }
-},
-
-
-eventDrop: function(info) {
-    const viewStart = calendar.view.currentStart;
-    const viewEnd = calendar.view.currentEnd;
-    const newDate = info.event.start;
-
-    if (newDate < viewStart || newDate >= viewEnd) {
-        info.revert();  // Vrátí event zpět, pokud přetahuješ mimo viditelný rozsah
-        calendar.gotoDate(info.oldEvent.start);  // Zabrání přeskoku měsíce
-        return;
-    }
-
+eventDrop: function(info) { // bez async, aby nezdržoval UI
     const eventId = info.event.id;
-    const newDateStr = info.event.startStr;
+    const newDate = info.event.startStr;
 
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Asynchronní update bez čekání, nezdržuje UI
+    // okamžitě zahájíme asynchronní proces, ale nečekáme na něj
     (async () => {
         try {
-            await db.collection("events").doc(eventId).update({
-                start: newDateStr,
+            // Aktualizuj Firestore (nečeká na dokončení)
+            db.collection("events").doc(eventId).update({
+                start: newDate,
                 "extendedProps.cas": cas
             });
 
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            // Aktualizuj AppSheet
+            fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
-                body: JSON.stringify({ eventId, start: newDateStr, cas }),
+                body: JSON.stringify({ eventId, start: newDate, cas }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log(`✅ Datum (${newDateStr}) a čas (${cas}) úspěšně odeslány!`);
+            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány!`);
 
         } catch (err) {
             console.error("❌ Chyba při odesílání dat:", err);
-            info.revert(); // vrátí zpět při chybě
+            info.revert(); // toto případně volat jen, pokud chceš vrátit změnu
         }
     })();
 },
