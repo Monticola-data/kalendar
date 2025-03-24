@@ -210,36 +210,35 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 eventDrop: function(info) {
     const eventId = info.event.id;
     const newDate = info.event.startStr;
-
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Nastav načítání ihned
+    // Aktivuj načítání
     info.event.setProp('editable', false);
     info.event.setProp('opacity', 0.6);
 
     (async () => {
         try {
-            // ✅ teď bude čekat, než se uloží do Firestore
+            // ✅ Toto awaituješ (Firestore)
             await db.collection("events").doc(eventId).update({
                 start: newDate,
                 "extendedProps.cas": cas
             });
 
-            // ✅ čeká na dokončení requestu
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            // 🔵 Toto NEawaituješ (AppSheet běží na pozadí)
+            fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({ eventId, start: newDate, cas }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány!`);
+            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány do Firestore.`);
 
         } catch (err) {
-            console.error("❌ Chyba při odesílání dat:", err);
+            console.error("❌ Chyba při aktualizaci Firestore:", err);
             info.revert();
         } finally {
-            // Ukonči načítání až po dokončení všech requestů
+            // Vždy obnov UI stav eventu po Firestore updatu
             info.event.setProp('editable', true);
             info.event.setProp('opacity', 1);
         }
