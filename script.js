@@ -350,7 +350,8 @@ Object.entries(partyMap).forEach(([id, party]) => {
                 console.error("❌ Chyba při ukládání času:", error);
             });
         };
-    modal.style.display = modalOverlay.style.display = "block";
+    modal.classList.add('show');
+    modalOverlay.style.display = "block";
     }
 },
 
@@ -490,8 +491,9 @@ eventContent: function(arg) {
 
 calendar.render();
 
+// Zavření modalu kliknutím mimo modal přes overlay
 modalOverlay.onclick = () => {
-    modal.style.display = "none";
+    modal.classList.remove('show');
     modalOverlay.style.display = "none";
 };
 
@@ -584,23 +586,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderCalendar();
 
-    if (savePartyButton) {
-        savePartyButton.onclick = async () => {
-            if (selectedEvent) {
-                await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
-                if (modal) modal.style.display = "none";
-                if (modalOverlay) modalOverlay.style.display = "none";
-            }
-        };
-    }
+if (savePartyButton) {
+    savePartyButton.onclick = async () => {
+        if (selectedEvent) {
+            await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
+            if (modal) modal.classList.remove('show');
+            if (modalOverlay) modalOverlay.style.display = "none";
 
-    // Zavření modalu kliknutím mimo modal přes overlay
-    if (modalOverlay) {
-        modalOverlay.onclick = () => {
-            if (modal) modal.style.display = "none";
-            modalOverlay.style.display = "none";
-        };
-    }
+            setTimeout(() => { 
+                modal.style.display = "none";
+            }, 300); // odpovídá délce CSS animace
+        }
+    };
+}
+
+// Zavření modalu kliknutím mimo modal přes overlay
+if (modalOverlay) {
+    modalOverlay.onclick = () => {
+        if (modal) modal.classList.remove('show');
+        modalOverlay.style.display = "none";
+
+        setTimeout(() => {
+            modal.style.display = "none";
+        }, 300); // odpovídá délce CSS animace
+    };
+}
 });
 
 
