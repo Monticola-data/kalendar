@@ -374,6 +374,12 @@ html, body {
     margin: 5px;
   }
 
+  headerToolbar: {
+  left: 'today',
+  center: 'title',
+  right: 'dayGridMonth,aktualni,listFourWeeks'
+}
+
   /* Obal kalendáře a vnitřní padding */
   #calendar-wrapper,
   #calendar {
@@ -455,12 +461,6 @@ html, body {
   padding: 6px 8px !important;
   font-size: 0.8rem !important;
 }
-
-headerToolbar: {
-  left: 'today',
-  center: 'title',
-  right: 'dayGridMonth,aktualni,listFourWeeks'
-},
 
 }
 
