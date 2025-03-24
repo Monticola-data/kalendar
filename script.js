@@ -118,13 +118,14 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         editable: true,
         locale: 'cs',
         buttonText: {
-            today: 'dnes'
+            today: 'dnes',
+            month: 'měsíc'
         },
     views: {
         listFourWeeks: {
             type: 'list',
             duration: { weeks: 4 },
-            buttonText: '4 týdny',
+            buttonText: 'seznam',
             visibleRange: function(currentDate) {
                 // Začíná od aktuálního pondělí
                 let start = FullCalendar.startOfWeek(currentDate);
@@ -137,7 +138,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         aktualni: {
           type: 'dayGrid',  // nebo timeGrid či list dle potřeby
           duration: { weeks: 3 },  // celkem 3 týdny (1 týden před, 1 aktuální a 1 po)
-          buttonText: 'Aktuální',
+          buttonText: 'aktuální',
           visibleRange: function(currentDate) {
             // Získání aktuálního týdne, začátek týden před a konec týden po aktuálním
             let start = new Date(currentDate);
