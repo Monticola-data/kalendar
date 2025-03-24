@@ -95,6 +95,7 @@ html, body {
   max-width: 1188px;
   margin: auto;
   //box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
+  border: 0px;
   padding: 15px;
   border-radius: 0px;
 }
