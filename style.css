@@ -68,6 +68,10 @@ html, body {
   box-shadow: 0 4px 10px rgba(0, 0, 0.4, 0.8);
 }
 
+.fc-scroller-liquid-absolute {
+    overflow: hidden !important;
+}
+
 .fc-scrollgrid {
   box-shadow: 0 0px 10px rgba(0, 0, 0, 0.4); 
   border-radius: 0px;
