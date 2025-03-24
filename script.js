@@ -206,89 +206,8 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         }
         return true;  // ✅ přesunutí povoleno
     },
-    calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: savedView,
-    editable: true,
-    locale: 'cs',
-    buttonText: {
-        today: 'dnes',
-        month: 'měsíc'
-    },
-    views: {
-        listFourWeeks: {
-            type: 'list',
-            duration: { weeks: 4 },
-            buttonText: 'seznam',
-            visibleRange: function(currentDate) {
-                let start = new Date(currentDate);
-                start.setDate(start.getDate() - (start.getDay() + 6) % 7);
-                let end = new Date(start);
-                end.setDate(end.getDate() + 28);
-                return { start, end };
-            }
-        },
-        aktualni: {
-            type: 'dayGrid',
-            duration: { weeks: 4 },
-            buttonText: 'aktuální',
-            visibleRange: function(currentDate) {
-                let start = new Date(currentDate);
-                start.setDate(start.getDate() - (start.getDay() + 6) % 7);
-                let end = new Date(start);
-                end.setDate(end.getDate() + 28);
-                return { start, end };
-            }
-        }   
-    },
-    headerToolbar: {
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,aktualni,listFourWeeks'
-    },
-    height: 'auto',
-    firstDay: 1,
-    selectable: false,
-    unselectAuto: true,
-    navLinks: true,
-    eventOrder: "cas,title",
-    dragScroll: false,
-    dragNavigation: false,
-    longPressDelay: 0,
-    weekNumbers: true,
-    weekNumberContent: function(arg) {
-        return {
-            html: `<span class="week-number-circle" data-week="${arg.num}">T${arg.num}</span>`
-        };
-    },
-    eventSources: [
-        {
-            id: 'firestore',
-            events: allEvents
-        },
-        {
-            id: 'holidays',
-            googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-            googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-            display: 'background',
-            color: '#854646',
-            textColor: '#000',
-            className: 'holiday-event',
-            extendedProps: { isHoliday: true }
-        },
-        {
-            id: 'omluvenky',
-            events: []
-        }
-    ],
-    eventAllow: function(dropInfo, draggedEvent) {
-        const { hotove, predane } = draggedEvent.extendedProps;
-        if (hotove === true || predane === true) {
-            return false;
-        }
-        return true;
-    },
-    // ⬇️ sem přidáš tuhle část kódu:
-eventDragStop: function(info) {
+
+    eventDragStop: function(info) {
     const view = calendar.view;
     const newDate = info.event.start;
 
@@ -296,6 +215,7 @@ eventDragStop: function(info) {
         info.event.setStart(info.oldEvent.start); // okamžitě vrátí event zpět bez změny měsíce
     }
 },
+
 
 eventDrop: function(info) {
     const viewStart = calendar.view.currentStart;
