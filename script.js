@@ -207,34 +207,38 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         return true;  // ✅ přesunutí povoleno
     },
 
-eventDrop: function(info) { // bez async, aby nezdržoval UI
+eventDrop: function(info) {
     const eventId = info.event.id;
     const newDate = info.event.startStr;
 
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // okamžitě zahájíme asynchronní proces, ale nečekáme na něj
+    // 🚩 Ihned nastav indikátor načítání a zamez úpravám
+    info.event.setProp('editable', false);
+    info.event.setProp('opacity', 0.6);
+
     (async () => {
         try {
-            // Aktualizuj Firestore (nečeká na dokončení)
             db.collection("events").doc(eventId).update({
                 start: newDate,
                 "extendedProps.cas": cas
             });
 
-            // Aktualizuj AppSheet
-            fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({ eventId, start: newDate, cas }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
             console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány!`);
-
         } catch (err) {
             console.error("❌ Chyba při odesílání dat:", err);
-            info.revert(); // toto případně volat jen, pokud chceš vrátit změnu
+            info.revert();
+        } finally {
+            // ✅ Vždy obnov UI stav eventu
+            info.event.setProp('editable', true);
+            info.event.setProp('opacity', 1);
         }
     })();
 },
