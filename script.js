@@ -117,7 +117,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
         locale: 'cs',
-
+        buttonText: {
+            today: 'dnes'
+        },
     views: {
         listFourWeeks: {
             type: 'list',
