@@ -447,7 +447,6 @@ html, body {
   }
 .fc-header-toolbar {
   display: flex;
-  flex-direction: column;
   gap: 8px;
 }
 
