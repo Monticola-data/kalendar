@@ -89,10 +89,16 @@ html, body {
 }
 
 .fc-scrollgrid {
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2); /* jemný stín po obvodu */
-  border-radius: 8px; /* jemné zakulacení rohů */
+  box-shadow: 0 0 12px rgba(0, 0, 0, 4); /* jemný stín po obvodu */
+  border-radius: 0px;
   overflow: hidden;
   border: none !important; /* odstranění původních okrajů */
+}
+
+/* Jemná stínová mřížka kolem názvů dnů v týdnu */
+.fc .fc-col-header-cell {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+  border: none !important;
 }
 
 /* Odstranění původní mřížky uvnitř kalendáře (necháme jen jemné vnitřní stíny) */
