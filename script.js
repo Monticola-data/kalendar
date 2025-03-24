@@ -117,7 +117,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: savedView,
         editable: true,
         locale: 'cs',
-        fixedWeekCount: true,
         buttonText: {
             today: 'dnes',
             month: 'měsíc'
@@ -201,13 +200,21 @@ calendar = new FullCalendar.Calendar(calendarEl, {
  
         ],
 
-    eventAllow: function(dropInfo, draggedEvent) {
-        const { hotove, predane } = draggedEvent.extendedProps;
-        if (hotove === true || predane === true) {
-            return false;  // 🚫 vůbec nepovolí přesunutí eventu
-        }
-        return true;  // ✅ přesunutí povoleno
-    },
+eventAllow: function(dropInfo, draggedEvent) {
+    const { hotove, predane } = draggedEvent.extendedProps;
+    if (hotove === true || predane === true) {
+        return false; 
+    }
+
+    // 🚩 Přidáno zajištění, že datum eventu zůstane v aktuálním pohledu
+    const view = calendar.view;
+    const visibleStart = view.currentStart;
+    const visibleEnd = view.currentEnd;
+    const eventStart = dropInfo.start;
+
+    return eventStart >= visibleStart && eventStart < visibleEnd;
+},
+
 
 eventDrop: function(info) {
     const eventId = info.event.id;
