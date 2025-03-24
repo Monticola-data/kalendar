@@ -213,37 +213,38 @@ eventDrop: function(info) {
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Aktivuj načítání
+    // Nastav příznak ukládání
+    info.event.setExtendedProp('loading', true);
     info.event.setProp('editable', false);
     info.event.setProp('opacity', 0.6);
 
     (async () => {
         try {
-            // ✅ Toto awaituješ (Firestore)
             await db.collection("events").doc(eventId).update({
                 start: newDate,
                 "extendedProps.cas": cas
             });
 
-            // 🔵 Toto NEawaituješ (AppSheet běží na pozadí)
             fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({ eventId, start: newDate, cas }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány do Firestore.`);
+            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány.`);
 
         } catch (err) {
             console.error("❌ Chyba při aktualizaci Firestore:", err);
             info.revert();
         } finally {
-            // Vždy obnov UI stav eventu po Firestore updatu
+            // Po dokončení operace zruš příznak ukládání
+            info.event.setExtendedProp('loading', false);
             info.event.setProp('editable', true);
             info.event.setProp('opacity', 1);
         }
     })();
 },
+
 
 
     dateClick: function(info) {
@@ -382,6 +383,9 @@ eventContent: function(arg) {
 
   // ✅ Jednoduchá a bezpečná detekce omluvenky
   const isOmluvenka = event.extendedProps?.isOmluvenka === true;
+  const isLoading = event.extendedProps.loading === true; // 🚩 nový řádek
+  const loadingIcon = isLoading ? '⏳ ' : '';              // 🚩 nový řádek
+
 
   let iconHtml = "";
   let statusColor = "#bbb";
@@ -440,8 +444,8 @@ eventContent: function(arg) {
             color:#fff;
             font-size:16px;">${iconHtml}</div>
 
-          <div style="flex-grow:1; overflow:hidden;">
-            <div style="font-size:13px; font-weight:bold;">${formattedDate}, ${cas}</div>
+         <div style="flex-grow:1; overflow:hidden;">
+            <div style="font-size:13px; font-weight:bold;">${loadingIcon}${formattedDate}, ${cas}</div>
             <div style="font-size:12px; opacity:0.8;">${displayTitle}</div>
           </div>
         </div>`
@@ -485,7 +489,7 @@ eventContent: function(arg) {
             text-overflow:ellipsis;
             white-space:nowrap;">
               <div style="font-weight:bold;">
-                ${iconHtml} ${cas} ${event.title}
+                ${loadingIcon}${iconHtml} ${cas} ${event.title}
               </div>
               <div style="font-size:9px;">${partyName}</div>
           </div>`
