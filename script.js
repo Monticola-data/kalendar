@@ -139,16 +139,17 @@ calendar = new FullCalendar.Calendar(calendarEl, {
           type: 'dayGrid',
           duration: { weeks: 3 },
           buttonText: 'aktuální',
-          visibleRange: function(currentDate) {
-            // najdi pondělí aktuálního týdne
-            let start = new Date(currentDate);
-            start.setDate(start.getDate() - start.getDay() + 1 - 7); // týden před (od pondělí)
+            visibleRange: function(currentDate) {
+                // začátek týdne (pondělí)
+                let start = new Date(currentDate);
+                start.setDate(start.getDate() - (start.getDay() + 6) % 7);
 
-            let end = new Date(start);
-            end.setDate(end.getDate() + 21); // 3 týdny celkem (1 před, aktuální a 1 po)
+                // konec za 4 týdny
+                let end = new Date(start);
+                end.setDate(end.getDate() + 28);
 
-            return { start, end };
-          }
+                return { start, end };
+            }
         }   
     },
     headerToolbar: {
