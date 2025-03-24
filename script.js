@@ -337,12 +337,6 @@ eventContent: function(arg) {
     return { html: '<div>Chybějící událost</div>' };
   }
 
-  if (event.extendedProps.isHoliday) {
-    return {
-      html: `<div class="custom-holiday-event">${event.title}</div>`
-    };
-  }
-
   const options = { weekday: 'short', day: 'numeric', month: 'short' };
   const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
 
