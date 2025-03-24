@@ -120,8 +120,6 @@
 </div>
 <div id="modalOverlay" class="modal-overlay"></div>
 
-
-
 <!-- Firebase kompatibilní verze -->
 <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
@@ -143,14 +141,6 @@
 <script type="module" src="script.js"></script>
 <script type="module" src="firebase-auth.js"></script>
 
-  <!-- ✅ Inicializace tlačítek -->
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('monthView').onclick = () => calendar.changeView('dayGridMonth');
-    document.getElementById('weekView').onclick = () => calendar.changeView('timeGridWeek');
-    document.getElementById('listView').onclick = () => calendar.changeView('listMonth');
-  });
-</script>
   
 </body>
 
