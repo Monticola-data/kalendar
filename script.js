@@ -200,53 +200,54 @@ calendar = new FullCalendar.Calendar(calendarEl, {
  
         ],
 
-eventAllow: function(dropInfo, draggedEvent) {
-    const { hotove, predane } = draggedEvent.extendedProps;
-    if (hotove === true || predane === true) {
-        return false; 
-    }
+eventAllow: ({ start }, { extendedProps }) => {
+    const { hotove, predane } = extendedProps || {};
 
-    // 🚩 Přidáno zajištění, že datum eventu zůstane v aktuálním pohledu
-    const view = calendar.view;
-    const visibleStart = view.currentStart;
-    const visibleEnd = view.currentEnd;
-    const eventStart = dropInfo.start;
+    // Zakázat přesun hotových nebo předaných událostí
+    if (hotove || predane) return false;
 
-    return eventStart >= visibleStart && eventStart < visibleEnd;
+    // Povolit přesun jen v rámci aktuálně zobrazeného období
+    const { currentStart, currentEnd } = calendar.view;
+    return start >= currentStart && start < currentEnd;
 },
 
 
+
 eventDrop: function(info) {
+    if (!info.event || !info.event.start) {
+        console.warn("⚠️ Přesun proběhl na neplatnou nebo odstraněnou událost.");
+        info.revert();
+        return;
+    }
+
     const eventId = info.event.id;
     const newDate = info.event.startStr;
-    const originalCas = info.oldEvent.extendedProps.cas;
-    const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
     info.event.setProp('editable', false);
 
-    // 🚩 PŘIDÁNÍ DO FRONTY NAMÍSTO OKAMŽITÉHO SPUŠTĚNÍ
     eventQueue[eventId] = async () => {
         try {
             await db.collection("events").doc(eventId).update({
                 start: newDate,
-                "extendedProps.cas": cas
+                "extendedProps.cas": info.event.extendedProps.cas || 0
             });
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
-                body: JSON.stringify({ eventId, start: newDate, cas }),
+                body: JSON.stringify({ eventId, start: newDate, cas: info.event.extendedProps.cas || 0 }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log(`✅ Úspěšně odesláno (${newDate}, ${cas})`);
+            console.log(`✅ Úspěšně odesláno (${newDate})`);
 
-            // Nastaví nové datum až po potvrzení od serveru
             info.event.setStart(newDate);
         } catch (err) {
             console.error("❌ Chyba při odesílání dat:", err);
             info.revert();
         } finally {
-            info.event.setProp('editable', true);
+            if (info.event) {
+                info.event.setProp('editable', true);
+            }
         }
     };
 
@@ -562,17 +563,21 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
+    // Získání aktuálních event sources
+    const firestoreSource = calendar.getEventSourceById('firestore');
     const omluvenkySource = calendar.getEventSourceById('omluvenky');
 
     calendar.batchRendering(() => {
-        calendar.getEvents().forEach(evt => evt.remove()); // bezpečně odstraní jednotlivé eventy
+        // Odstranění původních zdrojů
+        if (firestoreSource) firestoreSource.remove();
+        if (omluvenkySource) omluvenkySource.remove();
 
-        filteredEvents.forEach(evt => calendar.addEvent(evt));
-        
-        // ✅ správně nastaví zdroj omluvenek!
-        omluvenkyFiltered.forEach(evt => calendar.addEvent({ ...evt, source: omluvenkySource }));
+        // Přidání aktualizovaných eventů jako nové zdroje
+        calendar.addEventSource({ id: 'firestore', events: filteredEvents });
+        calendar.addEventSource({ id: 'omluvenky', events: omluvenkyFiltered });
     });
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
