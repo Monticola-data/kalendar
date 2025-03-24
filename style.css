@@ -373,9 +373,9 @@ html, body {
     font-size: 14px;
     margin: 5px;
   }
-
   headerToolbar: {
-  left: 'title',
+  left: '',
+  center: 'title',
   right: 'dayGridMonth,aktualni,listFourWeeks'
 }
 
