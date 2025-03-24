@@ -168,17 +168,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         eventOrder: "cas,title",
         dragScroll: false,
         dragNavigation: false,
-    eventDragStop: function(info) {
-        const view = calendar.view;
-        const newDate = info.event.start;
-
-        if (newDate < view.currentStart || newDate >= view.currentEnd) {
-            info.revert(); 
-            calendar.gotoDate(info.oldEvent.start); 
-        } else {
-            calendar.gotoDate(info.oldEvent.start); // ✅ Klíčová oprava
-        }
-    },
         longPressDelay: 300,
         eventLongPressDelay: 300,
     
