@@ -89,7 +89,7 @@ html, body {
 }
 
 .fc-scrollgrid {
-  box-shadow: 0 0 12px rgba(0, 0, 0.4, 0.8); /* jemný stín po obvodu */
+  box-shadow: 0 0 12px rgba(0, 0, 0.1, 0.2); /* jemný stín po obvodu */
   border-radius: 0px;
   overflow: hidden;
   border: none !important; /* odstranění původních okrajů */
@@ -144,8 +144,8 @@ html, body {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    padding: 2 !important;
+    margin: 2 !important;
 }
 
 /* Události v kalendáři */
