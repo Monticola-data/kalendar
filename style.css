@@ -610,5 +610,22 @@ select, button {
   }
 }
 
+.custom-holiday-event {
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .custom-holiday-event {
+    font-size: 0.7rem !important; /* zmenšení na mobilu */
+    padding: 1px !important;
+  }
+}
+
+
 
 </style>
