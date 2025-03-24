@@ -465,6 +465,23 @@ html, body {
   padding: 6px 8px !important;
   font-size: 0.8rem !important;
 }
+  .fc-daygrid-day-top .fc-daygrid-day-number {
+    font-size: 0.7rem !important;  /* menší velikost čísla dne */
+  }
+
+  .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
+    opacity: 0.6;  /* případně ještě snížíš viditelnost dnů mimo měsíc */
+  }
+
+  .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    font-weight: bold !important; /* dnešní datum výrazněji */
+  }
+
+  /* zmenšení velkého nadpisu začátku měsíce */
+  .fc-daygrid-day.fc-day-month-start .fc-daygrid-day-number {
+    font-size: 0.75rem !important; /* zmenšení nadpisu měsíce */
+    font-weight: bold;
+  }
 
 }
 
