@@ -130,7 +130,7 @@ html, body {
     font-weight: bold;
     user-select: none;
     padding: 1px !important;
-    margin: 0px
+    margin: 0px;
     box-shadow: none !important;
 }
 
@@ -230,22 +230,39 @@ html, body {
   padding: 5px;
 }
 
-.button-save, .button-detail {
+.button-detail {
   margin-right: 5px;
 }
-#partySelect option {
-  padding-left: 5px;
-}
 
-#partySelect {
-  padding: 8px 12px;
+#partySelect,
+#casSelect {
+  padding: 6px 10px;
   font-size: 14px;
-  border-radius: 8px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
   border: 1px solid #ccc;
   cursor: pointer;
   color: #333;
-  appearance: none; /* sjednotí vzhled napříč prohlížeči */
-  background-color: #f9f9f9;
+  appearance: none;
+}
+
+#partySelect option,
+#casSelect option {
+  padding: 4px 8px;
+  background-color: #fff;
+  color: #333;
+}
+
+#partySelect option:hover,
+#casSelect option:hover {
+  background-color: #eaeaea;
+}
+
+#partySelect:focus,
+#casSelect:focus {
+  outline: none;
+  border-color: #999;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
 
@@ -264,32 +281,6 @@ select, button {
   cursor: pointer;
 }
 
-#legend {
-    text-align: center;
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 10px; /* Mezera mezi položkami legendy */
-}
-
-.legend-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 15px;
-    border-radius: 5px;
-    color: white;
-    font-size: 14px;
-    box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-/* Efekt při najetí myší */
-.legend-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.4);
-}
 
 /* Stylování jednotlivých dní v kalendáři */
 
@@ -335,27 +326,6 @@ select, button {
   color: #295779 !important;
 }
 
-.button-save {
-    background-color: #7d9980;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.button-save:hover {
-    background-color: #637a66;
-    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4);
-}
-
-.button-save:active {
-    /* Efekt stisknutí */
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    transform: translateY(2px);
-}
 
 .button-detail {
     background-color: #e8e8e8;
@@ -404,92 +374,7 @@ select, button {
   color: white;
 }
 
-/* ✅ Upravený styl pro partySelect s barevnými kulickami, větším symbolem a šedým pozadím */
-#partySelect {
-  padding: 8px 12px;
-  font-size: 14px;
-  font-weight: bold;  /* ✅ tučné písmo ve filtru */
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #f2f2f2; /* ✅ světlé šedé pozadí */
-  cursor: pointer;
-  color: #333;
-  appearance: none;
-}
 
-/* ✅ Vlastní stylování položek výběru */
-#partySelect option {
-  font-weight: bold;
-  background-color: #f2f2f2; /* ✅ světlé šedé pozadí */
-  padding-left: 22px; /* místo pro větší kuličku */
-  position: relative;
-  color: #333;
-}
-
-/* ✅ Stylování "kuličky" barvy před názvem */
-#partySelect option::before {
-  content: '●';
-  position: absolute;
-  left: 5px;  
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 16px; /* ✅ větší kulicka */
-  color: var(--option-color, #000); /* dynamická barva nastavena v JS */
-}
-
-/* ✅ Společný základní styl pro oba selecty */
-#partySelect, #casSelect {
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  color: #333;
-  appearance: none;
-  background-color: #f2f2f2; /* světle šedé pozadí */
-  font-weight: normal; /* ✅ odstraněno tučné písmo */
-}
-
-/* ✅ Položky uvnitř casSelect */
-#casSelect option {
-  padding-left: 10px;
-  background-color: #f2f2f2;
-}
-
-/* ✅ Vybraná položka nebo hover v casSelect */
-#casSelect option:checked,
-#casSelect option:hover {
-  background-color: #dcdcdc;
-}
-
-/* ✅ Specifický styl pouze pro partySelect s barevnými kuličkami */
-#partySelect option {
-  padding-left: 20px; /* větší odsazení kvůli kuličkám */
-  position: relative;
-  background-color: #f2f2f2;
-}
-
-/* ✅ Barevné kuličky v partySelect */
-#partySelect option::before {
-  content: "";
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 8px;
-  position: absolute;
-  left: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: var(--color, #ccc);
-}
-
-/* ✅ Zvýraznění vybrané položky v partySelect (bez modrého pruhu) */
-#partySelect option:checked,
-#partySelect option:hover {
-  background-color: #dcdcdc;
-  color: #333;
-}
 
 /* Stylování událostí v List view – černý text místo bílého */
 .fc-list-event-title a,
