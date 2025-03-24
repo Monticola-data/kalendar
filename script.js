@@ -127,17 +127,20 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             duration: { weeks: 4 },
             buttonText: 'seznam',
             visibleRange: function(currentDate) {
-                // Začíná od aktuálního pondělí
-                let start = FullCalendar.startOfWeek(currentDate);
+                // začátek týdne (pondělí)
+                let start = new Date(currentDate);
+                start.setDate(start.getDate() - (start.getDay() + 6) % 7);
+
                 // konec za 4 týdny
                 let end = new Date(start);
-                end.setDate(start.getDate() + 28);
+                end.setDate(end.getDate() + 28);
+
                 return { start, end };
             }
         },
         aktualni: {
           type: 'dayGrid',
-          duration: { weeks: 3 },
+          duration: { weeks: 4 },
           buttonText: 'aktuální',
             visibleRange: function(currentDate) {
                 // začátek týdne (pondělí)
