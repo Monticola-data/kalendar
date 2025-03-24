@@ -219,41 +219,40 @@ eventAllow: function(dropInfo, draggedEvent) {
 eventDrop: function(info) {
     const eventId = info.event.id;
     const newDate = info.event.startStr;
-
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Ihned zamezí dalším úpravám a zdvojení
     info.event.setProp('editable', false);
 
-    (async () => {
+    // 🚩 PŘIDÁNÍ DO FRONTY NAMÍSTO OKAMŽITÉHO SPUŠTĚNÍ
+    eventQueue[eventId] = async () => {
         try {
-            // Aktualizuj Firestore
             await db.collection("events").doc(eventId).update({
                 start: newDate,
                 "extendedProps.cas": cas
             });
 
-            // Aktualizuj AppSheet
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({ eventId, start: newDate, cas }),
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány!`);
+            console.log(`✅ Úspěšně odesláno (${newDate}, ${cas})`);
 
-            // explicitní aktualizace data eventu
+            // Nastaví nové datum až po potvrzení od serveru
             info.event.setStart(newDate);
         } catch (err) {
             console.error("❌ Chyba při odesílání dat:", err);
             info.revert();
         } finally {
-            // znovu povolíme úpravu
             info.event.setProp('editable', true);
         }
-    })();
+    };
+
+    processQueue();
 },
+
 
 
     dateClick: function(info) {
