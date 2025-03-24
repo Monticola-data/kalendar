@@ -130,7 +130,7 @@ html, body {
     font-weight: bold;
     user-select: none;
     padding: 1px !important;
-    margin: 1px
+    margin: 0px
     box-shadow: none !important;
 }
 
@@ -145,7 +145,7 @@ html, body {
     border: none !important;
     box-shadow: none !important;
     padding: 2 !important;
-    margin: 2 !important;
+    margin: 4 !important;
 }
 
 /* Události v kalendáři */
@@ -609,23 +609,5 @@ select, button {
     padding: 1px !important;
   }
 }
-
-.custom-holiday-event {
-  font-size: 0.9rem;
-  text-align: center;
-  padding: 2px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-@media (max-width: 600px) {
-  .custom-holiday-event {
-    font-size: 0.7rem !important; /* zmenšení na mobilu */
-    padding: 1px !important;
-  }
-}
-
-
 
 </style>
