@@ -456,11 +456,11 @@ html, body {
   font-size: 0.8rem !important;
 }
 
-  .fc-prev-button,
-  .fc-next-button,
-  .fc-today-button {
-    display: none !important;
-  }
+headerToolbar: {
+  left: 'today',
+  center: 'title',
+  right: 'dayGridMonth,aktualni,listFourWeeks'
+},
 
 }
 
