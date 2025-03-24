@@ -170,15 +170,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         dragNavigation: false,
         longPressDelay: 300,
         eventLongPressDelay: 300,
-        eventDragStop: function(info) {
-          const view = calendar.view;
-          const newDate = info.event.start;
-
-          if (newDate < view.currentStart || newDate >= view.currentEnd) {
-            calendar.gotoDate(info.oldEvent.start); // ✅ vrátí okamžitě pohled zpět
-          }
-        },
-
     
         weekNumbers: true,
         weekNumberContent: function(arg) {
