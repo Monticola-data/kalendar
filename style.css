@@ -445,29 +445,34 @@ html, body {
   .modal button {
     font-size: 1rem;
   }
-    .fc-header-toolbar {
-    flex-direction: column; /* Změní uspořádání na sloupec */
-    gap: 8px; /* mezera mezi jednotlivými řádky */
-  }
+.fc-header-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-  .fc-header-toolbar .fc-toolbar-title {
-    order: 1; /* Titulek měsíce nahoře */
-    font-size: 1rem !important;
-    margin-bottom: 4px;
-  }
+/* Titulek měsíce nahoře */
+.fc-header-toolbar .fc-toolbar-title {
+  order: 0; /* měsíc úplně nahoře */
+  font-size: 1rem !important;
+  margin-bottom: 4px;
+}
 
-  .fc-header-toolbar .fc-toolbar-chunk {
-    order: 2; /* Ostatní tlačítka pod titulkem */
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px;
-  }
+/* Všechny tlačítka až pod titulkem měsíce */
+.fc-header-toolbar .fc-toolbar-chunk {
+  order: 1;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
 
-  .fc-header-toolbar button {
-    padding: 6px 8px !important;
-    font-size: 0.8rem !important;
-  }
+/* Velikost tlačítek */
+.fc-header-toolbar button {
+  padding: 6px 8px !important;
+  font-size: 0.8rem !important;
+}
+
 }
 
 
