@@ -375,14 +375,9 @@ html, body {
   }
 
   headerToolbar: {
-  left: 'today',
-  center: 'title',
+  left: 'title',
   right: 'dayGridMonth,aktualni,listFourWeeks'
 }
-  .fc-prev-button,
-  .fc-next-button {
-    display: none !important;
-  }
 
   /* Obal kalendáře a vnitřní padding */
   #calendar-wrapper,
@@ -465,22 +460,16 @@ html, body {
   padding: 6px 8px !important;
   font-size: 0.8rem !important;
 }
-  .fc-daygrid-day-top .fc-daygrid-day-number {
-    font-size: 0.7rem !important;  /* menší velikost čísla dne */
-  }
-
-  .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
-    opacity: 0.6;  /* případně ještě snížíš viditelnost dnů mimo měsíc */
-  }
-
-  .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
-    font-weight: bold !important; /* dnešní datum výrazněji */
-  }
-
-  /* zmenšení velkého nadpisu začátku měsíce */
-  .fc-daygrid-day.fc-day-month-start .fc-daygrid-day-number {
-    font-size: 0.75rem !important; /* zmenšení nadpisu měsíce */
+  .fc-daygrid-day-top .fc-daygrid-day-number,
+  .fc-daygrid-day-top .fc-daygrid-day-number.fc-daygrid-day-number-month {
+    font-size: 0.75rem !important;
     font-weight: bold;
+  }
+
+  /* Zajištění zmenšení velkých nadpisů (např. "1. duben") */
+  .fc .fc-daygrid-day.fc-day-month-start .fc-daygrid-day-number {
+    font-size: 0.75rem !important;
+    font-weight: bold !important;
   }
 
 }
