@@ -373,11 +373,6 @@ html, body {
     font-size: 14px;
     margin: 5px;
   }
-  headerToolbar: {
-  left: '',
-  center: 'title',
-  right: 'dayGridMonth,aktualni,listFourWeeks'
-}
 
   /* Obal kalendáře a vnitřní padding */
   #calendar-wrapper,
@@ -470,6 +465,10 @@ html, body {
   .fc .fc-daygrid-day.fc-day-month-start .fc-daygrid-day-number {
     font-size: 0.75rem !important;
     font-weight: bold !important;
+  }
+  .fc-header-toolbar .fc-prev-button,
+  .fc-header-toolbar .fc-next-button {
+    display: none !important;
   }
 
 }
