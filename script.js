@@ -524,12 +524,15 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
+    const omluvenkySource = calendar.getEventSourceById('omluvenky');
+
     calendar.batchRendering(() => {
         calendar.getEvents().forEach(evt => evt.remove()); // bezpečně odstraní jednotlivé eventy
 
-        // přidá nové filtrovane eventy
         filteredEvents.forEach(evt => calendar.addEvent(evt));
-        omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
+        
+        // ✅ správně nastaví zdroj omluvenek!
+        omluvenkyFiltered.forEach(evt => calendar.addEvent({ ...evt, source: omluvenkySource }));
     });
 }
 
