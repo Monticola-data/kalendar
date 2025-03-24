@@ -557,10 +557,8 @@ select, button {
     font-size: 1rem;
   }
   
-  .holiday-event,
-  .holiday-event *,
-  .holiday-event .fc-event-title,
-  .holiday-event .fc-event-title-container {
+  .holiday-event, 
+  .holiday-event * {
     font-size: 0.7rem !important;
     padding: 1px !important;
   }
