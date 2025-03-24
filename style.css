@@ -19,22 +19,22 @@ html, body {
 #header {
   padding: 10px;
   display: flex;
-  flex-direction: column;       /* rozložení prvků do sloupce pod sebe */
-  align-items: center;          /* zarovnání prvků doprostřed */
-  gap: 12px;                    /* mezera mezi řádky */
-  background-color: #f2f2f2;    /* světlounce šedé pozadí */
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background-color: #f2f2f2;
 }
 
 .header-controls {
   display: flex;
-  gap: 8px;                     /* mezery mezi tlačítky a selecty */
-  flex-wrap: wrap;              /* responsivní chování */
-  justify-content: center;      /* centrovat obsah */
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-/* Styl pro tlačítka pohledů */
-.header-controls button {
-  padding: 8px 16px;
+.header-controls button,
+.header-controls select {
+  padding: 8px 12px;
   font-size: 14px;
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -42,42 +42,22 @@ html, body {
   color: #333;
   cursor: pointer;
   transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.header-controls button:hover {
-  background-color: #eaeaea;
-  border-color: #999;
-}
-
-.header-controls button:focus {
-  outline: none;
-  border-color: #555;
-  box-shadow: 0 0 5px rgba(85,85,85,0.3);
-}
-
-/* Styl pro selecty (tvůj původní styl) */
-.header-controls select {
-  padding: 8px 12px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  color: #333;
-}
-
+.header-controls button:hover,
 .header-controls select:hover {
   background-color: #eaeaea;
   border-color: #999;
 }
 
+.header-controls button:focus,
 .header-controls select:focus {
   outline: none;
   border-color: #555;
   box-shadow: 0 0 5px rgba(85,85,85,0.3);
 }
+
 
 #calendar-wrapper {
   max-width: 1188px;
@@ -178,18 +158,20 @@ html, body {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0.95);
   background: white;
-  padding: 10px;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.8);
-  border-radius: 0px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+  border-radius: 8px;
   z-index: 1000;
   min-width: 300px;
+  opacity: 0;
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
- }
+}
 
-/* Efekt otevření modalu */
+/* ✅ Efekt otevření modalu (funkční) */
 .modal.show {
+  display: block;
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
 }
@@ -202,8 +184,9 @@ html, body {
   width: 100%;
   height: 100%;
   background-color: rgba(0,0,0,0.3);
-  z-index: 99; /* pod modal, nad ostatní obsah */
+  z-index: 99;
 }
+
 .modal-event-info {
   font-size: 14px;
   font-weight: bold;
@@ -219,7 +202,6 @@ html, body {
   gap: 15px;
 }
 
-
 .modal-row label {
   width: 60px;
   font-weight: bold;
@@ -227,12 +209,54 @@ html, body {
 
 .modal-row select {
   flex: 1;
-  padding: 5px;
+  padding: 6px 10px;
+  font-size: 14px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  color: #333;
+  appearance: none;
+}
+
+.modal-row select option {
+  padding: 4px 8px;
+  background-color: #fff;
+  color: #333;
+}
+
+.modal-row select option:hover {
+  background-color: #eaeaea;
+}
+
+.modal-row select:focus {
+  outline: none;
+  border-color: #999;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
 .button-detail {
   margin-right: 5px;
+  background-color: #e8e8e8;
+  color: black;
+  padding: 5px 10px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
 }
+
+.button-detail:hover {
+  background-color: #cccccc;
+  box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.button-detail:active {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  transform: translateY(2px);
+}
+
 
 #partySelect,
 #casSelect {
@@ -265,21 +289,6 @@ html, body {
   box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
-
-#filter-container {
-  text-align: center;
-  margin-bottom: 10px;
-}
-select, button {
-  background-color: #cccccc;
-  padding: 10px;
-  font-size: 14px;
-  margin: 5px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-}
 
 
 /* Stylování jednotlivých dní v kalendáři */
