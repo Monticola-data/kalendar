@@ -620,24 +620,25 @@ export function listenForUpdates(userEmail) {
     });
     
     // ✅ NOVÝ Listener pro omluvenky
-    db.collection('omluvenky').onSnapshot(async (snapshot) => {
-        omluvenkyEvents = snapshot.docs.map(doc => {
+db.collection('omluvenky').onSnapshot(async (snapshot) => {
+    omluvenkyEvents = snapshot.docs.map(doc => {
         const data = doc.data();
         const hex = data.hex || "#999";
 
-            return {
-                id: doc.id,
-                title: `${data.title} (${data.typ})`,
-                start: data.start,
-                end: data.end,
-                color: hex,
-                stredisko: data.stredisko,
-                parta: data.parta,
-                editable: false
-            };
-        });
-
-        filterAndRenderEvents();
+        return {
+            id: doc.id,
+            title: `${data.title} (${data.typ})`,
+            start: data.start,
+            end: data.end,
+            color: hex,
+            stredisko: data.stredisko,
+            parta: data.parta,
+            editable: false,
+            extendedProps: { isOmluvenka: true }  // ✅ NUTNÉ přidat!
+        };
     });
+
+    filterAndRenderEvents();
+});
     
 }
