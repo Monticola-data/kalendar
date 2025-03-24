@@ -88,14 +88,24 @@ html, body {
   box-shadow: 0 4px 10px rgba(0,0,0.4,0.8);
 }
 
+/* Odstranění všech čar a mřížky z kalendáře */
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+    border: none !important;
+}
+
+.fc-scrollgrid-section,
+.fc-scrollgrid-sync-table {
+    border: none !important;
+}
+
 #calendar {
   background: var(--secondary-color);
   flex-grow: 1;
   width: 100%;
   max-width: 1188px;
   margin: auto;
-  //box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
-  border: 0px;
   padding: 15px;
   border-radius: 0px;
 }
