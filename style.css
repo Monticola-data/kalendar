@@ -22,8 +22,7 @@ html, body {
   flex-direction: column;       /* rozložení prvků do sloupce pod sebe */
   align-items: center;          /* zarovnání prvků doprostřed */
   gap: 12px;                    /* mezera mezi řádky */
-  background-color: #fff;       /* čisté pozadí */
-  border-bottom: 1px solid #e0e0e0; /* jemná linka oddělující kalendář */
+  background-color: #f2f2f2;    /* světlounce šedé pozadí */
 }
 
 .header-controls {
