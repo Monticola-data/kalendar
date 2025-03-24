@@ -153,7 +153,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,aktualni,listMonth'
+        right: 'dayGridMonth,aktualni,listFourWeeks'
       },
         height: 'auto',
         firstDay: 1,
