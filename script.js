@@ -572,11 +572,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     strediskoFilter.value = savedStredisko;
 
-    // ✅ Přidáno - tlačítka pro změnu pohledu
-  const monthViewBtn = document.getElementById('monthView');
-  const weekViewBtn = document.getElementById('weekView');
-  const listViewBtn = document.getElementById('listFourWeeks');
-
     if (strediskoFilter) {
         strediskoFilter.onchange = () => {
             localStorage.setItem('selectedStredisko', strediskoFilter.value);
@@ -590,16 +585,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderCalendar();
-
-    if (monthViewBtn) {
-        monthViewBtn.onclick = () => calendar.changeView('dayGridMonth');
-    }
-    if (weekViewBtn) {
-        weekViewBtn.onclick = () => calendar.changeView('dayGridWeek');
-    }
-    if (listViewBtn) {
-        listViewBtn.onclick = () => calendar.changeView('listFourWeeks');
-    }
 
     if (savePartyButton) {
         savePartyButton.onclick = async () => {
