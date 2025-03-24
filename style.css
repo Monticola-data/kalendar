@@ -379,6 +379,10 @@ html, body {
   center: 'title',
   right: 'dayGridMonth,aktualni,listFourWeeks'
 }
+  .fc-prev-button,
+  .fc-next-button {
+    display: none !important;
+  }
 
   /* Obal kalendáře a vnitřní padding */
   #calendar-wrapper,
