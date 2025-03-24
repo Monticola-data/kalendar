@@ -231,8 +231,6 @@ html, body {
 }
 
 
-
-
 #filter-container {
   text-align: center;
   margin-bottom: 10px;
@@ -509,18 +507,33 @@ select, button {
   }
 
   #header {
-    padding: 5px; /* Menší padding pro header */
-    gap: 6px;     /* Menší mezery mezi prvky v headeru */
+    padding: 5px;          /* Zmenšení paddingu v headeru */
+    gap: 3px;              /* Minimální mezery mezi řádky v headeru */
   }
 
   .header-controls {
-    gap: 4px;     /* Menší mezery mezi tlačítky/selecty */
+    gap: 4px;              /* Malé mezery mezi tlačítky/selecty */
   }
 
+  /* Speciálně pro všechny obecné selecty a tlačítka */
   .header-controls button, 
   .header-controls select {
-    padding: 6px 8px;  /* Menší vnitřní padding tlačítek/selectů */
-    font-size: 0.8rem; /* Trochu menší text, stále kliknutelný */
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
+  }
+
+  /* ✅ Speciální override pro partySelect */
+  #partySelect {
+    padding: 6px 8px !important;
+    font-size: 0.8rem !important;
+    min-height: unset !important;
+    height: auto !important;
+  }
+
+  /* Případně ještě zajisti, že i položky option mají správnou velikost na mobilu */
+  #partySelect option {
+    font-size: 0.8rem !important;
+    padding: 4px 6px !important;
   }
 
   #calendar-wrapper,
