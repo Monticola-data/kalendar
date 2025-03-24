@@ -169,17 +169,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         dragScroll: false,
         dragNavigation: false,
         longPressDelay: 0,
-
-        datesSet: function(dateInfo) {  // <— přidej sem
-        if (dateInfo.view.type === 'dayGridMonth' || dateInfo.view.type === 'aktualni') {
-            calendar.setOption('validRange', {
-                start: dateInfo.start,
-                end: dateInfo.end
-            });
-        } else {
-            calendar.setOption('validRange', null);
-        }
-    },
     
         weekNumbers: true,
         weekNumberContent: function(arg) {
