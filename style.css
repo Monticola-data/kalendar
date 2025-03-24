@@ -7,13 +7,15 @@
   --shadow-color: rgba(0,0,0,0.1);
 }
 
-body {
+html, body {
   font-family: 'Inter', 'Roboto', sans-serif;
   color: #333;
   line-height: 1.6;
-  background: var(--secondary-color);
-  margin: 20px;
+  background-color: #f2f2f2; /* světle šedá barva okolo kalendáře */
+  margin: 0;
+  padding: 0;
 }
+
 #header {
   padding: 10px;
   display: flex;
