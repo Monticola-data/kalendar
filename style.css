@@ -82,7 +82,11 @@ html, body {
 
 #calendar-wrapper {
   max-width: 1188px;
-  margin: auto;
+  margin: 20px auto;
+  background-color: #ffffff; /* čistě bílé pozadí pro kalendář */
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 #calendar {
