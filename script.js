@@ -420,28 +420,28 @@ if (view.type === 'listFourWeeks') {
       const [titleText, typText] = event.title.split('(');
       const typ = typText ? typText.replace(')', '').trim() : '';
 
-      return {
-        html: `
-          <div style="
-            width:100%; 
-            font-size:11px; 
-            color:${textColor};
-            line-height:1.1; 
-            overflow:hidden; 
-            text-overflow:ellipsis;
-            white-space:nowrap;
-            display: flex;
-            align-items: center;
-            gap: 4px;">
-            
-            <span style="font-weight:bold; color:#ffffff;">
-              <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
-            </span>
-            <span style="font-size:9px; opacity:0.8; color:#ffffff;">
-              (${typ.trim()})
-            </span>
-          </div>`
-      };
+  return {
+    html: `
+      <div style="
+        width:100%; 
+        font-size:11px; 
+        color:${textColor};
+        line-height:1.1; 
+        overflow:hidden; 
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        display: flex;
+        align-items: center;
+        gap: 4px;">
+        
+        <span style="font-weight:bold; color:${textColor};">
+          <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
+        </span>
+        <span style="font-size:9px; opacity:0.8; color:${textColor};">
+          (${typ.trim()})
+        </span>
+      </div>`
+  };
     } else {
       // zachování původního formátu pro běžné eventy
       return { 
