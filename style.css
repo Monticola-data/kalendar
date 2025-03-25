@@ -601,16 +601,7 @@ html, body {
     padding: 1px !important;
   }
 
-  /* Modal (okno události) */
-  .modal {
-    width: 80%;
-    padding: 10px;
-  }
 
-  .modal select,
-  .modal button {
-    font-size: 1rem;
-  }
 .fc-header-toolbar {
   display: flex;
   gap: 8px;
