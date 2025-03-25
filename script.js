@@ -497,18 +497,15 @@ function populateFilter() {
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     strediskoFilter.value = savedStredisko;
 
-    partyFilter.innerHTML = '<option value="all">Všechny party</option>';
-    Object.entries(partyMap).forEach(([id, party]) => {
-        if (savedStredisko === "vše" || party.stredisko === savedStredisko) {
-            const option = document.createElement("option");
-            option.value = id;
-            option.textContent = party.name;
-            partyFilter.appendChild(option);
-        }
-    });
+    partyFilter.innerHTML = '<option value="all">Všechny party</option>' + 
+        Object.entries(partyMap)
+            .filter(([_, party]) => savedStredisko === "vše" || party.stredisko === savedStredisko)
+            .map(([id, party]) => `<option value="${id}">${party.name}</option>`)
+            .join('');
 
     filterAndRenderEvents();
 }
+
 
 function filterAndRenderEvents() {
     if (!calendar) return;
@@ -556,6 +553,11 @@ document.addEventListener('DOMContentLoaded', () => {
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
     const modalOverlay = document.getElementById('modalOverlay');
+
+    if (!calendarEl || !modal || !partySelect || !partyFilter || !strediskoFilter || !modalOverlay) {
+        console.error("❌ Některé DOM elementy nejsou dostupné:", { calendarEl, modal, partySelect, partyFilter, strediskoFilter, modalOverlay });
+        return;
+    }
 
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     strediskoFilter.value = savedStredisko;
