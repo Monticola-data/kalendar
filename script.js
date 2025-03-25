@@ -1,33 +1,7 @@
 import { db } from './firebase.js';
 
-let calendarEl, modal, partySelect, savePartyButton, partyFilter, strediskoFilter;
+let calendarEl, modal, partySelect, partyFilter, strediskoFilter;
 let allEvents = [], partyMap = {}, selectedEvent = null, calendar;
-
-let eventQueue = {};
-let isProcessing = false;
-
-async function processQueue() {
-    if (isProcessing) return;
-
-    const eventIds = Object.keys(eventQueue);
-    if (eventIds.length === 0) return;
-
-    isProcessing = true;
-
-    const eventId = eventIds[0];
-    const task = eventQueue[eventId];
-    delete eventQueue[eventId];
-
-    try {
-        await task();
-    } catch (error) {
-        console.error("❌ Chyba při zpracování úkolu:", error);
-    }
-
-    isProcessing = false;
-    processQueue();
-}
-
 
 function getPartyName(partyId) {
     return partyMap[partyId]?.name || '';
@@ -101,13 +75,27 @@ export async function fetchFirestoreEvents(userEmail) {
     }
 
     populateFilter();
-    filterAndRenderEvents();
 }
 
 async function updateFirestoreEvent(eventId, updates = {}) {
     await firebase.firestore().collection("events").doc(eventId).set(updates, { merge: true });
     console.log("✅ Data uložena do Firestore:", updates);
 }
+
+async function updateEventField(eventId, firestoreUpdate, appsheetPayload) {
+    try {
+        await db.collection("events").doc(eventId).update(firestoreUpdate);
+        await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            method: "POST",
+            body: JSON.stringify({ eventId, ...appsheetPayload }),
+            headers: { 'Content-Type': 'application/json' }
+        });
+        console.log("✅ Úspěšně aktualizováno:", appsheetPayload);
+    } catch (error) {
+        console.error("❌ Chyba při aktualizaci:", error);
+    }
+}
+
 
 function renderCalendar(view = null) {
     const savedView = view || localStorage.getItem('selectedCalendarView') || 'dayGridMonth';
@@ -267,7 +255,12 @@ eventClick: function(info) {
         const detailButton = document.getElementById('detailButton');
         const casSelect = document.getElementById('casSelect');
         const partySelect = document.getElementById('partySelect');
-
+   
+        if (!partySelect || !casSelect) {
+            console.warn("❌ Chybí DOM elementy pro partySelect nebo casSelect.");
+            return;
+        }
+        
         modalEventInfo.innerHTML = `
           <div style="padding-bottom:5px; margin-bottom:5px; border-bottom:1px solid #ddd;">
             🚧 ${selectedEvent.extendedProps.zakaznik || ''} - 
@@ -281,7 +274,6 @@ eventClick: function(info) {
         } else {
             detailButton.style.display = "none";
         }
-
 
 // naplnění výběru party bez barevných teček a stylování
 partySelect.innerHTML = "";
@@ -319,46 +311,25 @@ Object.entries(partyMap).forEach(([id, party]) => {
         casSelect.title = "";
     }
 
-        // Asynchronní ukládání při změně party
-        partySelect.onchange = async () => {
-            const newParty = partySelect.value;
-            const selectedParty = partyMap[newParty];
+    partySelect.onchange = async () => {
+        const newParty = partySelect.value;
+        const selectedParty = partyMap[newParty];
 
-            db.collection("events").doc(selectedEvent.id).update({
-                party: newParty,
-                color: selectedParty.color
-            }).then(() => {
-                return fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId: selectedEvent.id, party: newParty }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            }).then(() => {
-                console.log("✅ Parta úspěšně uložena.");
-            }).catch(error => {
-                console.error("❌ Chyba při ukládání party:", error);
-            });
-        };
+        await updateEventField(selectedEvent.id, {
+            party: newParty,
+            color: selectedParty.color
+        }, { party: newParty });
+    };
 
-        casSelect.onchange = async () => {
-            const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
-                ? Number(casSelect.value)
-                : selectedEvent.extendedProps.cas;
+    casSelect.onchange = async () => {
+        const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
+            ? Number(casSelect.value)
+            : selectedEvent.extendedProps.cas;
 
-            db.collection("events").doc(selectedEvent.id).update({
-                'extendedProps.cas': newCas
-            }).then(() => {
-                return fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                    method: "POST",
-                    body: JSON.stringify({ eventId: selectedEvent.id, cas: newCas }),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            }).then(() => {
-                console.log("✅ Čas uložen:", newCas);
-            }).catch(error => {
-                console.error("❌ Chyba při ukládání času:", error);
-            });
-        };
+        await updateEventField(selectedEvent.id, {
+            'extendedProps.cas': newCas
+        }, { cas: newCas });
+    };
     modal.style.display = modalOverlay.style.display = "block";
     }
 },
@@ -539,7 +510,7 @@ function populateFilter() {
     filterAndRenderEvents();
 }
 
-async function filterAndRenderEvents() {
+function filterAndRenderEvents() {
     if (!calendar) return;
 
     const selectedParty = partyFilter.value;
@@ -557,24 +528,31 @@ async function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    const omluvenkySource = calendar.getEventSourceById('omluvenky');
-
     calendar.batchRendering(() => {
-        calendar.getEvents().forEach(evt => evt.remove()); // bezpečně odstraní jednotlivé eventy
+        // ✅ Firestore event source
+        const firestoreSource = calendar.getEventSourceById('firestore');
+        if (firestoreSource) firestoreSource.remove();
+        calendar.addEventSource({
+            id: 'firestore',
+            events: filteredEvents
+        });
 
-        filteredEvents.forEach(evt => calendar.addEvent(evt));
-        
-        // ✅ správně nastaví zdroj omluvenek!
-        omluvenkyFiltered.forEach(evt => calendar.addEvent({ ...evt, source: omluvenkySource }));
+        // ✅ Omluvenky event source
+        const omluvenkySource = calendar.getEventSourceById('omluvenky');
+        if (omluvenkySource) omluvenkySource.remove();
+        calendar.addEventSource({
+            id: 'omluvenky',
+            events: omluvenkyFiltered
+        });
     });
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
     partySelect = document.getElementById('partySelect');
-    savePartyButton = document.getElementById('saveParty');
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
     const modalOverlay = document.getElementById('modalOverlay');
@@ -586,7 +564,6 @@ document.addEventListener('DOMContentLoaded', () => {
         strediskoFilter.onchange = () => {
             localStorage.setItem('selectedStredisko', strediskoFilter.value);
             populateFilter();
-            filterAndRenderEvents();
         };
     }
 
@@ -595,16 +572,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderCalendar();
-
-    if (savePartyButton) {
-        savePartyButton.onclick = async () => {
-            if (selectedEvent) {
-                await updateFirestoreEvent(selectedEvent.id, { party: partySelect.value });
-                if (modal) modal.style.display = "none";
-                if (modalOverlay) modalOverlay.style.display = "none";
-            }
-        };
-    }
 
     // Zavření modalu kliknutím mimo modal přes overlay
     if (modalOverlay) {
