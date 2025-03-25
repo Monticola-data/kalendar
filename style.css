@@ -17,28 +17,27 @@ html, body {
 }
 
 #header {
-  flex-direction: row;
-  justify-content: space-between; /* rozdělení mezi ovládáním a titulkem */
+  padding: 10px;
+  display: flex;
   align-items: center;
+  justify-content: center; /* vycentruje celkově */
   gap: 12px;
-  flex-wrap: wrap; /* zachová responsivitu */
+  background-color: #f2f2f2;
 }
 #calendarTitle {
   font-size: 1.2rem;
   font-weight: 700;
   color: #295779;
   padding: 5px 8px;
-  text-align: left;
+  text-align: center; /* text uprostřed */
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-grow: 1;
 }
 .header-controls {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  justify-content: center;
+  align-items: center; /* zarovná prvky na střed */
+  justify-content: center; /* vycentruje vše horizontálně */
 }
 
 .header-controls button,
