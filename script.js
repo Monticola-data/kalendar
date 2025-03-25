@@ -431,17 +431,17 @@ modalOverlay.onclick = () => {
 };
 
 // Swipe navigace pro mobilní telefony pomocí Hammer.js
-const hammer = new Hammer(calendarEl);
+//const hammer = new Hammer(calendarEl);
 
 // Swipe doprava (předchozí měsíc/týden)
-hammer.on('swiperight', function() {
-  calendar.prev();
-});
+//hammer.on('swiperight', function() {
+//  calendar.prev();
+//});
 
 // Swipe doleva (další měsíc/týden)
-hammer.on('swipeleft', function() {
-  calendar.next();
-});
+//hammer.on('swipeleft', function() {
+//  calendar.next();
+//});
 
 }
 
