@@ -109,6 +109,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             today: 'dnes',
             month: 'měsíc'
         },
+    viewDidMount: function(info) {
+        localStorage.setItem('selectedCalendarView', info.view.type);
+    },
     views: {
         listFourWeeks: {
             type: 'list',
@@ -493,23 +496,23 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // ✅ Uložení aktuálního pohledu a data před aktualizací
+    // ✅ Uložení aktuálního pohledu a data
     const currentView = calendar.view.type;
     const currentDate = calendar.getDate();
 
     calendar.batchRendering(() => {
-        // ✅ vymažeme pouze eventy kromě svátků
+        // ✅ Vymazání eventů kromě svátků
         calendar.getEvents().forEach(evt => {
             if (evt.source?.id !== 'holidays') evt.remove(); 
         });
 
-        // ✅ vložíme eventy z Firestore
+        // ✅ Vložení eventů z Firestore
         filteredEvents.forEach(evt => calendar.addEvent(evt));
 
-        // ✅ vložíme omluvenky
+        // ✅ Vložení omluvenek
         omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
 
-        // ❌ NEPŘEKRESLUJEME SVÁTKY, ty zůstanou stabilně
+        // ❌ Nepřekreslujeme svátky, ty zůstanou stabilně
         if (!calendar.getEventSources().some(src => src.id === 'holidays')) {
             calendar.addEventSource({
                 id: 'holidays',
@@ -527,6 +530,7 @@ function filterAndRenderEvents() {
         calendar.changeView(currentView, currentDate);
     });
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
