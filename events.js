@@ -48,11 +48,12 @@ export function filterAndRenderEvents() {
         return partyMatch && strediskoMatch && statusMatch;
     });
 
-    const omluvenkyFiltered = state.omluvenkyEvents.filter(event => {
-        const partyMatch = selectedParty === "all" || event.parta === selectedParty;
-        const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
-        return partyMatch && strediskoMatch;
-    });
+const omluvenkyFiltered = state.omluvenkyEvents.filter(event => {
+    const partyMatch = selectedParty === "all" || event.parta === selectedParty;
+    const strediskoMatch = selectedStredisko === "vše" || (event && event.stredisko) === selectedStredisko;
+    return partyMatch && strediskoMatch;
+});
+
 
     state.calendar.batchRendering(() => {
         state.calendar.removeAllEvents();
