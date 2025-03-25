@@ -429,34 +429,12 @@ html, body {
   opacity: 0.9 !important;
 }
 
-/* Neaktivní tlačítka (pro lepší čitelnost) */
-.fc-header-toolbar .fc-button:not(.fc-button-active) {
-  background-color: #7e9c9b !important; /* světlejší odstín než primary-color */
-  color: #fff !important;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15), inset 0 -2px 0 rgba(0,0,0,0.1) !important;
-}
-
 /* Hover efekt všech tlačítek */
 .fc-header-toolbar .fc-button:hover {
   transform: translateY(-2px) !important;
   background-color: #497170 !important; /* tmavší odstín pro hover */
   box-shadow: 0 8px 14px rgba(0,0,0,0.25), inset 0 -4px 0 rgba(0,0,0,0.2) !important;
   opacity: 1 !important;
-}
-
-/* Aktivní (kliknuté nebo vybrané) tlačítko */
-.fc-header-toolbar .fc-button:active,
-.fc-header-toolbar .fc-button.fc-button-active {
-  transform: translateY(1px) !important;
-  background-color: #416564 !important; /* tmavší odstín pro aktivní stav */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1), inset 0 -2px 0 rgba(0,0,0,0.1) !important;
-  opacity: 1 !important;
-}
-
-/* Zaměření (focus) pro přístupnost */
-.fc-header-toolbar .fc-button:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 3px rgba(90, 125, 124, 0.6) !important;
 }
 
 
