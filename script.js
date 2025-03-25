@@ -152,9 +152,12 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     },
     headerToolbar: {
         left: 'prev,next today',
-        center: 'title',
+        center: '',
         right: 'dayGridMonth,tyden,aktualni,listFourWeeks' // ✅ Aktualizované pořadí
     },
+    datesSet: function(info) {
+        document.getElementById('calendarTitle').textContent = info.view.title; // 👈 vlož titulek do headeru
+      },
         height: 'auto',
         firstDay: 1,
         selectable: false,
