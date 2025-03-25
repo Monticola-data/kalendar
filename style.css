@@ -414,6 +414,41 @@ html, body {
   color: #295779 !important;
 }
 
+/* Tlačítka jednotlivých views v kalendáři */
+.fc-header-toolbar .fc-button {
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+  border: none !important;
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease !important;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2), inset 0 -3px 0 rgba(0,0,0,0.15) !important;
+  font-weight: 600 !important;
+}
+
+/* Hover efekt tlačítek */
+.fc-header-toolbar .fc-button:hover {
+  transform: translateY(-2px) !important;
+  background-color: #497170 !important; /* Mírně tmavší barva při hoveru */
+  box-shadow: 0 8px 14px rgba(0,0,0,0.25), inset 0 -4px 0 rgba(0,0,0,0.2) !important;
+}
+
+/* Aktivní (kliknuté nebo vybrané) tlačítko */
+.fc-header-toolbar .fc-button:active,
+.fc-header-toolbar .fc-button.fc-button-active {
+  transform: translateY(1px) !important;
+  background-color: #416564 !important; /* Nejtmavší odstín pro aktivní stav */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1), inset 0 -2px 0 rgba(0,0,0,0.1) !important;
+}
+
+/* Lepší viditelnost zaměření (focus) pro přístupnost */
+.fc-header-toolbar .fc-button:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(90, 125, 124, 0.6) !important;
+}
+
 
 .button-detail {
     background-color: #e8e8e8;
