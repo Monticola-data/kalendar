@@ -71,7 +71,10 @@ export async function fetchFirestoreEvents(userEmail) {
     }
 
     populateFilter();
+
+    filterAndRenderEvents(); // ✅ Toto zajistí zobrazení událostí
 }
+
 
 async function updateFirestoreEvent(eventId, updates = {}) {
     await db.collection("events").doc(eventId).set(updates, { merge: true });
@@ -144,45 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
 export function listenForUpdates(userEmail) {
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-    db.collection('events').onSnapshot((snapshot) => {
-        state.allEvents = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                start: new Date(data.start).toISOString().split('T')[0],
-                color: data.color,
-                party: data.party,
-                stredisko: data.stredisko || (state.partyMap[data.party]?.stredisko) || "",
-                extendedProps: data.extendedProps || {}
-            };
-        }).filter(event => {
-            const security = event.extendedProps?.SECURITY_filter || [];
-            return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
-        });
+db.collection('events').onSnapshot((snapshot) => {
+    state.allEvents = snapshot.docs.map(doc => { /* tvoje logika */ });
+    filterAndRenderEvents(); // důležité!
+});
 
-        filterAndRenderEvents();
-    });
+db.collection('omluvenky').onSnapshot((snapshot) => {
+    state.omluvenkyEvents = snapshot.docs.map(doc => { /* tvoje logika */ });
+    filterAndRenderEvents(); // důležité!
+});
 
-    db.collection('omluvenky').onSnapshot((snapshot) => {
-        state.omluvenkyEvents = snapshot.docs.map(doc => {
-            const data = doc.data();
-            const hex = data.hex || "#999";
-
-            return {
-                id: doc.id,
-                title: `${data.title} (${data.typ})`,
-                start: data.start,
-                end: data.end,
-                color: hex,
-                stredisko: data.stredisko,
-                parta: data.parta,
-                editable: false,
-                extendedProps: { isOmluvenka: true }
-            };
-        });
-
-        filterAndRenderEvents();
-    });
 }
 
