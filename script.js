@@ -16,44 +16,6 @@ async function fetchFirestoreParties() {
     populateFilter();
 }
 
-// Async Queue pro postupné aktualizace eventů
-const updateQueue = [];
-let isProcessingQueue = false;
-
-async function processQueue() {
-    if (isProcessingQueue || updateQueue.length === 0) return;
-
-    isProcessingQueue = true;
-
-    while (updateQueue.length > 0) {
-        const { eventId, newDate, cas, calendarEvent } = updateQueue.shift();
-
-        try {
-            await db.collection("events").doc(eventId).update({
-                start: newDate,
-                "extendedProps.cas": cas
-            });
-
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                body: JSON.stringify({ eventId, start: newDate, cas }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně aktualizovány.`);
-        } catch (err) {
-            console.error("❌ Chyba při aktualizaci Firestore:", err);
-            calendarEvent.revert();
-        }
-    }
-
-    isProcessingQueue = false;
-
-    filterAndRenderEvents(); // ✅ Zavolej po dokončení všech změn
-}
-
-
-
 
 let omluvenkyEvents = [];
 async function fetchFirestoreOmluvenky() {
@@ -239,27 +201,31 @@ eventDrop: function(info) {
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Nastav vizuálně event na loading stav (volitelně)
     info.event.setProp('editable', false);
     info.event.setProp('opacity', 0.6);
 
-    // Přidání do fronty bez revertování
-    updateQueue.push({
-        eventId,
-        newDate,
-        cas,
-        calendarEvent: info
-    });
+    (async () => {
+        try {
+            await db.collection("events").doc(eventId).update({
+                start: newDate,
+                "extendedProps.cas": cas
+            });
 
-    // Spusť zpracování fronty (pokud už neběží)
-    processQueue().finally(() => {
-        // Po zpracování obnov původní stav
-        info.event.setProp('editable', true);
-        info.event.setProp('opacity', 1);
-    });
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({ eventId, start: newDate, cas }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            console.log(`✅ Datum (${newDate}) a čas (${cas}) aktualizovány.`);
+        } catch (err) {
+            console.error("❌ Chyba při aktualizaci:", err);
+            info.revert();
+        } finally {
+            filterAndRenderEvents(); // ✅ Kompletně překresli kalendář
+        }
+    })();
 },
-
-
 
 
     dateClick: function(info) {
