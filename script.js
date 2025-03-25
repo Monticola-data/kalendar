@@ -201,10 +201,8 @@ eventDrop: function(info) {
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Nastav příznak ukládání
-    info.event.setExtendedProp('loading', true);
-    info.event.setProp('editable', false);
-    info.event.setProp('opacity', 0.6);
+    // Okamžitě revertni změnu lokálně, abys čekala jen na Firestore
+    info.revert();
 
     (async () => {
         try {
@@ -213,7 +211,7 @@ eventDrop: function(info) {
                 "extendedProps.cas": cas
             });
 
-            fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
                 body: JSON.stringify({ eventId, start: newDate, cas }),
                 headers: { 'Content-Type': 'application/json' }
@@ -223,12 +221,6 @@ eventDrop: function(info) {
 
         } catch (err) {
             console.error("❌ Chyba při aktualizaci Firestore:", err);
-            info.revert();
-        } finally {
-            // Po dokončení operace zruš příznak ukládání
-            info.event.setExtendedProp('loading', false);
-            info.event.setProp('editable', true);
-            info.event.setProp('opacity', 1);
         }
     })();
 },
