@@ -342,8 +342,7 @@ eventContent: function(arg) {
     return { html: '<div>Chybějící událost</div>' };
   }
 
-  const options = { weekday: 'short', day: 'numeric', month: 'short' };
-  const formattedDate = event.start.toLocaleDateString('cs-CZ', options);
+  const formattedDate = event.start.toLocaleDateString('cs-CZ', { weekday: 'short', day: 'numeric', month: 'short' });
 
   const cas = (event.extendedProps.cas && event.extendedProps.cas !== 0)
     ? (event.extendedProps.cas.toString().includes(':') ? event.extendedProps.cas : `${event.extendedProps.cas}:00`)
@@ -352,11 +351,9 @@ eventContent: function(arg) {
   const partyName = getPartyName(event.extendedProps.party);
   const partyColor = event.backgroundColor || "#666";
 
-  // ✅ Jednoduchá a bezpečná detekce omluvenky
   const isOmluvenka = event.extendedProps?.isOmluvenka === true;
-  const isLoading = event.extendedProps.loading === true; // 🚩 nový řádek
-  const loadingIcon = isLoading ? '⏳ ' : '';              // 🚩 nový řádek
-
+  const isLoading = event.extendedProps.loading === true;
+  const loadingIcon = isLoading ? '⏳ ' : '';
 
   let iconHtml = "";
   let statusColor = "#bbb";
@@ -381,43 +378,17 @@ eventContent: function(arg) {
       statusColor = partyColor;
     }
 
-    let displayTitle = event.title;
-    if (isOmluvenka) {
-      const [titleText, typText] = event.title.split('(');
-      const typ = typText ? typText.replace(')', '').trim() : '';
-      displayTitle = `${titleText.trim()} (${typ})`;
-    } else {
-      displayTitle = `${event.title} (${partyName})`;
-    }
+    const displayTitle = isOmluvenka
+      ? event.title
+      : `${event.title} (${partyName})`;
 
     return {
       html: `
-        <div style="
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          border-left: 6px solid ${partyColor};
-          padding-left: 10px;
-          background-color: #fff;
-          color: #333;
-          border-radius: 4px;
-          box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-          overflow: hidden;">
-          
-          <div style="
-            width:30px;
-            height:30px;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            border-radius:50%;
-            background-color:${statusColor};
-            color:#fff;
-            font-size:16px;">${iconHtml}</div>
-
-         <div style="flex-grow:1; overflow:hidden;">
-            <div style="font-size:13px; font-weight:bold;">${loadingIcon}${formattedDate}, ${cas}</div>
-            <div style="font-size:12px; opacity:0.8;">${displayTitle}</div>
+        <div class="event-list-item" style="--party-color:${partyColor};">
+          <div class="event-list-icon" style="--status-color:${statusColor};">${iconHtml}</div>
+          <div class="event-list-info">
+            <div class="event-list-date">${loadingIcon}${formattedDate}, ${cas}</div>
+            <div class="event-list-title">${displayTitle}</div>
           </div>
         </div>`
     };
@@ -428,46 +399,27 @@ eventContent: function(arg) {
 
       return {
         html: `
-          <div style="
-            width:100%; 
-            font-size:11px; 
-            color:#fff;
-            line-height:1.1; 
-            overflow:hidden; 
-            text-overflow:ellipsis;
-            white-space:nowrap;
-            display: flex;
-            align-items: center;
-            gap: 4px;">
-            
-            <span style="font-weight:bold;">
+          <div class="event-calendar-item event-calendar-omluvenka">
+            <span class="event-calendar-title">
               <i class="fa-solid fa-user-slash"></i> ${titleText.trim()}
             </span>
-            <span style="font-size:9px; opacity:0.8;">
-              (${typ.trim()})
-            </span>
+            <span class="event-calendar-type">(${typ})</span>
           </div>`
       };
     } else {
       return { 
         html: `
-          <div style="
-            width:100%; 
-            font-size:11px; 
-            color:#fff;
-            line-height:1.1; 
-            overflow:hidden; 
-            text-overflow:ellipsis;
-            white-space:nowrap;">
-              <div style="font-weight:bold;">
-                ${loadingIcon}${iconHtml} ${cas} ${event.title}
-              </div>
-              <div style="font-size:9px;">${partyName}</div>
+          <div class="event-calendar-item">
+            <div class="event-calendar-title">
+              ${loadingIcon}${iconHtml} ${cas} ${event.title}
+            </div>
+            <div class="event-calendar-type">${partyName}</div>
           </div>`
       };
     }
   }
 }
+
 
 });
 
