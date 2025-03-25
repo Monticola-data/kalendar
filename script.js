@@ -282,14 +282,14 @@ eventClick: function(info) {
             detailButton.style.display = "none";
         }
 
-// naplnění výběru party
+
+// naplnění výběru party bez barevných teček a stylování
 partySelect.innerHTML = "";
 Object.entries(partyMap).forEach(([id, party]) => {
     if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
         const option = document.createElement("option");
         option.value = id;
-        option.innerHTML = `&#9679; ${party.name}`; // kulatá tečka + název
-        option.style.color = party.color;           // barva dle party
+        option.textContent = party.name; // 👈 Jednoduchý čistý text bez barevných stylů
         option.selected = id === selectedEvent.extendedProps.party;
         partySelect.appendChild(option);
     }
