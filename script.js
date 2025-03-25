@@ -145,9 +145,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
                 return { start, end };
             }
         },
-        tyden: {  // ✅ Přidán týdenní pohled
-            type: 'timeGridWeek',
-            buttonText: 'týden',
+    tyden: {  // ✅ týdenní pohled bez časů
+        type: 'dayGridWeek',
+        buttonText: 'týden',
         }
     },
     headerToolbar: {
