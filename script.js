@@ -109,8 +109,9 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             today: 'dnes',
             month: 'měsíc'
         },
-    viewDidMount: function(info) {
-        localStorage.setItem('selectedCalendarView', info.view.type);
+    datesSet: function(info) {
+        localStorage.setItem('selectedCalendarView', info.view.type); // ✅ Použij datesSet místo viewDidMount
+        document.getElementById('calendarTitle').textContent = info.view.title;
     },
     views: {
         listFourWeeks: {
