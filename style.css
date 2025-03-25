@@ -115,13 +115,16 @@ html, body {
 
 
 #calendar-wrapper {
-  max-width: 1188px;
+  max-width: 1400px; /* 👈 zvýšená maximální šířka kalendáře, cca 15'' notebook */
+  width: 100%;
   margin: 10px auto;
-  background-color: #ffffff; /* čistě bílé pozadí pro kalendář */
-  padding: 10px;
+  background-color: #ffffff;
+  padding: 15px;
   border-radius: 0px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0.4, 0.8);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
+
+
 
 /* hlavní kontejner eventu v seznamu */
 .event-list-item {
@@ -217,15 +220,13 @@ html, body {
 }
 
 #calendar {
-  background: var(--secondary-color);
-  flex-grow: 1;
+  max-width: 1400px; /* 👈 zvýšená maximální šířka kalendáře */
   width: 100%;
-  max-width: 1188px;
   margin: auto;
   padding: 15px;
   border-radius: 0px;
+  background: var(--secondary-color);
 }
-
 .week-number-circle {
     display: inline-flex !important;
     justify-content: center;
