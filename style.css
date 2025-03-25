@@ -632,10 +632,7 @@ html, body {
     font-size: 0.75rem !important;
     font-weight: bold !important;
   }
-  .fc-header-toolbar .fc-prev-button,
-  .fc-header-toolbar .fc-next-button {
-    display: none !important;
-  }
+
 
 }
 
