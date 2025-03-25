@@ -69,26 +69,7 @@ export function renderCalendar(view = null) {
                 html: `<span class="week-number-circle" data-week="${arg.num}">T${arg.num}</span>`
             };
         },
-        eventSources: [
-            {
-                id: 'firestore',
-                events: state.allEvents
-            },
-            {
-                id: 'holidays',
-                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-                display: 'background',
-                color: '#854646',
-                textColor: '#000',
-                className: 'holiday-event',
-                extendedProps: { isHoliday: true }
-            },
-            {
-                id: 'omluvenky',
-                events: state.omluvenkyEvents
-            }
-        ],
+        eventSources: [],
         eventAllow: function(dropInfo, draggedEvent) {
             const { hotove, predane } = draggedEvent.extendedProps;
             return !(hotove || predane);
