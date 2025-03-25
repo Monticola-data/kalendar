@@ -80,11 +80,13 @@ html, body {
 #statusFilter input[type="checkbox"]:checked::before {
   content: "✔";
   position: absolute;
-  top: -2px;
-  left: 1px;
+  top: 50%;
+  left: 50%;
   font-size: 14px;
   color: white;
+  transform: translate(-50%, -50%);
 }
+
 
 /* Hover efekt */
 #statusFilter input[type="checkbox"]:hover {
