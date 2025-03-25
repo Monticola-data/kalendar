@@ -16,6 +16,41 @@ async function fetchFirestoreParties() {
     populateFilter();
 }
 
+// Async Queue pro postupné aktualizace eventů
+const updateQueue = [];
+let isProcessingQueue = false;
+
+async function processQueue() {
+    if (isProcessingQueue || updateQueue.length === 0) return;
+
+    isProcessingQueue = true;
+
+    while (updateQueue.length > 0) {
+        const { eventId, newDate, cas, calendarEvent } = updateQueue.shift();
+
+        try {
+            await db.collection("events").doc(eventId).update({
+                start: newDate,
+                "extendedProps.cas": cas
+            });
+
+            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
+                method: "POST",
+                body: JSON.stringify({ eventId, start: newDate, cas }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně aktualizovány.`);
+        } catch (err) {
+            console.error("❌ Chyba při aktualizaci Firestore:", err);
+            calendarEvent.revert();
+        }
+    }
+
+    isProcessingQueue = false;
+}
+
+
 
 let omluvenkyEvents = [];
 async function fetchFirestoreOmluvenky() {
@@ -201,29 +236,26 @@ eventDrop: function(info) {
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    // Okamžitě revertni změnu lokálně, abys čekala jen na Firestore
-    info.revert();
+    // Nastav vizuálně event na loading stav (volitelně)
+    info.event.setProp('editable', false);
+    info.event.setProp('opacity', 0.6);
 
-    (async () => {
-        try {
-            await db.collection("events").doc(eventId).update({
-                start: newDate,
-                "extendedProps.cas": cas
-            });
+    // Přidání do fronty bez revertování
+    updateQueue.push({
+        eventId,
+        newDate,
+        cas,
+        calendarEvent: info
+    });
 
-            await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
-                method: "POST",
-                body: JSON.stringify({ eventId, start: newDate, cas }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            console.log(`✅ Datum (${newDate}) a čas (${cas}) úspěšně odeslány.`);
-
-        } catch (err) {
-            console.error("❌ Chyba při aktualizaci Firestore:", err);
-        }
-    })();
+    // Spusť zpracování fronty (pokud už neběží)
+    processQueue().finally(() => {
+        // Po zpracování obnov původní stav
+        info.event.setProp('editable', true);
+        info.event.setProp('opacity', 1);
+    });
 },
+
 
 
 
@@ -561,10 +593,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 export function listenForUpdates(userEmail) {
-    db.collection('events').onSnapshot((snapshot) => {
-        const normalizedUserEmail = userEmail.trim().toLowerCase();
+    const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-        allEvents = snapshot.docs.map(doc => {
+    // Listener pro standardní events
+    db.collection('events').onSnapshot((snapshot) => {
+        const newEvents = snapshot.docs.map(doc => {
             const data = doc.data();
             return {
                 id: doc.id,
@@ -580,30 +613,71 @@ export function listenForUpdates(userEmail) {
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
-        // ✅ DŮLEŽITÁ ZMĚNA: Přidej tento řádek:
-        filterAndRenderEvents();
-    });
-    
-    // ✅ NOVÝ Listener pro omluvenky
-db.collection('omluvenky').onSnapshot(async (snapshot) => {
-    omluvenkyEvents = snapshot.docs.map(doc => {
-        const data = doc.data();
-        const hex = data.hex || "#999";
+        // Aktualizuj existující eventy, nebo přidej nové
+        newEvents.forEach(newEvent => {
+            const existingEvent = calendar.getEventById(newEvent.id);
+            if (existingEvent) {
+                existingEvent.setStart(newEvent.start);
+                existingEvent.setProp('title', newEvent.title);
+                existingEvent.setProp('color', newEvent.color);
+                existingEvent.setExtendedProp('cas', newEvent.extendedProps.cas);
+                existingEvent.setExtendedProp('party', newEvent.party);
+                existingEvent.setExtendedProp('stredisko', newEvent.stredisko);
+            } else {
+                calendar.addEvent(newEvent);
+            }
+        });
 
-        return {
-            id: doc.id,
-            title: `${data.title} (${data.typ})`,
-            start: data.start,
-            end: data.end,
-            color: hex,
-            stredisko: data.stredisko,
-            parta: data.parta,
-            editable: false,
-            extendedProps: { isOmluvenka: true }  // ✅ NUTNÉ přidat!
-        };
+        // Odstraň již neexistující eventy
+        calendar.getEvents().forEach(existingEvent => {
+            if (!newEvents.some(ne => ne.id === existingEvent.id) && existingEvent.source.id === 'firestore') {
+                existingEvent.remove();
+            }
+        });
     });
 
-    filterAndRenderEvents();
-});
-    
+    // Listener pro omluvenky
+    db.collection('omluvenky').onSnapshot((snapshot) => {
+        omluvenkyEvents = snapshot.docs.map(doc => {
+            const data = doc.data();
+            const hex = data.hex || "#999";
+
+            return {
+                id: doc.id,
+                title: `${data.title} (${data.typ})`,
+                start: data.start,
+                end: data.end,
+                color: hex,
+                stredisko: data.stredisko,
+                parta: data.parta,
+                editable: false,
+                extendedProps: { isOmluvenka: true }
+            };
+        });
+
+        // Aktualizace omluvenek (stejná logika)
+        omluvenkyEvents.forEach(newOmluvenka => {
+            const existingOmluvenka = calendar.getEventById(newOmluvenka.id);
+            if (existingOmluvenka) {
+                existingOmluvenka.setStart(newOmluvenka.start);
+                existingOmluvenka.setEnd(newOmluvenka.end);
+                existingOmluvenka.setProp('title', newOmluvenka.title);
+                existingOmluvenka.setProp('color', newOmluvenka.color);
+                existingOmluvenka.setExtendedProp('stredisko', newOmluvenka.stredisko);
+                existingOmluvenka.setExtendedProp('parta', newOmluvenka.parta);
+            } else {
+                calendar.addEvent(newOmluvenka);
+            }
+        });
+
+        // Odeber staré omluvenky, které už nejsou ve snapshotu
+        calendar.getEvents().forEach(existingEvent => {
+            if (
+                existingEvent.extendedProps.isOmluvenka && 
+                !omluvenkyEvents.some(oe => oe.id === existingEvent.id)
+            ) {
+                existingEvent.remove();
+            }
+        });
+    });
 }
