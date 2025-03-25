@@ -524,31 +524,38 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch && statusMatch;
     });
 
-    // ✅ Omluvenky NEbudou ovlivněné filtrem statusu, pouze party a střediskem:
     const omluvenkyFiltered = omluvenkyEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.parta === selectedParty;
         const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
         return partyMatch && strediskoMatch;
     });
 
+    // ✅ Zajisti, že před přidáním eventů odstraníš staré event sources
     calendar.batchRendering(() => {
-        const firestoreSource = calendar.getEventSourceById('firestore');
-        if (firestoreSource) firestoreSource.remove();
+        calendar.getEventSources().forEach(src => src.remove());
+
         calendar.addEventSource({
             id: 'firestore',
             events: filteredEvents
         });
 
-        const omluvenkySource = calendar.getEventSourceById('omluvenky');
-        if (omluvenkySource) omluvenkySource.remove();
         calendar.addEventSource({
             id: 'omluvenky',
             events: omluvenkyFiltered
         });
+
+        calendar.addEventSource({
+            id: 'holidays',
+            googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+            googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+            display: 'background',
+            color: '#854646',
+            textColor: '#000',
+            className: 'holiday-event',
+            extendedProps: { isHoliday: true }
+        });
     });
 }
-
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -598,7 +605,6 @@ document.addEventListener('DOMContentLoaded', () => {
 export function listenForUpdates(userEmail) {
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-    // Listener pro standardní eventy
     db.collection('events').onSnapshot((snapshot) => {
         allEvents = snapshot.docs.map(doc => {
             const data = doc.data();
@@ -616,10 +622,9 @@ export function listenForUpdates(userEmail) {
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
-        filterAndRenderEvents(); // ✅ pouze toto volání
+        filterAndRenderEvents();  // ✅ Překresli kompletně!
     });
 
-    // Listener pro omluvenky
     db.collection('omluvenky').onSnapshot((snapshot) => {
         omluvenkyEvents = snapshot.docs.map(doc => {
             const data = doc.data();
@@ -638,7 +643,6 @@ export function listenForUpdates(userEmail) {
             };
         });
 
-        filterAndRenderEvents(); // ✅ pouze toto volání
+        filterAndRenderEvents();  // ✅ Překresli kompletně!
     });
 }
-
