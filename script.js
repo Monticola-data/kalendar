@@ -1,5 +1,7 @@
 import { db } from './firebase.js';
 import { state } from './state.js';
+import { renderCalendar } from './calendar.js';
+import { filterAndRenderEvents } from './events.js'; // ✅ Přidat tento řádek!
 
 
 function getPartyName(partyId) {
