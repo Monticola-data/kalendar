@@ -525,8 +525,6 @@ function filterAndRenderEvents() {
             });
         }
 
-        // ✅ Explicitně nastavíme zpět aktuální pohled a datum po překreslení
-        calendar.changeView(currentView, currentDate);
     });
 }
 
