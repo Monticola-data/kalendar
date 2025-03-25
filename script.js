@@ -146,11 +146,16 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             }
         }   
     },
+    tyden: {  // ✅ Přidán týdenní pohled
+        type: 'timeGridWeek',
+        buttonText: 'týden',
+        }
+    },
     headerToolbar: {
         left: 'prev,next today',
         center: 'title',
-        right: 'dayGridMonth,aktualni,listFourWeeks'
-      },
+        right: 'dayGridMonth,tyden,aktualni,listFourWeeks' // ✅ Aktualizované pořadí
+    },
         height: 'auto',
         firstDay: 1,
         selectable: false,
