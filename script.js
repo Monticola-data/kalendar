@@ -109,10 +109,10 @@ calendar = new FullCalendar.Calendar(calendarEl, {
             today: 'dnes',
             month: 'měsíc'
         },
-    datesSet: function(info) {
-        localStorage.setItem('selectedCalendarView', info.view.type); // ✅ Použij datesSet místo viewDidMount
-        document.getElementById('calendarTitle').textContent = info.view.title;
-    },
+        datesSet: function(info) {
+            localStorage.setItem('selectedCalendarView', info.view.type);
+            document.getElementById('calendarTitle').textContent = info.view.title;
+        },
     views: {
         listFourWeeks: {
             type: 'list',
@@ -459,7 +459,6 @@ function populateFilter() {
     filterAndRenderEvents();
 }
 
-
 function filterAndRenderEvents() {
     if (!calendar) return;
 
@@ -468,8 +467,8 @@ function filterAndRenderEvents() {
 
     const statusChecks = document.querySelectorAll('#statusFilter input[type=checkbox]');
     const selectedStatuses = Array.from(statusChecks)
-                                  .filter(chk => chk.checked)
-                                  .map(chk => chk.value);
+        .filter(chk => chk.checked)
+        .map(chk => chk.value);
 
     const filteredEvents = allEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.party === selectedParty;
@@ -482,15 +481,12 @@ function filterAndRenderEvents() {
         if (selectedStatuses.includes("kOdeslani")) {
             if (!hotove && !predane && !odeslane) statusMatch = true;
         }
-
         if (selectedStatuses.includes("odeslane")) {
             if (odeslane === true && hotove === false && predane === false) statusMatch = true;
         }
-
         if (selectedStatuses.includes("hotove")) {
             if (hotove === true && predane === false) statusMatch = true;
         }
-
         if (selectedStatuses.includes("predane")) {
             if (predane === true) statusMatch = true;
         }
@@ -504,23 +500,18 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // Uložení aktuálního pohledu a data
+    // ✅ Načtení uloženého pohledu přímo z localStorage
     const currentView = localStorage.getItem('selectedCalendarView') || calendar.view.type;
     const currentDate = calendar.getDate();
 
     calendar.batchRendering(() => {
-        // Vymazání eventů kromě svátků
         calendar.getEvents().forEach(evt => {
-            if (evt.source?.id !== 'holidays') evt.remove(); 
+            if (evt.source?.id !== 'holidays') evt.remove();
         });
 
-        // Vložení eventů z Firestore
         filteredEvents.forEach(evt => calendar.addEvent(evt));
-
-        // Vložení omluvenek
         omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
 
-        // Nepřekreslujeme svátky, ty zůstanou stabilně
         if (!calendar.getEventSources().some(src => src.id === 'holidays')) {
             calendar.addEventSource({
                 id: 'holidays',
@@ -534,10 +525,11 @@ function filterAndRenderEvents() {
             });
         }
 
-        // Nastavení původního pohledu zpět
+        // ✅ Explicitně nastavíme zpět aktuální pohled a datum po překreslení
         calendar.changeView(currentView, currentDate);
     });
 }
+
 
 
 
