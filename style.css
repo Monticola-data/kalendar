@@ -58,6 +58,22 @@ html, body {
   box-shadow: 0 0 5px rgba(85,85,85,0.3);
 }
 
+#statusFilter {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  font-size: 14px;
+  padding: 5px;
+}
+
+#statusFilter label {
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+  user-select: none;
+}
+
+
 
 #calendar-wrapper {
   max-width: 1188px;
