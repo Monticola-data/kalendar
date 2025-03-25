@@ -62,29 +62,35 @@
 
 <div id="header">
 
-  <div id="statusFilter" class="header-controls">
-    <label><input type="checkbox" value="kOdeslani" checked> K odeslání</label>
-    <label><input type="checkbox" value="odeslane" checked> Odeslané</label>
-    <label><input type="checkbox" value="hotove" checked> Hotové</label>
-    <label><input type="checkbox" value="predane" checked> Předané</label>
+  <!-- Horní řádek: Checkboxy -->
+  <div class="header-row top-row">
+    <div id="statusFilter" class="header-controls">
+      <label><input type="checkbox" value="kOdeslani" checked> K odeslání</label>
+      <label><input type="checkbox" value="odeslane" checked> Odeslané</label>
+      <label><input type="checkbox" value="hotove" checked> Hotové</label>
+      <label><input type="checkbox" value="predane" checked> Předané</label>
+    </div>
   </div>
 
-  <div id="filters" class="header-controls">
+  <!-- Dolní řádek: Titulek kalendáře a filtry -->
+  <div class="header-row bottom-row">
+    <div id="calendarTitle"></div>
 
-     <div id="calendarTitle"></div>
-    
-    <select id="strediskoFilter">
-      <option value="vše">Všechna střediska</option>
-      <option value="SPÁRY">SPÁRY</option>
-      <option value="POSTŘIKY">POSTŘIKY</option>
-    </select>
+    <div id="filters" class="header-controls">
+      <select id="strediskoFilter">
+        <option value="vše">Všechna střediska</option>
+        <option value="SPÁRY">SPÁRY</option>
+        <option value="POSTŘIKY">POSTŘIKY</option>
+      </select>
 
-    <select id="partyFilter">
-      <option value="all">Všechny party</option>
-    </select>
+      <select id="partyFilter">
+        <option value="all">Všechny party</option>
+      </select>
+    </div>
   </div>
 
 </div>
+
 
 
 
