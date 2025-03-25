@@ -62,7 +62,12 @@
 
 <div id="header">
 
-  <!-- Selecty pro filtrování -->
+  <div id="statusFilter" class="header-controls">
+    <label><input type="checkbox" value="kOdeslani" checked> K odeslání</label>
+    <label><input type="checkbox" value="odeslane" checked> Odeslané</label>
+    <label><input type="checkbox" value="predane" checked> Předané</label>
+  </div>
+
   <div id="filters" class="header-controls">
     <select id="strediskoFilter">
       <option value="vše">Všechna střediska</option>
@@ -73,13 +78,6 @@
     <select id="partyFilter">
       <option value="all">Všechny party</option>
     </select>
-  </div>
-
-  <!-- Nový filtr Status -->
-  <div id="statusFilter" class="header-controls">
-    <label><input type="checkbox" value="kOdeslani" checked> K odeslání</label>
-    <label><input type="checkbox" value="odeslane" checked> Odeslané</label>
-    <label><input type="checkbox" value="predane" checked> Předané</label>
   </div>
 
 </div>
