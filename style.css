@@ -417,16 +417,14 @@ html, body {
 /* Plastická tlačítka jednotlivých views ve FullCalendar */
 .fc-header-toolbar .fc-button {
   padding: 8px 12px !important;
-  font-size: 14px !important;
+  font-size: 14px ;
   border-radius: 8px !important;
   border: none !important;
   background-color: var(--primary-color) !important;
   color: white !important;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.3s ease, background-color 0.3s ease !important;
   box-shadow: 0 5px 10px rgba(0,0,0,0.2), inset 0 -3px 0 rgba(0,0,0,0.15) !important;
-  font-weight: 600 !important;
-  opacity: 0.9 !important;
+
 }
 
 
