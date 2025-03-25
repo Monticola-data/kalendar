@@ -48,7 +48,10 @@ async function processQueue() {
     }
 
     isProcessingQueue = false;
+
+    filterAndRenderEvents(); // ✅ Zavolej po dokončení všech změn
 }
+
 
 
 
@@ -595,9 +598,9 @@ document.addEventListener('DOMContentLoaded', () => {
 export function listenForUpdates(userEmail) {
     const normalizedUserEmail = userEmail.trim().toLowerCase();
 
-    // Listener pro standardní events
+    // Listener pro standardní eventy
     db.collection('events').onSnapshot((snapshot) => {
-        const newEvents = snapshot.docs.map(doc => {
+        allEvents = snapshot.docs.map(doc => {
             const data = doc.data();
             return {
                 id: doc.id,
@@ -613,27 +616,7 @@ export function listenForUpdates(userEmail) {
             return security.map(e => e.toLowerCase()).includes(normalizedUserEmail);
         });
 
-        // Aktualizuj existující eventy, nebo přidej nové
-        newEvents.forEach(newEvent => {
-            const existingEvent = calendar.getEventById(newEvent.id);
-            if (existingEvent) {
-                existingEvent.setStart(newEvent.start);
-                existingEvent.setProp('title', newEvent.title);
-                existingEvent.setProp('color', newEvent.color);
-                existingEvent.setExtendedProp('cas', newEvent.extendedProps.cas);
-                existingEvent.setExtendedProp('party', newEvent.party);
-                existingEvent.setExtendedProp('stredisko', newEvent.stredisko);
-            } else {
-                calendar.addEvent(newEvent);
-            }
-        });
-
-        // Odstraň již neexistující eventy
-        calendar.getEvents().forEach(existingEvent => {
-            if (!newEvents.some(ne => ne.id === existingEvent.id) && existingEvent.source.id === 'firestore') {
-                existingEvent.remove();
-            }
-        });
+        filterAndRenderEvents(); // ✅ pouze toto volání
     });
 
     // Listener pro omluvenky
@@ -655,29 +638,7 @@ export function listenForUpdates(userEmail) {
             };
         });
 
-        // Aktualizace omluvenek (stejná logika)
-        omluvenkyEvents.forEach(newOmluvenka => {
-            const existingOmluvenka = calendar.getEventById(newOmluvenka.id);
-            if (existingOmluvenka) {
-                existingOmluvenka.setStart(newOmluvenka.start);
-                existingOmluvenka.setEnd(newOmluvenka.end);
-                existingOmluvenka.setProp('title', newOmluvenka.title);
-                existingOmluvenka.setProp('color', newOmluvenka.color);
-                existingOmluvenka.setExtendedProp('stredisko', newOmluvenka.stredisko);
-                existingOmluvenka.setExtendedProp('parta', newOmluvenka.parta);
-            } else {
-                calendar.addEvent(newOmluvenka);
-            }
-        });
-
-        // Odeber staré omluvenky, které už nejsou ve snapshotu
-        calendar.getEvents().forEach(existingEvent => {
-            if (
-                existingEvent.extendedProps.isOmluvenka && 
-                !omluvenkyEvents.some(oe => oe.id === existingEvent.id)
-            ) {
-                existingEvent.remove();
-            }
-        });
+        filterAndRenderEvents(); // ✅ pouze toto volání
     });
 }
+
