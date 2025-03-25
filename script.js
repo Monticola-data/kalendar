@@ -144,11 +144,10 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 
                 return { start, end };
             }
-        }   
-    },
-    tyden: {  // ✅ Přidán týdenní pohled
-        type: 'timeGridWeek',
-        buttonText: 'týden',
+        },
+        tyden: {  // ✅ Přidán týdenní pohled
+            type: 'timeGridWeek',
+            buttonText: 'týden',
         }
     },
     headerToolbar: {
