@@ -601,7 +601,16 @@ html, body {
     padding: 1px !important;
   }
 
+  /* Modal (okno události) */
+  .modal {
+    width: 80%;
+    padding: 10px;
+  }
 
+  .modal select,
+  .modal button {
+    font-size: 1rem;
+  }
 .fc-header-toolbar {
   display: flex;
   gap: 8px;
@@ -623,41 +632,10 @@ html, body {
     font-size: 0.75rem !important;
     font-weight: bold !important;
   }
-
-    .modal {
-    max-width: 90vw;  /* nikdy širší než 90% obrazovky */
-    max-height: 85vh; /* nikdy vyšší než 85% obrazovky */
-    overflow-y: auto; /* scroll uvnitř modalu */
-    overflow-x: hidden; 
-    box-sizing: border-box;
-    padding: 8px; 
+  .fc-header-toolbar .fc-prev-button,
+  .fc-header-toolbar .fc-next-button {
+    display: none !important;
   }
-
-  .modal-row {
-    flex-direction: column; /* Lepší čitelnost na výšku */
-    gap: 10px;
-  }
-
-  .modal-row select, .modal-row button {
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  #modalEventInfo {
-    font-size: 0.9rem; 
-  }
-
-  .button-detail {
-    font-size: 0.85rem; 
-    padding: 8px;
-  }
-
-  #partySelect,
-  #casSelect {
-    font-size: 0.9rem;
-    padding: 6px;
-  }
-
 
 }
 
