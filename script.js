@@ -465,12 +465,39 @@ function filterAndRenderEvents() {
     const selectedParty = partyFilter.value;
     const selectedStredisko = strediskoFilter.value;
 
+    const statusChecks = document.querySelectorAll('#statusFilter input[type=checkbox]');
+    const selectedStatuses = Array.from(statusChecks)
+                                  .filter(chk => chk.checked)
+                                  .map(chk => chk.value);
+
     const filteredEvents = allEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.party === selectedParty;
         const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
-        return partyMatch && strediskoMatch;
+
+        const { hotove = false, predane = false, odeslane = false } = event.extendedProps;
+
+        let statusMatch = false;
+
+        if (selectedStatuses.includes("kOdeslani")) {
+            if (!hotove && !predane && !odeslane) statusMatch = true;
+        }
+
+        if (selectedStatuses.includes("odeslane")) {
+            if (odeslane === true && hotove === false && predane === false) statusMatch = true;
+        }
+
+        if (selectedStatuses.includes("hotove")) {
+            if (hotove === true && predane === false) statusMatch = true;
+        }
+
+        if (selectedStatuses.includes("predane")) {
+            if (predane === true) statusMatch = true;
+        }
+
+        return partyMatch && strediskoMatch && statusMatch;
     });
 
+    // ✅ Omluvenky NEbudou ovlivněné filtrem statusu, pouze party a střediskem:
     const omluvenkyFiltered = omluvenkyEvents.filter(event => {
         const partyMatch = selectedParty === "all" || event.parta === selectedParty;
         const strediskoMatch = selectedStredisko === "vše" || event.stredisko === selectedStredisko;
@@ -478,7 +505,6 @@ function filterAndRenderEvents() {
     });
 
     calendar.batchRendering(() => {
-        // ✅ Firestore event source
         const firestoreSource = calendar.getEventSourceById('firestore');
         if (firestoreSource) firestoreSource.remove();
         calendar.addEventSource({
@@ -486,7 +512,6 @@ function filterAndRenderEvents() {
             events: filteredEvents
         });
 
-        // ✅ Omluvenky event source
         const omluvenkySource = calendar.getEventSourceById('omluvenky');
         if (omluvenkySource) omluvenkySource.remove();
         calendar.addEventSource({
@@ -498,6 +523,7 @@ function filterAndRenderEvents() {
 
 
 
+
 document.addEventListener('DOMContentLoaded', () => {
     calendarEl = document.getElementById('calendar');
     modal = document.getElementById('eventModal');
@@ -505,6 +531,10 @@ document.addEventListener('DOMContentLoaded', () => {
     partyFilter = document.getElementById('partyFilter');
     strediskoFilter = document.getElementById('strediskoFilter');
     const modalOverlay = document.getElementById('modalOverlay');
+
+    
+    const statusChecks = document.querySelectorAll('#statusFilter input[type=checkbox]');
+    statusChecks.forEach(chk => chk.addEventListener('change', filterAndRenderEvents));
 
     if (!calendarEl || !modal || !partySelect || !partyFilter || !strediskoFilter || !modalOverlay) {
         console.error("❌ Některé DOM elementy nejsou dostupné:", { calendarEl, modal, partySelect, partyFilter, strediskoFilter, modalOverlay });
