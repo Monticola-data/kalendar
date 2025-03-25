@@ -501,18 +501,13 @@ function filterAndRenderEvents() {
     const currentDate = calendar.getDate();
 
     calendar.batchRendering(() => {
-        // ✅ Vymazání eventů kromě svátků
         calendar.getEvents().forEach(evt => {
             if (evt.source?.id !== 'holidays') evt.remove(); 
         });
 
-        // ✅ Vložení eventů z Firestore
         filteredEvents.forEach(evt => calendar.addEvent(evt));
-
-        // ✅ Vložení omluvenek
         omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
 
-        // ❌ Nepřekreslujeme svátky, ty zůstanou stabilně
         if (!calendar.getEventSources().some(src => src.id === 'holidays')) {
             calendar.addEventSource({
                 id: 'holidays',
@@ -525,11 +520,13 @@ function filterAndRenderEvents() {
                 extendedProps: { isHoliday: true }
             });
         }
-
-        // ✅ Nastavení původního pohledu zpět
-        calendar.changeView(currentView, currentDate);
     });
+
+    // ✅ Nastavení pohledu a data samostatně (MIMO batchRendering)
+    calendar.gotoDate(currentDate);
+    calendar.changeView(currentView);
 }
+
 
 
 
