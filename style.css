@@ -228,7 +228,6 @@ html, body {
   border: 1px solid #ccc;
   cursor: pointer;
   color: #333;
-  appearance: none;
 }
 
 #partySelect option,
@@ -241,13 +240,6 @@ html, body {
 #partySelect option:hover,
 #casSelect option:hover {
   background-color: #eaeaea;
-}
-
-#partySelect:focus,
-#casSelect:focus {
-  outline: none;
-  border-color: #999;
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
 }
 
 
