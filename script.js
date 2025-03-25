@@ -132,7 +132,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         aktualni: {
           type: 'dayGrid',
           duration: { weeks: 4 },
-          buttonText: 'aktuální',
+          buttonText: '4 týdny',
             visibleRange: function(currentDate) {
                 // začátek týdne (pondělí)
                 let start = new Date(currentDate);
@@ -153,7 +153,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
     headerToolbar: {
         left: 'prev,next today',
         center: '',
-        right: 'dayGridMonth,tyden,aktualni,listFourWeeks' // ✅ Aktualizované pořadí
+        right: 'tyden,aktualni,dayGridMonth,listFourWeeks' // ✅ Aktualizované pořadí
     },
     datesSet: function(info) {
         document.getElementById('calendarTitle').textContent = info.view.title; // 👈 vlož titulek do headeru
