@@ -201,9 +201,6 @@ eventDrop: function(info) {
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
-    info.event.setProp('editable', false);
-    info.event.setProp('opacity', 0.6);
-
     (async () => {
         try {
             await db.collection("events").doc(eventId).update({
