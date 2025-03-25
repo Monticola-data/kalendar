@@ -68,6 +68,76 @@ html, body {
   box-shadow: 0 4px 10px rgba(0, 0, 0.4, 0.8);
 }
 
+/* hlavní kontejner eventu v seznamu */
+.event-list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 6px solid var(--party-color, #666);
+    padding-left: 10px;
+    background-color: #fff;
+    color: #333;
+    border-radius: 4px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* ikona statusu (hotové, předané, odeslané, omluvenka) */
+.event-list-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: var(--status-color, #bbb);
+    color: #fff;
+    font-size: 16px;
+}
+
+/* textové informace vedle ikonky */
+.event-list-info {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.event-list-date {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.event-list-title {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Eventy v běžném měsíčním zobrazení kalendáře */
+.event-calendar-item {
+    width: 100%; 
+    font-size: 11px; 
+    color: #fff;
+    line-height: 1.1; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.event-calendar-omluvenka {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.event-calendar-title {
+    font-weight: bold;
+}
+
+.event-calendar-type {
+    font-size: 9px; 
+    opacity: 0.8;
+}
+
+
 .fc-scroller-liquid-absolute,
 .fc-scroller {
     overflow: hidden !important;
