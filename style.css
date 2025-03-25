@@ -429,13 +429,6 @@ html, body {
   opacity: 0.9 !important;
 }
 
-/* Hover efekt všech tlačítek */
-.fc-header-toolbar .fc-button:hover {
-  transform: translateY(-2px) !important;
-  background-color: #497170 !important; /* tmavší odstín pro hover */
-  box-shadow: 0 8px 14px rgba(0,0,0,0.25), inset 0 -4px 0 rgba(0,0,0,0.2) !important;
-  opacity: 1 !important;
-}
 
 
 .button-detail {
