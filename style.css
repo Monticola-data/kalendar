@@ -522,7 +522,7 @@ html, body {
     border-radius: 5px;
   }
 
-    #statusFilter {
+  #statusFilter {
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
@@ -537,12 +537,14 @@ html, body {
   #statusFilter input[type="checkbox"] {
     width: 14px;
     height: 14px;
+    position: relative; /* 👈 důležité pro zarovnání ✔ */
   }
 
   #statusFilter input[type="checkbox"]:checked::before {
     font-size: 12px;
-    top: -2px;
-    left: 0px;
+    top: 50%;   /* 👈 zarovnání na střed */
+    left: 50%;  /* 👈 zarovnání na střed */
+    transform: translate(-50%, -50%); /* 👈 perfektní vycentrování */
   }
 
 
