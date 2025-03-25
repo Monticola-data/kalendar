@@ -78,10 +78,6 @@ async function updateFirestoreEvent(eventId, updates = {}) {
     console.log("✅ Data uložena do Firestore:", updates);
 }
 
-import { renderCalendar } from './calendar.js';
-
-
-
 function populateFilter() {
     const savedStredisko = localStorage.getItem('selectedStredisko') || 'vše';
     state.strediskoFilter.value = savedStredisko;
