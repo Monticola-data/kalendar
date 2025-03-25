@@ -493,35 +493,40 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-calendar.batchRendering(() => {
-    // ✅ vymažeme pouze eventy kromě svátků
-    calendar.getEvents().forEach(evt => {
-        if (evt.source?.id !== 'holidays') evt.remove(); 
-    });
+    // ✅ Uložení aktuálního pohledu a data před aktualizací
+    const currentView = calendar.view.type;
+    const currentDate = calendar.getDate();
 
-    // ✅ vložíme eventy z Firestore
-    filteredEvents.forEach(evt => calendar.addEvent(evt));
-
-    // ✅ vložíme omluvenky
-    omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
-
-    // ❌ NEPŘEKRESLUJEME SVÁTKY, ty zůstanou stabilně
-    if (!calendar.getEventSources().some(src => src.id === 'holidays')) {
-        calendar.addEventSource({
-            id: 'holidays',
-            googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-            googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-            display: 'background',
-            color: '#854646',
-            textColor: '#000',
-            className: 'holiday-event',
-            extendedProps: { isHoliday: true }
+    calendar.batchRendering(() => {
+        // ✅ vymažeme pouze eventy kromě svátků
+        calendar.getEvents().forEach(evt => {
+            if (evt.source?.id !== 'holidays') evt.remove(); 
         });
-    }
-});
+
+        // ✅ vložíme eventy z Firestore
+        filteredEvents.forEach(evt => calendar.addEvent(evt));
+
+        // ✅ vložíme omluvenky
+        omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
+
+        // ❌ NEPŘEKRESLUJEME SVÁTKY, ty zůstanou stabilně
+        if (!calendar.getEventSources().some(src => src.id === 'holidays')) {
+            calendar.addEventSource({
+                id: 'holidays',
+                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+                display: 'background',
+                color: '#854646',
+                textColor: '#000',
+                className: 'holiday-event',
+                extendedProps: { isHoliday: true }
+            });
+        }
+
+        // ✅ Nastavení původního pohledu zpět
+        calendar.changeView(currentView, currentDate);
+    });
 }
-
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
