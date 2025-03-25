@@ -496,19 +496,20 @@ function filterAndRenderEvents() {
         return partyMatch && strediskoMatch;
     });
 
-    // ✅ Zajisti, že před přidáním eventů odstraníš staré event sources
     calendar.batchRendering(() => {
-        calendar.getEventSources().forEach(src => src.remove());
+        // ✅ Kompletně vyčisti kalendář
+        calendar.removeAllEvents();
 
-        calendar.addEventSource({
-            id: 'firestore',
-            events: filteredEvents
-        });
+        // ✅ Explicitně vlož eventy z Firestore
+        filteredEvents.forEach(evt => calendar.addEvent(evt));
 
-        calendar.addEventSource({
-            id: 'omluvenky',
-            events: omluvenkyFiltered
-        });
+        // ✅ Explicitně vlož omluvenky
+        omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
+
+        // ✅ Přidej Google Holidays (pokud potřebuješ)
+        calendar.getEventSources()
+                .filter(src => src.id === 'holidays')
+                .forEach(src => src.remove());
 
         calendar.addEventSource({
             id: 'holidays',
@@ -522,6 +523,7 @@ function filterAndRenderEvents() {
         });
     });
 }
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
