@@ -58,20 +58,57 @@ html, body {
   box-shadow: 0 0 5px rgba(85,85,85,0.3);
 }
 
+/* Obecný styl checkboxů */
+#statusFilter input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #295779; /* tvoje tmavě modrá barva */
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Zaškrtnutý checkbox */
+#statusFilter input[type="checkbox"]:checked {
+  background-color: #295779;
+}
+
+/* Zaškrtnutí - symbol ✔ */
+#statusFilter input[type="checkbox"]:checked::before {
+  content: "✔";
+  position: absolute;
+  top: -2px;
+  left: 1px;
+  font-size: 14px;
+  color: white;
+}
+
+/* Hover efekt */
+#statusFilter input[type="checkbox"]:hover {
+  border-color: #1e425a;
+}
+
+/* Label u checkboxů */
+#statusFilter label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  user-select: none;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Celý status filtr */
 #statusFilter {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
-  font-size: 14px;
   padding: 5px;
 }
 
-#statusFilter label {
-  display: flex;
-  gap: 5px;
-  cursor: pointer;
-  user-select: none;
-}
 
 
 
@@ -481,6 +518,29 @@ html, body {
     padding: 6px 8px;
     font-size: 0.8rem;
     border-radius: 5px;
+  }
+
+    #statusFilter {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 4px;
+  }
+
+  #statusFilter label {
+    font-size: 0.75rem;
+    gap: 3px;
+  }
+
+  #statusFilter input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+  }
+
+  #statusFilter input[type="checkbox"]:checked::before {
+    font-size: 12px;
+    top: -2px;
+    left: 0px;
   }
 
 
