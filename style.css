@@ -397,14 +397,6 @@ html, body {
     border-radius: 5px;
   }
 
-  /* Specifické přizpůsobení #partySelect */
-  #partySelect,
-  #partySelect option {
-    padding: 4px 6px;
-    font-size: 0.8rem;
-    height: auto;
-    min-height: unset;
-  }
 
   /* Kalendář - texty a eventy */
   .fc-event,
