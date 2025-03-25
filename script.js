@@ -494,32 +494,33 @@ function filterAndRenderEvents() {
     });
 
     calendar.batchRendering(() => {
-        // ✅ Kompletně vyčisti kalendář
-        calendar.removeAllEvents();
+        // ✅ vymažeme pouze eventy kromě svátků
+        calendar.getEvents().forEach(evt => {
+            if (!evt.extendedProps.isHoliday) evt.remove(); 
+        });
 
-        // ✅ Explicitně vlož eventy z Firestore
+        // ✅ vložíme eventy z Firestore
         filteredEvents.forEach(evt => calendar.addEvent(evt));
 
-        // ✅ Explicitně vlož omluvenky
+        // ✅ vložíme omluvenky
         omluvenkyFiltered.forEach(evt => calendar.addEvent(evt));
 
-        // ✅ Přidej Google Holidays (pokud potřebuješ)
-        calendar.getEventSources()
-                .filter(src => src.id === 'holidays')
-                .forEach(src => src.remove());
-
-        calendar.addEventSource({
-            id: 'holidays',
-            googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
-            googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
-            display: 'background',
-            color: '#854646',
-            textColor: '#000',
-            className: 'holiday-event',
-            extendedProps: { isHoliday: true }
-        });
+        // ❌ NEPŘEKRESLUJEME SVÁTKY, ty zůstanou stabilně
+        if (!calendar.getEventSources().some(src => src.id === 'holidays')) {
+            calendar.addEventSource({
+                id: 'holidays',
+                googleCalendarApiKey: 'AIzaSyBA8iIXOCsGuTXeBvpkvfIOZ6nT1Nw4Ugk',
+                googleCalendarId: 'cs.czech#holiday@group.v.calendar.google.com',
+                display: 'background',
+                color: '#854646',
+                textColor: '#000',
+                className: 'holiday-event',
+                extendedProps: { isHoliday: true }
+            });
+        }
     });
 }
+
 
 
 
