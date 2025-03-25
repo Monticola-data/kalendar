@@ -421,7 +421,6 @@ html, body {
   border-radius: 8px !important;
   border: none !important;
   background-color: var(--primary-color) !important;
-  color: white !important;
   box-shadow: 4px 4px 10px rgba(0, 0, 0.4, 0.8);
 
 }
