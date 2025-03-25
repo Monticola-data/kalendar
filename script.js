@@ -156,9 +156,6 @@ calendar = new FullCalendar.Calendar(calendarEl, {
         center: '',
         right: 'tyden,aktualni,dayGridMonth,listFourWeeks' // ✅ Aktualizované pořadí
     },
-    datesSet: function(info) {
-        document.getElementById('calendarTitle').textContent = info.view.title; // 👈 vlož titulek do headeru
-      },
         height: 'auto',
         firstDay: 1,
         selectable: false,
