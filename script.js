@@ -275,11 +275,20 @@ eventClick: function(info) {
 
 // naplnění výběru party bez barevných teček a stylování
 partySelect.innerHTML = "";
+
+// Přidej prázdnou default možnost
+const emptyOption = document.createElement("option");
+emptyOption.value = "";
+emptyOption.textContent = "-- nevybráno --";
+emptyOption.selected = !selectedEvent.extendedProps.party;
+partySelect.appendChild(emptyOption);
+
+// Generuj seznam part
 Object.entries(partyMap).forEach(([id, party]) => {
     if (currentStredisko === "vše" || party.stredisko === currentStredisko) {
         const option = document.createElement("option");
         option.value = id;
-        option.textContent = party.name; // 👈 Jednoduchý čistý text bez barevných stylů
+        option.textContent = party.name;
         option.selected = id === selectedEvent.extendedProps.party;
         partySelect.appendChild(option);
     }
