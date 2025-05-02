@@ -209,6 +209,8 @@ eventDrop: function(info) {
     const originalCas = info.oldEvent.extendedProps.cas;
     const cas = (typeof originalCas !== 'undefined') ? Number(originalCas) : 0;
 
+    const currentParty = info.event.extendedProps.party; // ✅ získáš aktuální partu
+
     (async () => {
         try {
             await db.collection("events").doc(eventId).update({
@@ -218,19 +220,21 @@ eventDrop: function(info) {
 
             await fetch("https://us-central1-kalendar-831f8.cloudfunctions.net/updateAppSheetFromFirestore", {
                 method: "POST",
-                body: JSON.stringify({ eventId, start: newDate, cas }),
+                body: JSON.stringify({ eventId, start: newDate, cas, party: currentParty }), // ✅ parta přidána!
                 headers: { 'Content-Type': 'application/json' }
             });
 
-            console.log(`✅ Datum (${newDate}) a čas (${cas}) aktualizovány.`);
+            console.log(`✅ Datum (${newDate}), čas (${cas}) a parta (${currentParty}) aktualizovány.`);
         } catch (err) {
             console.error("❌ Chyba při aktualizaci:", err);
             info.revert();
         } finally {
-            filterAndRenderEvents(); // ✅ Kompletně překresli kalendář
+            filterAndRenderEvents(); 
         }
     })();
 },
+
+
 
 
     dateClick: function(info) {
