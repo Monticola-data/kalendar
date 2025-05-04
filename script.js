@@ -337,12 +337,17 @@ casSelect.onchange = async () => {
         ? Number(casSelect.value)
         : selectedEvent.extendedProps.cas;
 
-    const currentParty = selectedEvent.extendedProps.party; // ✅ Doplněno
+    // Získej událost přímo z kalendáře podle ID
+    const currentEvent = calendar.getEventById(selectedEvent.id);
+    const currentParty = currentEvent?.extendedProps?.party || selectedEvent.extendedProps.party;
+
+    console.log("Aktualizuji čas:", { eventId: selectedEvent.id, cas: newCas, party: currentParty });
 
     await updateEventField(selectedEvent.id, {
         'extendedProps.cas': newCas
-    }, { cas: newCas, party: currentParty }); // ✅ Odeslána i parta
+    }, { cas: newCas, party: currentParty });
 };
+
 
     modal.style.display = modalOverlay.style.display = "block";
     }
