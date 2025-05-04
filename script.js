@@ -332,15 +332,18 @@ Object.entries(partyMap).forEach(([id, party]) => {
         }, { party: newParty });
     };
 
-    casSelect.onchange = async () => {
-        const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
-            ? Number(casSelect.value)
-            : selectedEvent.extendedProps.cas;
+casSelect.onchange = async () => {
+    const newCas = (casSelect.value !== "" && !isNaN(casSelect.value))
+        ? Number(casSelect.value)
+        : selectedEvent.extendedProps.cas;
 
-        await updateEventField(selectedEvent.id, {
-            'extendedProps.cas': newCas
-        }, { cas: newCas });
-    };
+    const currentParty = selectedEvent.extendedProps.party; // ✅ Doplněno
+
+    await updateEventField(selectedEvent.id, {
+        'extendedProps.cas': newCas
+    }, { cas: newCas, party: currentParty }); // ✅ Odeslána i parta
+};
+
     modal.style.display = modalOverlay.style.display = "block";
     }
 },
