@@ -198,7 +198,7 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 eventAllow: function(dropInfo, draggedEvent) {
     const { hotove, predane, party } = draggedEvent.extendedProps;
 
-    if (hotove === true || predane === true || party === "MIX") {
+    if (hotove === true || predane === true || party === "dMFjSnzlMx4nqeg9ev4wKb") {
         return false;  // 🚫 nepovolí přesunutí, pokud je parta "MIX"
     }
     return true;  // ✅ přesunutí povoleno
@@ -302,7 +302,7 @@ Object.entries(partyMap).forEach(([id, party]) => {
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
 // ✅ Nová logika pro zakázání změn podle stavu:
-if (hotove === true || predane === true || selectedEvent.extendedProps.party === "MIX") {
+if (hotove === true || predane === true || selectedEvent.extendedProps.party === "dMFjSnzlMx4nqeg9ev4wKb") {
     // Nelze měnit ani partu, ani čas, ani datum
     partySelect.disabled = true;
     partySelect.title = "Partu nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
