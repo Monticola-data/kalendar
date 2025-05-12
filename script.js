@@ -197,9 +197,10 @@ calendar = new FullCalendar.Calendar(calendarEl, {
 
 eventAllow: function(dropInfo, draggedEvent) {
     const { hotove, predane, party } = draggedEvent.extendedProps;
+    const partyName = getPartyName(party);
 
-    if (hotove === true || predane === true || party === "dMFjSnzlMx4nqeg9ev4wKb") {
-        return false;  // 🚫 nepovolí přesunutí, pokud je parta "MIX"
+    if (hotove === true || predane === true || partyName === "MIX") {
+        return false;  // 🚫 nepovolí přesunutí, pokud je party "MIX"
     }
     return true;  // ✅ přesunutí povoleno
 },
@@ -301,16 +302,16 @@ Object.entries(partyMap).forEach(([id, party]) => {
 
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
-// ✅ Nová logika pro zakázání změn podle stavu:
-if (hotove === true || predane === true || selectedEvent.extendedProps.party === "dMFjSnzlMx4nqeg9ev4wKb") {
+const partyName = getPartyName(selectedEvent.extendedProps.party);
+
+if (hotove === true || predane === true || partyName === "MIX") {
     // Nelze měnit ani partu, ani čas, ani datum
     partySelect.disabled = true;
-    partySelect.title = "Partu nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
+    partySelect.title = "Nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
 
     casSelect.disabled = true;
-    casSelect.title = "Čas nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
+    casSelect.title = "Nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
 } else {
-    // Pokud není hotovo/předáno/MIX, nastaví se podle 'odeslane'
     if (odeslane === true) {
         partySelect.disabled = true;
         partySelect.title = "Partu nelze změnit, protože event je označen jako odeslaný.";
@@ -322,6 +323,7 @@ if (hotove === true || predane === true || selectedEvent.extendedProps.party ===
     casSelect.disabled = false;
     casSelect.title = "";
 }
+
 
 
     partySelect.onchange = async () => {
