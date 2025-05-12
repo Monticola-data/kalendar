@@ -195,13 +195,14 @@ calendar = new FullCalendar.Calendar(calendarEl, {
  
         ],
 
-    eventAllow: function(dropInfo, draggedEvent) {
-        const { hotove, predane } = draggedEvent.extendedProps;
-        if (hotove === true || predane === true) {
-            return false;  // 🚫 vůbec nepovolí přesunutí eventu
-        }
-        return true;  // ✅ přesunutí povoleno
-    },
+eventAllow: function(dropInfo, draggedEvent) {
+    const { hotove, predane, party } = draggedEvent.extendedProps;
+
+    if (hotove === true || predane === true || party === "MIX") {
+        return false;  // 🚫 nepovolí přesunutí, pokud je parta "MIX"
+    }
+    return true;  // ✅ přesunutí povoleno
+},
 
 eventDrop: function(info) {
     const eventId = info.event.id;
@@ -300,27 +301,28 @@ Object.entries(partyMap).forEach(([id, party]) => {
 
         casSelect.value = selectedEvent.extendedProps.cas || 0;
 
-    // ✅ Nová logika pro zakázání změn podle stavu:
-    if (hotove === true || predane === true) {
-        // Nelze měnit ani partu ani čas
+// ✅ Nová logika pro zakázání změn podle stavu:
+if (hotove === true || predane === true || selectedEvent.extendedProps.party === "MIX") {
+    // Nelze měnit ani partu, ani čas, ani datum
+    partySelect.disabled = true;
+    partySelect.title = "Partu nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
+
+    casSelect.disabled = true;
+    casSelect.title = "Čas nelze změnit, protože event je označen jako hotový, předaný nebo patří partě MIX.";
+} else {
+    // Pokud není hotovo/předáno/MIX, nastaví se podle 'odeslane'
+    if (odeslane === true) {
         partySelect.disabled = true;
-        partySelect.title = "Partu nelze změnit, protože event je označen jako hotový nebo předaný.";
-
-        casSelect.disabled = true;
-        casSelect.title = "Čas nelze změnit, protože event je označen jako hotový nebo předaný.";
+        partySelect.title = "Partu nelze změnit, protože event je označen jako odeslaný.";
     } else {
-        // Pokud není hotovo/předáno, nastaví se podle 'odeslane'
-        if (odeslane === true) {
-            partySelect.disabled = true;
-            partySelect.title = "Partu nelze změnit, protože event je označen jako odeslaný.";
-        } else {
-            partySelect.disabled = false;
-            partySelect.title = "";
-        }
-
-        casSelect.disabled = false;
-        casSelect.title = "";
+        partySelect.disabled = false;
+        partySelect.title = "";
     }
+
+    casSelect.disabled = false;
+    casSelect.title = "";
+}
+
 
     partySelect.onchange = async () => {
         const newParty = partySelect.value;
